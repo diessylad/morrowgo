@@ -429,9 +429,13 @@ export default function Home() {
         <div className="cards">
           {filteredDestinations.map((d) => (
             <article
-              className="card"
-              key={d.name}
-            >
+  className="card"
+  key={d.name}
+  onClick={() => {
+    window.location.href = `/destination/${d.iso}`;
+  }}
+  style={{ cursor: 'pointer' }}
+>
               <img
                 src={d.image}
                 alt={
