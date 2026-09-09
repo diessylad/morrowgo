@@ -7,17 +7,81 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+function getRedisConfig() {
+  const url =
+    process.env.STORAGE_KV_REST_API_URL ||
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    '';
+
+  const token =
+    process.env.STORAGE_KV_REST_API_TOKEN ||
+    process.env.KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    '';
+
+  return { url, token };
+}
+
+async function redisCommand(command) {
+  const { url, token } =
+    getRedisConfig();
+
+  if (!url || !token) {
+    throw new Error(
+      'Redis is not configured'
+    );
+  }
+
+  const response =
+    await fetch(url, {
+      method: 'POST',
+
+      headers: {
+        Authorization:
+          `Bearer ${token}`,
+
+        'Content-Type':
+          'application/json'
+      },
+
+      body:
+        JSON.stringify(command),
+
+      cache: 'no-store'
+    });
+
+  const data =
+    await response
+      .json()
+      .catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      `Redis failed: ${response.status}`
+    );
+  }
+
+  return data?.result;
+}
+
 function makePublicId(bundleName) {
   return createHash('sha256')
-    .update(String(bundleName || ''))
+    .update(
+      String(bundleName || '')
+    )
     .digest('hex')
     .slice(0, 16);
 }
 
 function parseStripeSignature(header) {
-  const parts = String(header || '')
-    .split(',')
-    .map((part) => part.trim());
+  const parts =
+    String(header || '')
+      .split(',')
+      .map(
+        (part) =>
+          part.trim()
+      );
 
   let timestamp = null;
   const signatures = [];
@@ -31,17 +95,24 @@ function parseStripeSignature(header) {
     }
 
     const key =
-      part.slice(0, separator);
+      part.slice(
+        0,
+        separator
+      );
 
     const value =
-      part.slice(separator + 1);
+      part.slice(
+        separator + 1
+      );
 
     if (key === 't') {
       timestamp = value;
     }
 
     if (key === 'v1') {
-      signatures.push(value);
+      signatures.push(
+        value
+      );
     }
   }
 
@@ -54,10 +125,16 @@ function parseStripeSignature(header) {
 function safeCompareHex(a, b) {
   try {
     const first =
-      Buffer.from(a, 'hex');
+      Buffer.from(
+        a,
+        'hex'
+      );
 
     const second =
-      Buffer.from(b, 'hex');
+      Buffer.from(
+        b,
+        'hex'
+      );
 
     if (
       first.length !==
@@ -83,9 +160,10 @@ function verifyStripeSignature(
   const {
     timestamp,
     signatures
-  } = parseStripeSignature(
-    signatureHeader
-  );
+  } =
+    parseStripeSignature(
+      signatureHeader
+    );
 
   if (
     !timestamp ||
@@ -110,12 +188,11 @@ function verifyStripeSignature(
       Date.now() / 1000
     );
 
-  const toleranceSeconds = 300;
-
   if (
     Math.abs(
-      now - timestampNumber
-    ) > toleranceSeconds
+      now -
+        timestampNumber
+    ) > 300
   ) {
     return false;
   }
@@ -150,7 +227,8 @@ function findCatalogueArray(
 
   if (
     !value ||
-    typeof value !== 'object' ||
+    typeof value !==
+      'object' ||
     depth > 3
   ) {
     return null;
@@ -164,7 +242,10 @@ function findCatalogueArray(
     'results'
   ];
 
-  for (const key of preferredKeys) {
+  for (
+    const key of
+    preferredKeys
+  ) {
     if (
       Array.isArray(
         value[key]
@@ -209,11 +290,15 @@ async function findEsimGoBundle(
       `https://api.esim-go.com/v2.5/catalogue?${params.toString()}`,
       {
         headers: {
-          'X-API-Key': apiKey,
+          'X-API-Key':
+            apiKey,
+
           Accept:
             'application/json'
         },
-        cache: 'no-store'
+
+        cache:
+          'no-store'
       }
     );
 
@@ -229,7 +314,9 @@ async function findEsimGoBundle(
   }
 
   const catalogue =
-    findCatalogueArray(payload);
+    findCatalogueArray(
+      payload
+    );
 
   if (!catalogue) {
     throw new Error(
@@ -243,7 +330,8 @@ async function findEsimGoBundle(
         const belongsToCountry =
           item.countries?.some(
             (country) =>
-              country?.iso === iso
+              country?.iso ===
+              iso
           );
 
         return (
@@ -275,9 +363,12 @@ async function validateEsimGoOrder(
         method: 'POST',
 
         headers: {
-          'X-API-Key': apiKey,
+          'X-API-Key':
+            apiKey,
+
           'Content-Type':
             'application/json',
+
           Accept:
             'application/json'
         },
@@ -289,15 +380,22 @@ async function validateEsimGoOrder(
 
             order: [
               {
-                type: 'bundle',
+                type:
+                  'bundle',
+
                 quantity: 1,
-                item: bundleName,
-                allowReassign: false
+
+                item:
+                  bundleName,
+
+                allowReassign:
+                  false
               }
             ]
           }),
 
-        cache: 'no-store'
+        cache:
+          'no-store'
       }
     );
 
@@ -308,12 +406,26 @@ async function validateEsimGoOrder(
 
   return {
     ok: response.ok,
-    status: response.status,
+    status:
+      response.status,
     data
   };
 }
 
-export async function POST(request) {
+async function saveOrder(
+  key,
+  order
+) {
+  await redisCommand([
+    'SET',
+    key,
+    JSON.stringify(order)
+  ]);
+}
+
+export async function POST(
+  request
+) {
   const webhookSecret =
     process.env
       .STRIPE_WEBHOOK_SECRET;
@@ -412,7 +524,8 @@ export async function POST(request) {
   const paid =
     event.type ===
       'checkout.session.async_payment_succeeded' ||
-    session?.payment_status ===
+    session
+      ?.payment_status ===
       'paid';
 
   if (!paid) {
@@ -420,6 +533,11 @@ export async function POST(request) {
       received: true
     });
   }
+
+  const sessionId =
+    String(
+      session?.id || ''
+    );
 
   const iso =
     String(
@@ -433,39 +551,15 @@ export async function POST(request) {
         ?.plan_id || ''
     );
 
-  console.log(
-    'MORROWGO_PAYMENT_CONFIRMED',
-    {
-      eventId: event.id,
-      sessionId:
-        session?.id,
-      iso,
-      planId,
-      amount:
-        session?.amount_total,
-      currency:
-        session?.currency,
-      email:
-        session
-          ?.customer_details
-          ?.email ||
-        session
-          ?.customer_email ||
-        null
-    }
-  );
-
   if (
-    !/^[A-Z]{2}$/.test(iso) ||
+    !sessionId ||
+    !/^[A-Z]{2}$/.test(
+      iso
+    ) ||
     !planId
   ) {
     console.error(
-      'MORROWGO_ORDER_METADATA_INVALID',
-      {
-        eventId: event.id,
-        sessionId:
-          session?.id
-      }
+      'MORROWGO_ORDER_METADATA_INVALID'
     );
 
     return Response.json({
@@ -473,7 +567,147 @@ export async function POST(request) {
     });
   }
 
+  const orderKey =
+    `morrowgo:order:${sessionId}`;
+
+  const lockKey =
+    `morrowgo:lock:${sessionId}`;
+
+  let lockAcquired = false;
+
   try {
+    /*
+      Atomic lock.
+
+      If two Stripe webhooks arrive
+      simultaneously, only one gets OK.
+    */
+    const lockResult =
+      await redisCommand([
+        'SET',
+        lockKey,
+        event.id,
+        'NX',
+        'EX',
+        '300'
+      ]);
+
+    if (
+      lockResult !== 'OK'
+    ) {
+      console.log(
+        'MORROWGO_DUPLICATE_BLOCKED',
+        {
+          sessionId
+        }
+      );
+
+      return Response.json({
+        received: true,
+        duplicate: true
+      });
+    }
+
+    lockAcquired = true;
+
+    /*
+      Check if this Stripe session
+      was already processed earlier.
+    */
+    const existing =
+      await redisCommand([
+        'GET',
+        orderKey
+      ]);
+
+    if (existing) {
+      let existingOrder =
+        null;
+
+      try {
+        existingOrder =
+          JSON.parse(
+            existing
+          );
+      } catch {
+      }
+
+      if (
+        existingOrder &&
+        existingOrder.status &&
+        existingOrder.status !==
+          'processing'
+      ) {
+        console.log(
+          'MORROWGO_ORDER_ALREADY_EXISTS',
+          {
+            sessionId,
+            status:
+              existingOrder.status
+          }
+        );
+
+        return Response.json({
+          received: true,
+          duplicate: true
+        });
+      }
+    }
+
+    const baseOrder = {
+      stripeSessionId:
+        sessionId,
+
+      stripeEventId:
+        event.id,
+
+      status:
+        'processing',
+
+      iso,
+
+      planId,
+
+      amount:
+        session
+          ?.amount_total ||
+        null,
+
+      currency:
+        session
+          ?.currency ||
+        null,
+
+      email:
+        session
+          ?.customer_details
+          ?.email ||
+        session
+          ?.customer_email ||
+        null,
+
+      createdAt:
+        new Date()
+          .toISOString(),
+
+      updatedAt:
+        new Date()
+          .toISOString()
+    };
+
+    await saveOrder(
+      orderKey,
+      baseOrder
+    );
+
+    console.log(
+      'MORROWGO_ORDER_CREATED',
+      {
+        sessionId,
+        iso
+      }
+    );
+
     const bundle =
       await findEsimGoBundle(
         esimGoApiKey,
@@ -489,51 +723,58 @@ export async function POST(request) {
 
     if (
       validation.ok &&
-      validation.data?.valid ===
-        true
+      validation.data
+        ?.valid === true
     ) {
-      console.log(
-        'MORROWGO_ESIMGO_VALIDATE_OK',
-        {
-          eventId:
-            event.id,
+      const validatedOrder = {
+        ...baseOrder,
 
-          sessionId:
-            session?.id,
+        status:
+          'validated',
 
-          iso,
-
-          valid:
-            validation.data
-              ?.valid,
+        esimGoValidation: {
+          valid: true,
 
           total:
             validation.data
-              ?.total,
+              ?.total ||
+            null,
 
           currency:
             validation.data
-              ?.currency
+              ?.currency ||
+            null
+        },
+
+        updatedAt:
+          new Date()
+            .toISOString()
+      };
+
+      await saveOrder(
+        orderKey,
+        validatedOrder
+      );
+
+      console.log(
+        'MORROWGO_ESIMGO_VALIDATE_OK',
+        {
+          sessionId,
+          iso
         }
       );
     } else {
-      console.error(
-        'MORROWGO_ESIMGO_VALIDATE_FAILED',
-        {
-          eventId:
-            event.id,
+      const failedOrder = {
+        ...baseOrder,
 
-          sessionId:
-            session?.id,
+        status:
+          'validation_failed',
 
-          iso,
+        esimGoValidation: {
+          valid: false,
 
           upstreamStatus:
             validation.status,
-
-          valid:
-            validation.data
-              ?.valid ?? null,
 
           message:
             validation.data
@@ -541,29 +782,54 @@ export async function POST(request) {
             validation.data
               ?.error ||
             null
+        },
+
+        updatedAt:
+          new Date()
+            .toISOString()
+      };
+
+      await saveOrder(
+        orderKey,
+        failedOrder
+      );
+
+      console.error(
+        'MORROWGO_ESIMGO_VALIDATE_FAILED',
+        {
+          sessionId,
+          iso,
+          upstreamStatus:
+            validation.status,
+          valid:
+            validation.data
+              ?.valid ??
+            null
         }
       );
     }
   } catch (error) {
     console.error(
-      'MORROWGO_ESIMGO_VALIDATE_ERROR',
+      'MORROWGO_ORDER_PROCESSING_ERROR',
       {
-        eventId:
-          event.id,
-
-        sessionId:
-          session?.id,
-
+        sessionId,
         error:
           error?.message ||
           'Unknown error'
       }
     );
+  } finally {
+    if (lockAcquired) {
+      try {
+        await redisCommand([
+          'DEL',
+          lockKey
+        ]);
+      } catch {
+      }
+    }
   }
 
-  // Всегда отвечаем Stripe 200 после
-  // принятия корректно подписанного события.
-  // На этом этапе eSIM НЕ покупается.
   return Response.json({
     received: true
   });
