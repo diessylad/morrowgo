@@ -21,17 +21,24 @@ function getFlag(iso) {
       /./g,
       (char) =>
         String.fromCodePoint(
-          127397 + char.charCodeAt()
+          127397 +
+            char.charCodeAt()
         )
     );
 }
 
-function getCountryName(iso) {
+function getCountryName(
+  iso,
+  language
+) {
   try {
-    const names = new Intl.DisplayNames(
-      ['en'],
-      { type: 'region' }
-    );
+    const names =
+      new Intl.DisplayNames(
+        [language],
+        {
+          type: 'region'
+        }
+      );
 
     return names.of(iso) || iso;
   } catch {
@@ -55,6 +62,18 @@ export default function DestinationsPage() {
     useState('');
 
   useEffect(() => {
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const search =
+      params.get('q') || '';
+
+    setQuery(search);
+  }, []);
+
+  useEffect(() => {
     async function loadCountries() {
       try {
         setLoading(true);
@@ -69,7 +88,9 @@ export default function DestinationsPage() {
 
         if (
           !data.ok ||
-          !Array.isArray(data.countries)
+          !Array.isArray(
+            data.countries
+          )
         ) {
           throw new Error(
             'Could not load destinations'
@@ -80,9 +101,17 @@ export default function DestinationsPage() {
           data.countries
             .map((item) => ({
               iso: item.iso,
+
               name:
                 getCountryName(
-                  item.iso
+                  item.iso,
+                  'en'
+                ),
+
+              ru:
+                getCountryName(
+                  item.iso,
+                  'ru'
                 )
             }))
             .sort((a, b) =>
@@ -120,11 +149,19 @@ export default function DestinationsPage() {
           country.name
             .toLowerCase()
             .includes(search) ||
+
+          country.ru
+            .toLowerCase()
+            .includes(search) ||
+
           country.iso
             .toLowerCase()
             .includes(search)
       );
-    }, [countries, query]);
+    }, [
+      countries,
+      query
+    ]);
 
   return (
     <main
@@ -214,8 +251,7 @@ export default function DestinationsPage() {
               '1px solid #2d2d2d',
             background: '#101010',
             borderRadius: '50px',
-            padding:
-              '0 18px',
+            padding: '0 18px',
             height: '56px'
           }}
         >
@@ -244,20 +280,21 @@ export default function DestinationsPage() {
           />
         </div>
 
-        {!loading && !error && (
-          <div
-            style={{
-              marginTop: '18px',
-              color: '#777',
-              fontSize: '14px'
-            }}
-          >
-            {
-              filteredCountries.length
-            }{' '}
-            destinations
-          </div>
-        )}
+        {!loading &&
+          !error && (
+            <div
+              style={{
+                marginTop: '18px',
+                color: '#777',
+                fontSize: '14px'
+              }}
+            >
+              {
+                filteredCountries.length
+              }{' '}
+              destinations
+            </div>
+          )}
 
         {loading && (
           <p
