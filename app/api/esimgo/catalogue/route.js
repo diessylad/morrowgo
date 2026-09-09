@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 
 function makePublicId(bundleName) {
   return createHash('sha256')
-    .update(bundleName)
+    .update(String(bundleName || ''))
     .digest('hex')
     .slice(0, 16);
 }
@@ -10,7 +10,8 @@ function makePublicId(bundleName) {
 function calculateRetailPrice(cost) {
   const numericCost = Number(cost);
 
-  // 40% markup, but at least $2 gross margin
+  if (!Number.isFinite(numericCost)) return null;
+
   const retail = Math.max(
     numericCost * 1.4,
     numericCost + 2
@@ -19,12 +20,54 @@ function calculateRetailPrice(cost) {
   return Math.ceil(retail * 100) / 100;
 }
 
+function findCatalogueArray(value, depth = 0) {
+  if (Array.isArray(value)) return value;
+
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    depth > 3
+  ) {
+    return null;
+  }
+
+  const preferredKeys = [
+    'bundles',
+    'data',
+    'items',
+    'catalogue',
+    'results',
+  ];
+
+  for (const key of preferredKeys) {
+    if (Array.isArray(value[key])) {
+      return value[key];
+    }
+  }
+
+  for (const child of Object.values(value)) {
+    const found = findCatalogueArray(
+      child,
+      depth + 1
+    );
+
+    if (found) return found;
+  }
+
+  return null;
+}
+
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   const apiKey = process.env.ESIM_GO_API_KEY;
 
   if (!apiKey) {
     return Response.json(
-      { ok: false, error: 'API key is not configured' },
+      {
+        ok: false,
+        error: 'API key is not configured',
+      },
       { status: 500 }
     );
   }
@@ -39,7 +82,10 @@ export async function GET(request) {
 
     if (country && !/^[A-Z]{2}$/.test(country)) {
       return Response.json(
-        { ok: false, error: 'Invalid country ISO code' },
+        {
+          ok: false,
+          error: 'Invalid country ISO code',
+        },
         { status: 400 }
       );
     }
@@ -60,13 +106,13 @@ export async function GET(request) {
           'X-API-Key': apiKey,
           Accept: 'application/json',
         },
-
-        // Do not constantly poll eSIM Go
-        next: {
-          revalidate: 3600,
-        },
+        cache: 'no-store',
       }
     );
+
+    const payload = await response
+      .json()
+      .catch(() => null);
 
     if (!response.ok) {
       return Response.json(
@@ -79,13 +125,18 @@ export async function GET(request) {
       );
     }
 
-    const catalogue = await response.json();
+    const catalogue = findCatalogueArray(payload);
 
-    if (!Array.isArray(catalogue)) {
+    if (!catalogue) {
       return Response.json(
         {
           ok: false,
           error: 'Unexpected catalogue format',
+          keys:
+            payload &&
+            typeof payload === 'object'
+              ? Object.keys(payload)
+              : [],
         },
         { status: 502 }
       );
@@ -96,36 +147,50 @@ export async function GET(request) {
         if (!country) return true;
 
         return bundle.countries?.some(
-          (item) => item.iso === country
+          (item) => item?.iso === country
         );
       })
       .map((bundle) => {
         const mainCountry =
           bundle.countries?.find(
-            (item) => item.iso === country
+            (item) => item?.iso === country
           ) || bundle.countries?.[0];
 
         return {
           id: makePublicId(bundle.name),
 
-          country: mainCountry?.name || null,
-          iso: mainCountry?.iso || null,
+          country:
+            mainCountry?.name || null,
 
-          dataMB: bundle.dataAmount,
+          iso:
+            mainCountry?.iso || null,
+
+          dataMB:
+            bundle.dataAmount ?? null,
+
           dataGB:
-            bundle.dataAmount >= 1000
-              ? bundle.dataAmount / 1000
+            Number(bundle.dataAmount) >= 1000
+              ? Number(bundle.dataAmount) / 1000
               : null,
 
-          duration: bundle.duration,
-          durationUnit: bundle.durationUnit || 'day',
+          duration:
+            bundle.duration ?? null,
 
-          unlimited: Boolean(bundle.unlimited),
+          durationUnit:
+            bundle.durationUnit || 'day',
 
-          price: calculateRetailPrice(bundle.price),
+          unlimited:
+            Boolean(bundle.unlimited),
+
+          price:
+            calculateRetailPrice(bundle.price),
+
           currency: 'USD',
         };
       })
+      .filter(
+        (item) => item.price !== null
+      )
       .sort((a, b) => a.price - b.price);
 
     return Response.json({
@@ -139,7 +204,8 @@ export async function GET(request) {
       {
         ok: false,
         error: 'Could not load MORROWGO catalogue',
-        detail: error?.message || 'Unknown error',
+        detail:
+          error?.message || 'Unknown error',
       },
       { status: 502 }
     );
