@@ -410,14 +410,13 @@ export default function Home() {
           </h2>
 
           <button
-            onClick={() => {
-              setQuery('');
-              setSearchTerm('');
-            }}
-          >
-            {t.view}
-            <ArrowRight size={16} />
-          </button>
+  onClick={() => {
+    window.location.href = '/destinations';
+  }}
+>
+  {t.view}
+  <ArrowRight size={16} />
+</button>
         </div>
 
         {filteredDestinations.length === 0 && (
