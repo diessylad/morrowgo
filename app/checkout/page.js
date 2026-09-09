@@ -6,33 +6,24 @@ import {
 } from 'react';
 
 import {
-  ArrowLeft,
-  ArrowRight,
-  ShieldCheck,
-  Wifi
+  CheckCircle,
+  Clock3,
+  AlertCircle,
+  ArrowRight
 } from 'lucide-react';
 
 import {
   useRouter
 } from 'next/navigation';
 
-export default function CheckoutPage() {
+export default function SuccessPage() {
   const router = useRouter();
 
-  const [iso, setIso] =
-    useState('');
+  const [status, setStatus] =
+    useState('loading');
 
-  const [planId, setPlanId] =
-    useState('');
-
-  const [plan, setPlan] =
+  const [order, setOrder] =
     useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [paymentLoading, setPaymentLoading] =
-    useState(false);
 
   const [error, setError] =
     useState('');
@@ -43,149 +34,195 @@ export default function CheckoutPage() {
         window.location.search
       );
 
-    const country =
-      (
-        params.get('iso') || ''
-      ).toUpperCase();
-
-    const selectedPlan =
-      params.get('plan') || '';
-
-    setIso(country);
-    setPlanId(selectedPlan);
-
-    if (!country || !selectedPlan) {
-      setError(
-        'Invalid eSIM plan.'
+    const sessionId =
+      params.get(
+        'session_id'
       );
 
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!iso || !planId) {
+    if (!sessionId) {
+      setStatus('error');
+      setError(
+        'Invalid payment session.'
+      );
       return;
     }
 
-    async function loadPlan() {
-      try {
-        setLoading(true);
-        setError('');
+    let cancelled = false;
 
+    async function loadStatus() {
+      try {
         const response =
           await fetch(
-            `/api/esimgo/catalogue?country=${iso}`
+            `/api/orders/status?session_id=${encodeURIComponent(
+              sessionId
+            )}`,
+            {
+              cache:
+                'no-store'
+            }
           );
 
         const data =
           await response.json();
 
+        if (cancelled) {
+          return;
+        }
+
         if (
-          !data.ok ||
-          !Array.isArray(
-            data.packages
-          )
+          !response.ok ||
+          !data?.ok
         ) {
-          throw new Error(
-            'Could not load plan'
+          setStatus('error');
+          setError(
+            data?.error ||
+            'Could not verify your order.'
           );
+          return;
         }
 
-        const selected =
-          data.packages.find(
-            (item) =>
-              item.id === planId
-          );
+        setOrder(data);
 
-        if (!selected) {
-          throw new Error(
-            'Plan not found'
+        if (!data.paid) {
+          setStatus(
+            'payment_pending'
           );
+          return;
         }
 
-        setPlan(selected);
+        if (
+          data.status ===
+          'validated'
+        ) {
+          setStatus(
+            'validated'
+          );
+          return;
+        }
+
+        if (
+          data.status ===
+          'validation_failed'
+        ) {
+          setStatus(
+            'processing'
+          );
+          return;
+        }
+
+        setStatus(
+          'processing'
+        );
       } catch {
-        setError(
-          'Selected eSIM plan could not be loaded.'
-        );
-      } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setStatus('error');
+          setError(
+            'Could not verify your order.'
+          );
+        }
       }
     }
 
-    loadPlan();
-  }, [iso, planId]);
+    loadStatus();
 
-  function formatData(item) {
-    if (item.unlimited) {
-      return 'Unlimited';
-    }
-
-    if (item.dataGB) {
-      return `${item.dataGB} GB`;
-    }
-
-    if (item.dataMB) {
-      return `${item.dataMB} MB`;
-    }
-
-    return 'Data plan';
-  }
-
-  async function continueToPayment() {
-    if (!iso || !planId || !plan) {
-      return;
-    }
-
-    try {
-      setPaymentLoading(true);
-      setError('');
-
-      const response =
-        await fetch(
-          '/api/stripe/checkout',
-          {
-            method: 'POST',
-
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
-
-            body:
-              JSON.stringify({
-                iso,
-                plan: planId
-              })
-          }
-        );
-
-      const data =
-        await response.json();
-
-      if (
-        !response.ok ||
-        !data?.ok ||
-        !data?.url
-      ) {
-        throw new Error(
-          data?.stripeError ||
-          data?.error ||
-          'Could not start payment'
-        );
-      }
-
-      window.location.href =
-        data.url;
-    } catch (paymentError) {
-      setError(
-        paymentError?.message ||
-        'Could not start payment.'
+    const interval =
+      setInterval(
+        loadStatus,
+        3000
       );
 
-      setPaymentLoading(false);
+    return () => {
+      cancelled = true;
+      clearInterval(
+        interval
+      );
+    };
+  }, []);
+
+  function getIcon() {
+    if (
+      status ===
+      'validated'
+    ) {
+      return (
+        <CheckCircle
+          size={54}
+          strokeWidth={1.5}
+        />
+      );
     }
+
+    if (
+      status ===
+      'error'
+    ) {
+      return (
+        <AlertCircle
+          size={54}
+          strokeWidth={1.5}
+        />
+      );
+    }
+
+    return (
+      <Clock3
+        size={54}
+        strokeWidth={1.5}
+      />
+    );
+  }
+
+  function getTitle() {
+    if (
+      status ===
+      'validated'
+    ) {
+      return 'Order confirmed';
+    }
+
+    if (
+      status ===
+      'payment_pending'
+    ) {
+      return 'Payment pending';
+    }
+
+    if (
+      status ===
+      'error'
+    ) {
+      return 'Order unavailable';
+    }
+
+    return 'Preparing your eSIM';
+  }
+
+  function getDescription() {
+    if (
+      status ===
+      'validated'
+    ) {
+      return 'Your payment is confirmed and your eSIM order has been validated.';
+    }
+
+    if (
+      status ===
+      'payment_pending'
+    ) {
+      return 'We are still waiting for payment confirmation.';
+    }
+
+    if (
+      status ===
+      'error'
+    ) {
+      return (
+        error ||
+        'We could not verify this order.'
+      );
+    }
+
+    return 'Your payment is confirmed. We are preparing your eSIM now.';
   }
 
   return (
@@ -193,246 +230,181 @@ export default function CheckoutPage() {
       style={{
         minHeight: '100vh',
         background: '#080808',
-        color: '#f5f5f5',
-        padding:
-          '28px 18px 70px'
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px'
       }}
     >
       <div
         style={{
-          maxWidth: '760px',
-          margin: '0 auto'
+          maxWidth: '620px',
+          width: '100%',
+          textAlign: 'center'
         }}
       >
-        <button
-          onClick={() =>
-            router.back()
-          }
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            border:
-              '1px solid #333',
-            background: '#111',
-            color: '#fff',
-            borderRadius:
-              '30px',
-            padding:
-              '10px 16px',
-            cursor: 'pointer'
-          }}
-        >
-          <ArrowLeft
-            size={17}
-          />
-          Back
-        </button>
+        {getIcon()}
 
         <div
           style={{
-            marginTop: '42px'
+            marginTop: '28px',
+            fontSize: '12px',
+            letterSpacing: '2px',
+            color: '#888'
           }}
         >
-          <div
-            style={{
-              fontSize: '12px',
-              letterSpacing: '2px',
-              color: '#888'
-            }}
-          >
-            MORROWGO CHECKOUT
-          </div>
-
-          <h1
-            style={{
-              fontSize:
-                'clamp(38px, 7vw, 60px)',
-              fontWeight: '500',
-              marginBottom:
-                '10px'
-            }}
-          >
-            Your eSIM
-          </h1>
-
-          <p
-            style={{
-              color: '#999'
-            }}
-          >
-            Review your plan
-            before payment.
-          </p>
+          MORROWGO
         </div>
 
-        {loading && (
-          <p
-            style={{
-              marginTop: '40px',
-              color: '#999'
-            }}
-          >
-            Loading your plan...
-          </p>
-        )}
+        <h1
+          style={{
+            fontSize:
+              'clamp(38px, 8vw, 60px)',
+            margin:
+              '12px 0'
+          }}
+        >
+          {getTitle()}
+        </h1>
 
-        {error && (
-          <p
-            style={{
-              marginTop: '40px',
-              color: '#ffb4b4'
-            }}
-          >
-            {error}
-          </p>
-        )}
+        <p
+          style={{
+            color: '#999',
+            lineHeight: '1.6',
+            maxWidth: '500px',
+            margin:
+              '0 auto'
+          }}
+        >
+          {getDescription()}
+        </p>
 
-        {plan && (
+        {order?.iso && (
           <div
             style={{
-              marginTop: '32px',
+              margin:
+                '30px auto 0',
+              maxWidth:
+                '420px',
               border:
                 '1px solid #2d2d2d',
+              borderRadius:
+                '20px',
+              padding:
+                '20px',
               background:
                 '#101010',
-              borderRadius:
-                '24px',
-              padding: '26px'
+              textAlign:
+                'left'
             }}
           >
-            <Wifi size={25} />
-
             <div
               style={{
-                marginTop: '24px',
-                color: '#999',
-                fontSize: '14px'
-              }}
-            >
-              {plan.country}
-            </div>
-
-            <div
-              style={{
-                marginTop: '5px',
-                fontSize: '34px',
-                fontWeight: '600'
-              }}
-            >
-              {formatData(plan)}
-            </div>
-
-            <div
-              style={{
-                marginTop: '8px',
-                color: '#aaa'
-              }}
-            >
-              Valid for{' '}
-              {plan.duration}{' '}
-              {plan.duration === 1
-                ? 'day'
-                : 'days'}
-            </div>
-
-            <div
-              style={{
-                borderTop:
-                  '1px solid #2d2d2d',
-                marginTop: '28px',
-                paddingTop: '24px',
-                display: 'flex',
+                display:
+                  'flex',
                 justifyContent:
                   'space-between',
-                alignItems:
-                  'center'
+                gap: '20px'
               }}
             >
               <span
                 style={{
-                  color: '#aaa'
+                  color:
+                    '#888'
                 }}
               >
-                Total
+                Destination
               </span>
 
-              <strong
-                style={{
-                  fontSize: '28px'
-                }}
-              >
-                $
-                {Number(
-                  plan.price
-                ).toFixed(2)}
+              <strong>
+                {order.iso}
               </strong>
             </div>
 
-            <button
-              onClick={
-                continueToPayment
-              }
-              disabled={
-                paymentLoading
-              }
-              style={{
-                width: '100%',
-                marginTop: '26px',
-                border: 0,
-                borderRadius:
-                  '30px',
-                padding: '16px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor:
-                  paymentLoading
-                    ? 'wait'
-                    : 'pointer',
-                opacity:
-                  paymentLoading
-                    ? 0.7
-                    : 1,
-                display: 'flex',
-                justifyContent:
-                  'center',
-                alignItems:
-                  'center',
-                gap: '10px'
-              }}
-            >
-              {paymentLoading
-                ? 'Opening Stripe...'
-                : 'Continue to payment'}
+            {order.amount && (
+              <div
+                style={{
+                  display:
+                    'flex',
+                  justifyContent:
+                    'space-between',
+                  gap: '20px',
+                  marginTop:
+                    '12px'
+                }}
+              >
+                <span
+                  style={{
+                    color:
+                      '#888'
+                  }}
+                >
+                  Paid
+                </span>
 
-              {!paymentLoading && (
-                <ArrowRight
-                  size={18}
-                />
-              )}
-            </button>
-
-            <div
-              style={{
-                marginTop: '18px',
-                color: '#888',
-                display: 'flex',
-                justifyContent:
-                  'center',
-                alignItems:
-                  'center',
-                gap: '7px',
-                fontSize: '13px'
-              }}
-            >
-              <ShieldCheck
-                size={15}
-              />
-
-              Secure checkout
-            </div>
+                <strong>
+                  {(
+                    Number(
+                      order.amount
+                    ) / 100
+                  ).toFixed(2)}
+                  {' '}
+                  {String(
+                    order.currency ||
+                    ''
+                  ).toUpperCase()}
+                </strong>
+              </div>
+            )}
           </div>
         )}
+
+        {status ===
+          'processing' && (
+          <p
+            style={{
+              marginTop:
+                '22px',
+              color:
+                '#777',
+              fontSize:
+                '13px'
+            }}
+          >
+            This page updates automatically.
+          </p>
+        )}
+
+        <button
+          onClick={() =>
+            router.push('/')
+          }
+          style={{
+            marginTop: '30px',
+            border: 0,
+            borderRadius:
+              '30px',
+            padding:
+              '15px 24px',
+            fontSize:
+              '15px',
+            fontWeight:
+              '600',
+            cursor:
+              'pointer',
+            display:
+              'inline-flex',
+            alignItems:
+              'center',
+            gap: '10px'
+          }}
+        >
+          Back to MORROWGO
+          <ArrowRight
+            size={17}
+          />
+        </button>
       </div>
     </main>
   );
