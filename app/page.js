@@ -19,42 +19,48 @@ const destinations = [
     ru: 'Германия',
     iso: 'DE',
     price: '€4.50',
-    image: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=900&q=80'
+    image:
+      'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Turkey',
     ru: 'Турция',
     iso: 'TR',
     price: '€3.90',
-    image: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=900&q=80'
+    image:
+      'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'USA',
     ru: 'США',
     iso: 'US',
     price: '€4.90',
-    image: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80'
+    image:
+      'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Italy',
     ru: 'Италия',
     iso: 'IT',
     price: '€4.90',
-    image: 'https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?auto=format&fit=crop&w=900&q=80'
+    image:
+      'https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Spain',
     ru: 'Испания',
     iso: 'ES',
     price: '€4.50',
-    image: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=900&q=80'
+    image:
+      'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Thailand',
     ru: 'Таиланд',
     iso: 'TH',
     price: '€4.90',
-    image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=900&q=80'
+    image:
+      'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=900&q=80'
   }
 ];
 
@@ -66,13 +72,27 @@ const copy = {
     eyebrow: 'GLOBAL eSIM FOR MODERN TRAVELERS',
     title1: 'Stay connected',
     title2: 'wherever you go',
-    desc1: 'Affordable eSIMs in 200+ destinations. Instant activation.',
+    desc1:
+      'Affordable eSIMs in 200+ destinations. Instant activation.',
     desc2: 'No roaming fees. Just freedom.',
     search: 'Where are you travelling to?',
     submitSearch: 'Search destinations',
-    noResults: 'No destinations found. Try another country.',
-    chips: ['Turkey', 'USA', 'Germany', 'Italy', 'Spain', 'France', 'Thailand', 'UAE'],
-    phone: ['Different', 'Places', 'Same', 'Connection'],
+    chips: [
+      'Turkey',
+      'USA',
+      'Germany',
+      'Italy',
+      'Spain',
+      'France',
+      'Thailand',
+      'UAE'
+    ],
+    phone: [
+      'Different',
+      'Places',
+      'Same',
+      'Connection'
+    ],
     activated: 'eSIM Activated',
     benefits: [
       ['200+', 'destinations'],
@@ -84,9 +104,18 @@ const copy = {
     popular: 'Popular destinations',
     view: 'View all destinations',
     from: 'From',
-    step1: ['Choose a plan', 'Pick your destination and data plan.'],
-    step2: ['Install eSIM', 'Get your QR code and install it in seconds.'],
-    step3: ['Stay connected', 'Enjoy fast and reliable internet anywhere.'],
+    step1: [
+      'Choose a plan',
+      'Pick your destination and data plan.'
+    ],
+    step2: [
+      'Install eSIM',
+      'Get your QR code and install it in seconds.'
+    ],
+    step3: [
+      'Stay connected',
+      'Enjoy fast and reliable internet anywhere.'
+    ],
     cart: 'Cart'
   },
 
@@ -94,17 +123,36 @@ const copy = {
     destinations: 'Страны',
     how: 'Как это работает',
     support: 'Поддержка',
-    eyebrow: 'eSIM ДЛЯ ПУТЕШЕСТВИЙ ПО ВСЕМУ МИРУ',
+    eyebrow:
+      'eSIM ДЛЯ ПУТЕШЕСТВИЙ ПО ВСЕМУ МИРУ',
     title1: 'Всегда на связи',
     title2: 'где бы ты ни был',
-    desc1: 'eSIM для 200+ стран. Мгновенная активация.',
-    desc2: 'Без роуминга. Больше свободы.',
-    search: 'Куда вы путешествуете?',
-    submitSearch: 'Найти направление',
-    noResults: 'Направления не найдены. Попробуйте другую страну.',
-    chips: ['Турция', 'США', 'Германия', 'Италия', 'Испания', 'Франция', 'Таиланд', 'ОАЭ'],
-    phone: ['Разные', 'Места', 'Одна', 'Связь'],
-    activated: 'eSIM активирована',
+    desc1:
+      'eSIM для 200+ стран. Мгновенная активация.',
+    desc2:
+      'Без роуминга. Больше свободы.',
+    search:
+      'Куда вы путешествуете?',
+    submitSearch:
+      'Найти направление',
+    chips: [
+      'Турция',
+      'США',
+      'Германия',
+      'Италия',
+      'Испания',
+      'Франция',
+      'Таиланд',
+      'ОАЭ'
+    ],
+    phone: [
+      'Разные',
+      'Места',
+      'Одна',
+      'Связь'
+    ],
+    activated:
+      'eSIM активирована',
     benefits: [
       ['200+', 'направлений'],
       ['Мгновенная', 'активация'],
@@ -112,59 +160,82 @@ const copy = {
       ['Сохрани свой', 'номер'],
       ['24/7', 'поддержка']
     ],
-    popular: 'Популярные направления',
-    view: 'Все направления',
+    popular:
+      'Популярные направления',
+    view:
+      'Все направления',
     from: 'От',
-    step1: ['Выбери тариф', 'Выбери страну и пакет интернета.'],
-    step2: ['Установи eSIM', 'Получи QR-код и установи eSIM.'],
-    step3: ['Будь на связи', 'Пользуйся интернетом в поездке.'],
+    step1: [
+      'Выбери тариф',
+      'Выбери страну и пакет интернета.'
+    ],
+    step2: [
+      'Установи eSIM',
+      'Получи QR-код и установи eSIM.'
+    ],
+    step3: [
+      'Будь на связи',
+      'Пользуйся интернетом в поездке.'
+    ],
     cart: 'Корзина'
   }
 };
 
 export default function Home() {
-  const [lang, setLang] = useState('en');
-  const [query, setQuery] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [livePrices, setLivePrices] = useState({});
+  const [lang, setLang] =
+    useState('en');
+
+  const [query, setQuery] =
+    useState('');
+
+  const [livePrices, setLivePrices] =
+    useState({});
 
   const t = copy[lang];
-
-  const filteredDestinations = destinations.filter((destination) =>
-    [destination.name, destination.ru].some((name) =>
-      name.toLocaleLowerCase().includes(searchTerm)
-    )
-  );
 
   useEffect(() => {
     async function loadPrices() {
       const prices = {};
 
       await Promise.all(
-        destinations.map(async (destination) => {
-          try {
-            const response = await fetch(
-              `/api/esimgo/catalogue?country=${destination.iso}`
-            );
+        destinations.map(
+          async (destination) => {
+            try {
+              const response =
+                await fetch(
+                  `/api/esimgo/catalogue?country=${destination.iso}`
+                );
 
-            const data = await response.json();
+              const data =
+                await response.json();
 
-            if (
-              data.ok &&
-              Array.isArray(data.packages) &&
-              data.packages.length > 0
-            ) {
-              const firstPrice = Number(data.packages[0].price);
+              if (
+                data.ok &&
+                Array.isArray(
+                  data.packages
+                ) &&
+                data.packages.length > 0
+              ) {
+                const firstPrice =
+                  Number(
+                    data.packages[0]
+                      .price
+                  );
 
-              if (Number.isFinite(firstPrice)) {
-                prices[destination.iso] = firstPrice;
+                if (
+                  Number.isFinite(
+                    firstPrice
+                  )
+                ) {
+                  prices[
+                    destination.iso
+                  ] = firstPrice;
+                }
               }
+            } catch {
             }
-          } catch {
-            // Если API временно недоступен,
-            // остаётся старая резервная цена.
           }
-        })
+        )
       );
 
       setLivePrices(prices);
@@ -174,21 +245,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = lang;
+    document.documentElement.lang =
+      lang;
   }, [lang]);
 
   function submitSearch(event) {
     event.preventDefault();
 
-    setSearchTerm(
-      query.trim().toLocaleLowerCase()
-    );
+    const search =
+      query.trim();
 
-    document
-      .getElementById('destinations')
-      .scrollIntoView({
-        behavior: 'smooth'
-      });
+    window.location.href =
+      `/destinations?q=${encodeURIComponent(
+        search
+      )}`;
   }
 
   return (
@@ -203,7 +273,7 @@ export default function Home() {
             eSIM
           </a>
 
-          <a href="#destinations">
+          <a href="/destinations">
             {t.destinations}
           </a>
 
@@ -229,7 +299,8 @@ export default function Home() {
             }
             onKeyDown={(event) => {
               if (
-                event.key === 'Enter' ||
+                event.key ===
+                  'Enter' ||
                 event.key === ' '
               ) {
                 event.preventDefault();
@@ -288,18 +359,27 @@ export default function Home() {
 
             <form
               className="search"
-              onSubmit={submitSearch}
+              onSubmit={
+                submitSearch
+              }
             >
               <Search />
 
               <input
                 type="text"
-                aria-label={t.search}
-                placeholder={t.search}
+                aria-label={
+                  t.search
+                }
+                placeholder={
+                  t.search
+                }
                 value={query}
-                onChange={(event) =>
+                onChange={(
+                  event
+                ) =>
                   setQuery(
-                    event.target.value
+                    event.target
+                      .value
                   )
                 }
               />
@@ -315,11 +395,13 @@ export default function Home() {
             </form>
 
             <div className="chips">
-              {t.chips.map((x) => (
-                <span key={x}>
-                  {x}
-                </span>
-              ))}
+              {t.chips.map(
+                (x) => (
+                  <span key={x}>
+                    {x}
+                  </span>
+                )
+              )}
             </div>
           </div>
 
@@ -370,32 +452,52 @@ export default function Home() {
         <div className="wrap benefitGrid">
           <Benefit
             icon={<Globe2 />}
-            top={t.benefits[0][0]}
-            bottom={t.benefits[0][1]}
+            top={
+              t.benefits[0][0]
+            }
+            bottom={
+              t.benefits[0][1]
+            }
           />
 
           <Benefit
             icon={<Zap />}
-            top={t.benefits[1][0]}
-            bottom={t.benefits[1][1]}
+            top={
+              t.benefits[1][0]
+            }
+            bottom={
+              t.benefits[1][1]
+            }
           />
 
           <Benefit
             icon={<Ban />}
-            top={t.benefits[2][0]}
-            bottom={t.benefits[2][1]}
+            top={
+              t.benefits[2][0]
+            }
+            bottom={
+              t.benefits[2][1]
+            }
           />
 
           <Benefit
             icon={<Smartphone />}
-            top={t.benefits[3][0]}
-            bottom={t.benefits[3][1]}
+            top={
+              t.benefits[3][0]
+            }
+            bottom={
+              t.benefits[3][1]
+            }
           />
 
           <Benefit
             icon={<Headphones />}
-            top={t.benefits[4][0]}
-            bottom={t.benefits[4][1]}
+            top={
+              t.benefits[4][0]
+            }
+            bottom={
+              t.benefits[4][1]
+            }
           />
         </div>
       </section>
@@ -410,67 +512,77 @@ export default function Home() {
           </h2>
 
           <button
-  onClick={() => {
-    window.location.href = '/destinations';
-  }}
->
-  {t.view}
-  <ArrowRight size={16} />
-</button>
+            onClick={() => {
+              window.location.href =
+                '/destinations';
+            }}
+          >
+            {t.view}
+            <ArrowRight
+              size={16}
+            />
+          </button>
         </div>
 
-        {filteredDestinations.length === 0 && (
-          <p role="status">
-            {t.noResults}
-          </p>
-        )}
-
         <div className="cards">
-          {filteredDestinations.map((d) => (
-            <article
-  className="card"
-  key={d.name}
-  onClick={() => {
-    window.location.href = `/destination/${d.iso}`;
-  }}
-  style={{ cursor: 'pointer' }}
->
-              <img
-                src={d.image}
-                alt={
-                  lang === 'ru'
-                    ? d.ru
-                    : d.name
-                }
-              />
+          {destinations.map(
+            (d) => (
+              <article
+                className="card"
+                key={d.name}
+                onClick={() => {
+                  window.location.href =
+                    `/destination/${d.iso}`;
+                }}
+                style={{
+                  cursor:
+                    'pointer'
+                }}
+              >
+                <img
+                  src={d.image}
+                  alt={
+                    lang === 'ru'
+                      ? d.ru
+                      : d.name
+                  }
+                />
 
-              <div className="cardBody">
-                <strong>
-                  {lang === 'ru'
-                    ? d.ru
-                    : d.name}
-                </strong>
+                <div className="cardBody">
+                  <strong>
+                    {lang ===
+                    'ru'
+                      ? d.ru
+                      : d.name}
+                  </strong>
 
-                <small>
-                  {t.from}
-                </small>
+                  <small>
+                    {t.from}
+                  </small>
 
-                <div>
-                  <b>
-                    {livePrices[d.iso]
-                      ? `$${livePrices[d.iso].toFixed(2)}`
-                      : d.price}
-                  </b>
+                  <div>
+                    <b>
+                      {livePrices[
+                        d.iso
+                      ]
+                        ? `$${livePrices[
+                            d.iso
+                          ].toFixed(
+                            2
+                          )}`
+                        : d.price}
+                    </b>
 
-                  <button>
-                    <ArrowRight
-                      size={16}
-                    />
-                  </button>
+                    <button>
+                      <ArrowRight
+                        size={16}
+                      />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            )
+          )}
         </div>
       </section>
 
@@ -486,22 +598,38 @@ export default function Home() {
           <Step
             n="01"
             icon={<Search />}
-            title={t.step1[0]}
-            text={t.step1[1]}
+            title={
+              t.step1[0]
+            }
+            text={
+              t.step1[1]
+            }
           />
 
           <Step
             n="02"
-            icon={<ScanLine />}
-            title={t.step2[0]}
-            text={t.step2[1]}
+            icon={
+              <ScanLine />
+            }
+            title={
+              t.step2[0]
+            }
+            text={
+              t.step2[1]
+            }
           />
 
           <Step
             n="03"
-            icon={<Signal />}
-            title={t.step3[0]}
-            text={t.step3[1]}
+            icon={
+              <Signal />
+            }
+            title={
+              t.step3[0]
+            }
+            text={
+              t.step3[1]
+            }
           />
 
           <div className="script">
@@ -532,7 +660,8 @@ export default function Home() {
 
           <div className="newsletter">
             <small>
-              Get travel tips and exclusive deals
+              Get travel tips and
+              exclusive deals
             </small>
 
             <div>
@@ -566,7 +695,9 @@ function Benefit({
 
       <div>
         <b>{top}</b>
-        <span>{bottom}</span>
+        <span>
+          {bottom}
+        </span>
       </div>
     </div>
   );
