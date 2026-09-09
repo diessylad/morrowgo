@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -16,6 +16,8 @@ export default function DestinationPage() {
     params.iso || ''
   ).toUpperCase();
 
+  const [minimumDays, setMinimumDays] = useState(0);
+  const [sort, setSort] = useState('price');
   const [packages, setPackages] =
     useState([]);
 
@@ -79,6 +81,8 @@ export default function DestinationPage() {
       loadPackages();
     }
   }, [iso]);
+
+  const visiblePlans = useMemo(() => packages.filter(p => Number(p.duration) >= minimumDays).sort((a,b) => sort === 'duration' ? Number(a.duration)-Number(b.duration) : Number(a.price)-Number(b.price)), [packages,minimumDays,sort]);
 
   function formatData(plan) {
     if (plan.unlimited) {
@@ -210,6 +214,7 @@ export default function DestinationPage() {
           </p>
         )}
 
+        {!loading && !error && <div className="planControls"><label>Minimum validity<select value={minimumDays} onChange={e => setMinimumDays(Number(e.target.value))}><option value={0}>Any duration</option><option value={7}>7 days</option><option value={14}>14 days</option><option value={30}>30 days</option></select></label><label>Sort plans<select value={sort} onChange={e => setSort(e.target.value)}><option value="price">Lowest total price</option><option value="duration">Shortest validity</option></select></label><a href="/compatibility">Check your phone →</a><p>{visiblePlans.length} plans · Prices in USD. Validity does not necessarily begin on arrival; activation rules depend on the plan.</p>{visiblePlans.length === 0 && <><p>No plans match this duration.</p><button onClick={() => setMinimumDays(0)}>Show all plans</button></>}</div>}
         {!loading &&
           !error && (
             <div
@@ -220,9 +225,10 @@ export default function DestinationPage() {
                 gap: '14px'
               }}
             >
-              {packages.map(
+              {visiblePlans.map(
                 (plan) => (
                   <div
+                    className="planCard"
                     key={
                       plan.id
                     }

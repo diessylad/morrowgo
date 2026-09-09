@@ -12,6 +12,8 @@ import {
   Wifi
 } from 'lucide-react';
 
+import Link from 'next/link';
+
 import {
   useRouter
 } from 'next/navigation';
@@ -19,6 +21,8 @@ import {
 export default function CheckoutPage() {
   const router = useRouter();
 
+  const [compatible, setCompatible] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
   const [iso, setIso] =
     useState('');
 
@@ -43,6 +47,7 @@ export default function CheckoutPage() {
         window.location.search
       );
 
+    setCancelled(params.get('canceled') === 'true');
     const country =
       (
         params.get('iso') || ''
@@ -134,7 +139,7 @@ export default function CheckoutPage() {
   }
 
   async function continueToPayment() {
-    if (!iso || !planId || !plan) {
+    if (!iso || !planId || !plan || !compatible) {
       return;
     }
 
@@ -264,6 +269,8 @@ export default function CheckoutPage() {
           </p>
         </div>
 
+        {cancelled && <p role="status" style={{color:'#dddddd',lineHeight:1.7}}>Checkout was cancelled. Your plan is still here; you can review it before trying again.</p>}
+        <p style={{fontSize:13,lineHeight:1.8,color:'#bbbbbb'}}>Pre-launch preview: eSIM delivery is not enabled. <Link href="/help" style={{color:'#eeeeee'}}>Help & FAQ</Link></p>
         {loading && (
           <p
             style={{
@@ -288,6 +295,7 @@ export default function CheckoutPage() {
 
         {plan && (
           <div
+            className="checkoutCard"
             style={{
               marginTop: '32px',
               border:
@@ -363,16 +371,17 @@ export default function CheckoutPage() {
                 $
                 {Number(
                   plan.price
-                ).toFixed(2)}
+                ).toFixed(2)}{' USD'}
               </strong>
             </div>
 
+            <div style={{marginTop:24,fontSize:13,lineHeight:1.8,color:"#bbbbbb"}}><Link href="/compatibility" style={{color:"#eeeeee"}}>Check device compatibility →</Link><label style={{display:"flex",alignItems:"flex-start",gap:10,marginTop:14}}><input type="checkbox" checked={compatible} onChange={e => setCompatible(e.target.checked)} style={{marginTop:5,width:18,height:18,flexShrink:0}} />I have checked that my phone supports eSIM and is carrier-unlocked.</label><p>Plan activation, network and hotspot conditions must be confirmed before live sales begin.</p></div>
             <button
               onClick={
                 continueToPayment
               }
               disabled={
-                paymentLoading
+                paymentLoading || !compatible
               }
               style={{
                 width: '100%',
@@ -386,9 +395,9 @@ export default function CheckoutPage() {
                 cursor:
                   paymentLoading
                     ? 'wait'
-                    : 'pointer',
+                    : compatible ? 'pointer' : 'not-allowed',
                 opacity:
-                  paymentLoading
+                  paymentLoading || !compatible
                     ? 0.7
                     : 1,
                 display: 'flex',

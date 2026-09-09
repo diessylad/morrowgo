@@ -1,5 +1,12 @@
 export const dynamic = 'force-dynamic';
 
+function json(data, options = {}) {
+  return Response.json(data, {
+    ...options,
+    headers: { 'Cache-Control': 'private, no-store' }
+  });
+}
+
 function getRedisConfig() {
   const url =
     process.env.STORAGE_KV_REST_API_URL ||
@@ -49,7 +56,7 @@ async function redisCommand(command) {
       .json()
       .catch(() => null);
 
-  if (!response.ok) {
+  if (!response.ok || !data || data.error) {
     throw new Error(
       `Redis failed: ${response.status}`
     );
@@ -115,7 +122,7 @@ export async function GET(request) {
         sessionId
       )
     ) {
-      return Response.json(
+      return json(
         {
           ok: false,
           error:
@@ -137,7 +144,7 @@ export async function GET(request) {
       );
 
     if (!stripeSession) {
-      return Response.json(
+      return json(
         {
           ok: false,
           error:
@@ -154,8 +161,9 @@ export async function GET(request) {
         .payment_status !==
       'paid'
     ) {
-      return Response.json({
+      return json({
         ok: true,
+        testMode: stripeSession.livemode === false,
         paid: false,
         status:
           'payment_pending'
@@ -181,8 +189,9 @@ export async function GET(request) {
       на несколько секунд позже.
     */
     if (!stored) {
-      return Response.json({
+      return json({
         ok: true,
+        testMode: stripeSession.livemode === false,
         paid: true,
         status:
           'processing'
@@ -194,8 +203,11 @@ export async function GET(request) {
     try {
       order =
         JSON.parse(stored);
+      if (!order || typeof order !== 'object' || Array.isArray(order)) {
+        throw new Error('Invalid stored order');
+      }
     } catch {
-      return Response.json(
+      return json(
         {
           ok: false,
           error:
@@ -207,23 +219,25 @@ export async function GET(request) {
       );
     }
 
-    return Response.json({
+    return json({
       ok: true,
 
       paid: true,
+      testMode: stripeSession.livemode === false,
+      fulfillmentStatus: order.fulfillmentStatus || null,
 
       status:
         order.status ||
-        'processing',
+        'unknown',
 
       iso:
         order.iso ||
         null,
 
       amount:
-        order.amount ||
+        order.amount ??
         stripeSession
-          .amount_total ||
+          .amount_total ??
         null,
 
       currency:
@@ -233,13 +247,11 @@ export async function GET(request) {
         null
     });
   } catch (error) {
-    return Response.json(
+    return json(
       {
         ok: false,
 
-        error:
-          error?.message ||
-          'Could not load order'
+        error: 'Could not load order'
       },
       {
         status: 500

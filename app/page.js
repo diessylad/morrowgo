@@ -73,8 +73,8 @@ const copy = {
     title1: 'Stay connected',
     title2: 'wherever you go',
     desc1:
-      'Affordable eSIMs in 200+ destinations. Instant activation.',
-    desc2: 'No roaming fees. Just freedom.',
+      'Explore travel data plans for your next destination.',
+    desc2: 'Choose the data you need, before you travel.',
     search: 'Where are you travelling to?',
     submitSearch: 'Search destinations',
     chips: [
@@ -93,13 +93,13 @@ const copy = {
       'Same',
       'Connection'
     ],
-    activated: 'eSIM Activated',
+    activated: 'Your travel eSIM',
     benefits: [
-      ['200+', 'destinations'],
-      ['Instant', 'activation'],
+      ['Explore', 'destinations'],
+      ['Easy', 'setup'],
       ['No roaming', 'fees'],
       ['Keep your', 'number'],
-      ['24/7', 'support']
+      ['Setup', 'guides']
     ],
     popular: 'Popular destinations',
     view: 'View all destinations',
@@ -110,11 +110,11 @@ const copy = {
     ],
     step2: [
       'Install eSIM',
-      'Get your QR code and install it in seconds.'
+      'Once issued, follow your eSIM installation instructions.'
     ],
     step3: [
       'Stay connected',
-      'Enjoy fast and reliable internet anywhere.'
+      'Connect within your plan’s coverage and validity.'
     ],
     cart: 'Cart'
   },
@@ -128,9 +128,9 @@ const copy = {
     title1: 'Всегда на связи',
     title2: 'где бы ты ни был',
     desc1:
-      'eSIM для 200+ стран. Мгновенная активация.',
+      'Выбирайте интернет для следующего путешествия.',
     desc2:
-      'Без роуминга. Больше свободы.',
+      'Выберите нужный объём интернета до поездки.',
     search:
       'Куда вы путешествуете?',
     submitSearch:
@@ -152,13 +152,13 @@ const copy = {
       'Связь'
     ],
     activated:
-      'eSIM активирована',
+      'Ваша eSIM для поездки',
     benefits: [
-      ['200+', 'направлений'],
-      ['Мгновенная', 'активация'],
+      ['Выбор', 'направлений'],
+      ['Простая', 'установка'],
       ['Без', 'роуминга'],
       ['Сохрани свой', 'номер'],
-      ['24/7', 'поддержка']
+      ['Помощь', 'с установкой']
     ],
     popular:
       'Популярные направления',
@@ -281,7 +281,7 @@ export default function Home() {
             {t.how}
           </a>
 
-          <a href="#support">
+          <a href="/help">
             {t.support}
           </a>
         </nav>
@@ -330,9 +330,9 @@ export default function Home() {
             ⌄
           </span>
 
-          <button className="cart">
-            {t.cart} (0)
-          </button>
+          <a className="cart" href="/help" style={{color:'#111'}}>
+            {t.support}
+          </a>
         </div>
       </header>
 
@@ -529,6 +529,10 @@ export default function Home() {
             (d) => (
               <article
                 className="card"
+                tabIndex={0}
+                role="link"
+                aria-label={`View ${d.name} plans`}
+                onKeyDown={event => { if (event.key === "Enter" && event.target === event.currentTarget) window.location.href = `/destination/${d.iso}`; }}
                 key={d.name}
                 onClick={() => {
                   window.location.href =
@@ -557,7 +561,7 @@ export default function Home() {
                   </strong>
 
                   <small>
-                    {t.from}
+                    {livePrices[d.iso] ? t.from : '\u00a0'}
                   </small>
 
                   <div>
@@ -570,10 +574,10 @@ export default function Home() {
                           ].toFixed(
                             2
                           )}`
-                        : d.price}
+                        : (lang === 'ru' ? 'Смотреть тарифы' : 'View plans')}
                     </b>
 
-                    <button>
+                    <button aria-label={`View ${d.name} plans`}>
                       <ArrowRight
                         size={16}
                       />
@@ -658,25 +662,13 @@ export default function Home() {
             </small>
           </div>
 
-          <div className="newsletter">
-            <small>
-              Get travel tips and
-              exclusive deals
-            </small>
-
-            <div>
-              <span>
-                Your email
-              </span>
-
-              <button>
-                <ArrowRight />
-              </button>
-            </div>
+          <div className="customerLinks">
+            <a href="/help">{lang === 'ru' ? 'Помощь и FAQ' : 'Help & FAQ'}</a>
+            <a href="/compatibility">{lang === 'ru' ? 'Совместимость телефона' : 'Device compatibility'}</a>
+            <a href="/demo/order">{lang === 'ru' ? 'Пример заказа · демо' : 'Sample order · demo'}</a>
           </div>
-
-          <div className="social">
-            ◎ &nbsp; ♪ &nbsp; ▷
+          <div className="social" style={{fontSize:12,color:'#aaa',lineHeight:1.7}}>
+            {lang === 'ru' ? 'Готовимся к запуску. Выдача eSIM пока выключена.' : 'Pre-launch preview. eSIM delivery is not enabled yet.'}
           </div>
         </div>
       </footer>

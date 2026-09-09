@@ -1,387 +1,60 @@
 'use client';
-
-import {
-  useEffect,
-  useState
-} from 'react';
-
-import {
-  CheckCircle,
-  Clock3,
-  AlertCircle,
-  ArrowRight
-} from 'lucide-react';
-
-import {
-  useRouter
-} from 'next/navigation';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { orderPresentation } from '../../../lib/orderPresentation';
+import styles from '../../customer.module.css';
 
 export default function SuccessPage() {
-  const router = useRouter();
-
-  const [status, setStatus] =
-    useState('loading');
-
-  const [order, setOrder] =
-    useState(null);
-
-  const [error, setError] =
-    useState('');
-
+  const [order, setOrder] = useState(null);
+  const [sessionId, setSessionId] = useState('');
+  const [error, setError] = useState('');
+  const [checking, setChecking] = useState(true);
+  const [paused, setPaused] = useState(false);
+  const [refresh, setRefresh] = useState(0);
+  const [copied, setCopied] = useState('');
   useEffect(() => {
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-    const sessionId =
-      params.get('session_id');
-
-    if (!sessionId) {
-      setStatus('error');
-      setError(
-        'Invalid payment session.'
-      );
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadStatus() {
+    const id = new URLSearchParams(window.location.search).get('session_id') || '';
+    setSessionId(id);
+    if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(id)) { setError('This link does not contain a valid order reference. Open the original page returned by checkout.'); setChecking(false); return; }
+    let cancelled = false, timer, deadline, attempts = 0;
+    const controller = new AbortController();
+    setError(''); setPaused(false); setChecking(true);
+    async function load() {
       try {
-        const response =
-          await fetch(
-            `/api/orders/status?session_id=${encodeURIComponent(
-              sessionId
-            )}`,
-            {
-              cache: 'no-store'
-            }
-          );
-
-        const data =
-          await response.json();
-
-        if (cancelled) {
-          return;
+        deadline = setTimeout(() => controller.abort(), 15000);
+        const response = await fetch(`/api/orders/status?session_id=${encodeURIComponent(id)}`, { cache: 'no-store', signal: controller.signal });
+        const data = await response.json();
+        clearTimeout(deadline);
+        if (cancelled) return;
+        if (!response.ok || !data.ok) throw new Error('status');
+        setOrder(data); setChecking(false);
+        if (orderPresentation(data).poll) {
+          if (++attempts < 20) timer = setTimeout(load, 3000);
+          else setPaused(true);
         }
-
-        if (
-          !response.ok ||
-          !data?.ok
-        ) {
-          setStatus('error');
-
-          setError(
-            data?.error ||
-            'Could not verify your order.'
-          );
-
-          return;
-        }
-
-        setOrder(data);
-
-        if (!data.paid) {
-          setStatus(
-            'payment_pending'
-          );
-          return;
-        }
-
-        if (
-          data.status ===
-          'validated'
-        ) {
-          setStatus(
-            'validated'
-          );
-          return;
-        }
-
-        setStatus(
-          'processing'
-        );
       } catch {
-        if (!cancelled) {
-          setStatus('error');
-
-          setError(
-            'Could not verify your order.'
-          );
-        }
+        clearTimeout(deadline);
+        if (!cancelled) { setChecking(false); setError('We could not check your order right now. Please try again. This does not mean your payment failed.'); }
       }
     }
-
-    loadStatus();
-
-    const interval =
-      setInterval(
-        loadStatus,
-        3000
-      );
-
-    return () => {
-      cancelled = true;
-
-      clearInterval(
-        interval
-      );
-    };
-  }, []);
-
-  function getIcon() {
-    if (
-      status ===
-      'validated'
-    ) {
-      return (
-        <CheckCircle
-          size={54}
-          strokeWidth={1.5}
-        />
-      );
-    }
-
-    if (
-      status ===
-      'error'
-    ) {
-      return (
-        <AlertCircle
-          size={54}
-          strokeWidth={1.5}
-        />
-      );
-    }
-
-    return (
-      <Clock3
-        size={54}
-        strokeWidth={1.5}
-      />
-    );
+    load();
+    return () => { cancelled = true; controller.abort(); clearTimeout(timer); clearTimeout(deadline); };
+  }, [refresh]);
+  const view = orderPresentation(order);
+  const total = Number.isFinite(order?.amount) && order?.currency === 'usd'
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', currencyDisplay: 'code' }).format(order.amount / 100)
+    : null;
+  async function copyReference() {
+    try { await navigator.clipboard.writeText(sessionId); setCopied('Order reference copied.'); }
+    catch { setCopied('Select the order reference above to copy it manually.'); }
   }
-
-  function getTitle() {
-    if (
-      status ===
-      'validated'
-    ) {
-      return 'Order confirmed';
-    }
-
-    if (
-      status ===
-      'payment_pending'
-    ) {
-      return 'Payment pending';
-    }
-
-    if (
-      status ===
-      'error'
-    ) {
-      return 'Order unavailable';
-    }
-
-    return 'Preparing your eSIM';
-  }
-
-  function getDescription() {
-    if (
-      status ===
-      'validated'
-    ) {
-      return 'Your payment is confirmed and your eSIM order has been validated.';
-    }
-
-    if (
-      status ===
-      'payment_pending'
-    ) {
-      return 'We are still waiting for payment confirmation.';
-    }
-
-    if (
-      status ===
-      'error'
-    ) {
-      return (
-        error ||
-        'We could not verify this order.'
-      );
-    }
-
-    return 'Your payment is confirmed. We are preparing your eSIM now.';
-  }
-
-  return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: '#080808',
-        color: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px'
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '620px',
-          width: '100%',
-          textAlign: 'center'
-        }}
-      >
-        {getIcon()}
-
-        <div
-          style={{
-            marginTop: '28px',
-            fontSize: '12px',
-            letterSpacing: '2px',
-            color: '#888'
-          }}
-        >
-          MORROWGO
-        </div>
-
-        <h1
-          style={{
-            fontSize:
-              'clamp(38px, 8vw, 60px)',
-            margin: '12px 0'
-          }}
-        >
-          {getTitle()}
-        </h1>
-
-        <p
-          style={{
-            color: '#999',
-            lineHeight: '1.6',
-            maxWidth: '500px',
-            margin: '0 auto'
-          }}
-        >
-          {getDescription()}
-        </p>
-
-        {order?.iso && (
-          <div
-            style={{
-              margin:
-                '30px auto 0',
-              maxWidth: '420px',
-              border:
-                '1px solid #2d2d2d',
-              borderRadius:
-                '20px',
-              padding: '20px',
-              background:
-                '#101010',
-              textAlign: 'left'
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent:
-                  'space-between',
-                gap: '20px'
-              }}
-            >
-              <span
-                style={{
-                  color: '#888'
-                }}
-              >
-                Destination
-              </span>
-
-              <strong>
-                {order.iso}
-              </strong>
-            </div>
-
-            {order.amount && (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent:
-                    'space-between',
-                  gap: '20px',
-                  marginTop:
-                    '12px'
-                }}
-              >
-                <span
-                  style={{
-                    color: '#888'
-                  }}
-                >
-                  Paid
-                </span>
-
-                <strong>
-                  {(
-                    Number(
-                      order.amount
-                    ) / 100
-                  ).toFixed(2)}{' '}
-                  {String(
-                    order.currency ||
-                    ''
-                  ).toUpperCase()}
-                </strong>
-              </div>
-            )}
-          </div>
-        )}
-
-        {status ===
-          'processing' && (
-          <p
-            style={{
-              marginTop: '22px',
-              color: '#777',
-              fontSize: '13px'
-            }}
-          >
-            This page updates automatically.
-          </p>
-        )}
-
-        <button
-          onClick={() =>
-            router.push('/')
-          }
-          style={{
-            marginTop: '30px',
-            border: 0,
-            borderRadius:
-              '30px',
-            padding:
-              '15px 24px',
-            fontSize: '15px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display:
-              'inline-flex',
-            alignItems:
-              'center',
-            gap: '10px'
-          }}
-        >
-          Back to MORROWGO
-
-          <ArrowRight
-            size={17}
-          />
-        </button>
-      </div>
-    </main>
-  );
+  return <main className={styles.page}><div className={styles.wrap}>
+    <header className={styles.nav}><Link href="/">MORROWGO</Link><div className={styles.links}><Link href="/help">Help & FAQ</Link><Link href="/compatibility">Device compatibility</Link></div></header>
+    <section className={styles.hero} aria-live="polite"><span className={styles.eyebrow}>YOUR ORDER</span><h1>{error ? 'Order status unavailable' : view.title}</h1><p>{error || view.text}</p></section>
+    {order?.testMode === true && <div className={styles.banner}>Test order — no real Stripe payment. This is a checkout test, not confirmation of a working eSIM.</div>}
+    {order && <section className={styles.card}><h2>Order details</h2><dl className={styles.details}><div><dt>Payment</dt><dd>{order.paid ? (order.testMode ? 'Test payment confirmed' : 'Confirmed') : 'Pending'}</dd></div><div><dt>eSIM</dt><dd>{view.key === 'ready' ? 'Issued' : view.key === 'attention' ? 'Needs review' : 'Not ready to install'}</dd></div>{order.iso && <div><dt>Destination</dt><dd>{order.iso}</dd></div>}{total && <div><dt>Total</dt><dd>{total}</dd></div>}</dl></section>}
+    {/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId) && <section className={styles.card}><h2>Keep your order reference</h2><p>Save this reference if you need help with your order. Keep your checkout link private.</p><div className={styles.reference}>{sessionId}</div><div className={styles.actions}><button className={`${styles.button} ${styles.secondary}`} onClick={copyReference}>Copy reference</button></div><p role="status" className={styles.muted}>{copied}</p></section>}
+    {paused && <p className={styles.banner}>Automatic checks have paused. You can check again below; no new payment or order will be created.</p>}
+    <div className={styles.actions}><button className={styles.button} disabled={checking || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)} onClick={() => setRefresh(v => v + 1)}>{checking ? 'Checking…' : 'Check status again'}</button><Link className={`${styles.button} ${styles.secondary}`} href="/help">Order help</Link><Link className={`${styles.button} ${styles.secondary}`} href="/">Back to MORROWGO</Link></div>
+  </div></main>;
 }

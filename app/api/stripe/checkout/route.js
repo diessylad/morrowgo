@@ -180,7 +180,7 @@ export async function POST(request) {
         iso
       )}&plan=${encodeURIComponent(
         planId
-      )}`
+      )}&canceled=true`
     );
 
     stripeBody.set(
@@ -252,10 +252,7 @@ export async function POST(request) {
         {
           ok: false,
           error:
-            'Stripe could not create checkout session',
-          stripeError:
-            session?.error?.message ||
-            null
+            'Stripe could not create checkout session'
         },
         {
           status: 502
@@ -272,10 +269,7 @@ export async function POST(request) {
       {
         ok: false,
         error:
-          'Could not create checkout',
-        detail:
-          error?.message ||
-          'Unknown error'
+          'Could not create checkout'
       },
       {
         status: 500
