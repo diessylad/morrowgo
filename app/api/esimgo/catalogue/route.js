@@ -1,6 +1,25 @@
-export const dynamic = 'force-dynamic';
+import { createHash } from 'crypto';
 
-export async function GET() {
+function makePublicId(bundleName) {
+  return createHash('sha256')
+    .update(bundleName)
+    .digest('hex')
+    .slice(0, 16);
+}
+
+function calculateRetailPrice(cost) {
+  const numericCost = Number(cost);
+
+  // 40% markup, but at least $2 gross margin
+  const retail = Math.max(
+    numericCost * 1.4,
+    numericCost + 2
+  );
+
+  return Math.ceil(retail * 100) / 100;
+}
+
+export async function GET(request) {
   const apiKey = process.env.ESIM_GO_API_KEY;
 
   if (!apiKey) {
@@ -11,18 +30,43 @@ export async function GET() {
   }
 
   try {
+    const { searchParams } = new URL(request.url);
+
+    const country = searchParams
+      .get('country')
+      ?.trim()
+      .toUpperCase();
+
+    if (country && !/^[A-Z]{2}$/.test(country)) {
+      return Response.json(
+        { ok: false, error: 'Invalid country ISO code' },
+        { status: 400 }
+      );
+    }
+
+    const params = new URLSearchParams({
+      page: '1',
+      perPage: '100',
+    });
+
+    if (country) {
+      params.set('countries', country);
+    }
+
     const response = await fetch(
-      'https://api.esim-go.com/v2.5/catalogue?page=1&perPage=50',
+      `https://api.esim-go.com/v2.5/catalogue?${params.toString()}`,
       {
         headers: {
           'X-API-Key': apiKey,
           Accept: 'application/json',
         },
-        cache: 'no-store',
+
+        // Do not constantly poll eSIM Go
+        next: {
+          revalidate: 3600,
+        },
       }
     );
-
-    const raw = await response.text();
 
     if (!response.ok) {
       return Response.json(
@@ -35,53 +79,66 @@ export async function GET() {
       );
     }
 
-    let data;
+    const catalogue = await response.json();
 
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      return Response.json(
-        {
-          ok: false,
-          error: 'eSIM Go returned invalid JSON',
-          bodyLength: raw.length,
-        },
-        { status: 502 }
-      );
-    }
-
-    const catalogue = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.bundles)
-      ? data.bundles
-      : Array.isArray(data?.data)
-      ? data.data
-      : null;
-
-    if (!catalogue) {
+    if (!Array.isArray(catalogue)) {
       return Response.json(
         {
           ok: false,
           error: 'Unexpected catalogue format',
-          keys:
-            data && typeof data === 'object'
-              ? Object.keys(data)
-              : [],
         },
         { status: 502 }
       );
     }
 
+    const packages = catalogue
+      .filter((bundle) => {
+        if (!country) return true;
+
+        return bundle.countries?.some(
+          (item) => item.iso === country
+        );
+      })
+      .map((bundle) => {
+        const mainCountry =
+          bundle.countries?.find(
+            (item) => item.iso === country
+          ) || bundle.countries?.[0];
+
+        return {
+          id: makePublicId(bundle.name),
+
+          country: mainCountry?.name || null,
+          iso: mainCountry?.iso || null,
+
+          dataMB: bundle.dataAmount,
+          dataGB:
+            bundle.dataAmount >= 1000
+              ? bundle.dataAmount / 1000
+              : null,
+
+          duration: bundle.duration,
+          durationUnit: bundle.durationUnit || 'day',
+
+          unlimited: Boolean(bundle.unlimited),
+
+          price: calculateRetailPrice(bundle.price),
+          currency: 'USD',
+        };
+      })
+      .sort((a, b) => a.price - b.price);
+
     return Response.json({
       ok: true,
-      count: catalogue.length,
-      bundles: catalogue.slice(0, 10),
+      country: country || null,
+      count: packages.length,
+      packages,
     });
   } catch (error) {
     return Response.json(
       {
         ok: false,
-        error: 'Could not load eSIM Go catalogue',
+        error: 'Could not load MORROWGO catalogue',
         detail: error?.message || 'Unknown error',
       },
       { status: 502 }
