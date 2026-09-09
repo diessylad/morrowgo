@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Search,
   ArrowRight,
@@ -48,7 +48,7 @@ const destinations = [
     name: 'Thailand',
     ru: 'Таиланд',
     price: '€4.90',
-    image: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195b?auto=format&fit=crop&w=900&q=80'
+    image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=900&q=80'
   }
 ];
 
@@ -63,6 +63,8 @@ const copy = {
     desc1: 'Affordable eSIMs in 200+ destinations. Instant activation.',
     desc2: 'No roaming fees. Just freedom.',
     search: 'Where are you travelling to?',
+    submitSearch: 'Search destinations',
+    noResults: 'No destinations found. Try another country.',
     chips: ['Turkey', 'USA', 'Germany', 'Italy', 'Spain', 'France', 'Thailand', 'UAE'],
     phone: ['Different', 'Places', 'Same', 'Connection'],
     activated: 'eSIM Activated',
@@ -92,6 +94,8 @@ const copy = {
     desc1: 'eSIM для 200+ стран. Мгновенная активация.',
     desc2: 'Без роуминга. Больше свободы.',
     search: 'Куда вы путешествуете?',
+    submitSearch: 'Найти направление',
+    noResults: 'Направления не найдены. Попробуйте другую страну.',
     chips: ['Турция', 'США', 'Германия', 'Италия', 'Испания', 'Франция', 'Таиланд', 'ОАЭ'],
     phone: ['Разные', 'Места', 'Одна', 'Связь'],
     activated: 'eSIM активирована',
@@ -114,7 +118,24 @@ const copy = {
 
 export default function Home() {
   const [lang, setLang] = useState('en');
+  const [query, setQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const t = copy[lang];
+  const filteredDestinations = destinations.filter((destination) =>
+    [destination.name, destination.ru].some((name) =>
+      name.toLocaleLowerCase().includes(searchTerm)
+    )
+  );
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  function submitSearch(event) {
+    event.preventDefault();
+    setSearchTerm(query.trim().toLocaleLowerCase());
+    document.getElementById('destinations').scrollIntoView({ behavior: 'smooth' });
+  }
 
   return (
     <main>
@@ -132,6 +153,15 @@ export default function Home() {
           <Search size={19} />
 
           <span
+            role="button"
+            tabIndex={0}
+            aria-label={lang === 'en' ? 'Switch to Russian' : 'Переключить на английский'}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                setLang(lang === 'en' ? 'ru' : 'en');
+              }
+            }}
             onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}
             style={{ cursor: 'pointer' }}
           >
@@ -165,13 +195,19 @@ export default function Home() {
               {t.desc2}
             </p>
 
-            <div className="search">
+            <form className="search" onSubmit={submitSearch}>
               <Search />
-              <span>{t.search}</span>
-              <button>
+              <input
+                type="text"
+                aria-label={t.search}
+                placeholder={t.search}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+              <button type="submit" aria-label={t.submitSearch}>
                 <ArrowRight />
               </button>
-            </div>
+            </form>
 
             <div className="chips">
               {t.chips.map((x) => (
@@ -260,21 +296,22 @@ export default function Home() {
         <div className="sectionHead">
           <h2>{t.popular}</h2>
 
-          <button>
+          <button onClick={() => { setQuery(''); setSearchTerm(''); }}>
             {t.view}
             <ArrowRight size={16} />
           </button>
         </div>
 
+        {filteredDestinations.length === 0 && <p role="status">{t.noResults}</p>}
         <div className="cards">
-          {destinations.map((d) => (
+          {filteredDestinations.map((d) => (
             <article
               className="card"
               key={d.name}
             >
               <img
                 src={d.image}
-                alt={d.name}
+                alt={lang === 'ru' ? d.ru : d.name}
               />
 
               <div className="cardBody">
