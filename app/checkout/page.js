@@ -13,20 +13,17 @@ import {
 } from 'lucide-react';
 
 import {
-  useRouter,
-  useSearchParams
+  useRouter
 } from 'next/navigation';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  const iso = (
-    searchParams.get('iso') || ''
-  ).toUpperCase();
+  const [iso, setIso] =
+    useState('');
 
-  const planId =
-    searchParams.get('plan') || '';
+  const [planId, setPlanId] =
+    useState('');
 
   const [plan, setPlan] =
     useState(null);
@@ -38,21 +35,57 @@ export default function CheckoutPage() {
     useState('');
 
   useEffect(() => {
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const country =
+      (
+        params.get('iso') || ''
+      ).toUpperCase();
+
+    const selectedPlan =
+      params.get('plan') || '';
+
+    setIso(country);
+    setPlanId(selectedPlan);
+
+    if (
+      !country ||
+      !selectedPlan
+    ) {
+      setError(
+        'Invalid eSIM plan.'
+      );
+
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!iso || !planId) {
+      return;
+    }
+
     async function loadPlan() {
       try {
         setLoading(true);
         setError('');
 
-        const response = await fetch(
-          `/api/esimgo/catalogue?country=${iso}`
-        );
+        const response =
+          await fetch(
+            `/api/esimgo/catalogue?country=${iso}`
+          );
 
         const data =
           await response.json();
 
         if (
           !data.ok ||
-          !Array.isArray(data.packages)
+          !Array.isArray(
+            data.packages
+          )
         ) {
           throw new Error(
             'Could not load plan'
@@ -81,15 +114,7 @@ export default function CheckoutPage() {
       }
     }
 
-    if (iso && planId) {
-      loadPlan();
-    } else {
-      setError(
-        'Invalid eSIM plan.'
-      );
-
-      setLoading(false);
-    }
+    loadPlan();
   }, [iso, planId]);
 
   function formatData(item) {
@@ -114,7 +139,8 @@ export default function CheckoutPage() {
         minHeight: '100vh',
         background: '#080808',
         color: '#f5f5f5',
-        padding: '28px 18px 70px'
+        padding:
+          '28px 18px 70px'
       }}
     >
       <div
@@ -135,12 +161,16 @@ export default function CheckoutPage() {
               '1px solid #333',
             background: '#111',
             color: '#fff',
-            borderRadius: '30px',
-            padding: '10px 16px',
+            borderRadius:
+              '30px',
+            padding:
+              '10px 16px',
             cursor: 'pointer'
           }}
         >
-          <ArrowLeft size={17} />
+          <ArrowLeft
+            size={17}
+          />
           Back
         </button>
 
@@ -164,7 +194,8 @@ export default function CheckoutPage() {
               fontSize:
                 'clamp(38px, 7vw, 60px)',
               fontWeight: '500',
-              marginBottom: '10px'
+              marginBottom:
+                '10px'
             }}
           >
             Your eSIM
@@ -175,8 +206,8 @@ export default function CheckoutPage() {
               color: '#999'
             }}
           >
-            Review your plan before
-            payment.
+            Review your plan
+            before payment.
           </p>
         </div>
 
@@ -208,8 +239,10 @@ export default function CheckoutPage() {
               marginTop: '32px',
               border:
                 '1px solid #2d2d2d',
-              background: '#101010',
-              borderRadius: '24px',
+              background:
+                '#101010',
+              borderRadius:
+                '24px',
               padding: '26px'
             }}
           >
@@ -291,7 +324,8 @@ export default function CheckoutPage() {
                 width: '100%',
                 marginTop: '26px',
                 border: 0,
-                borderRadius: '30px',
+                borderRadius:
+                  '30px',
                 padding: '16px',
                 fontSize: '16px',
                 fontWeight: '600',
@@ -305,7 +339,10 @@ export default function CheckoutPage() {
               }}
             >
               Continue to payment
-              <ArrowRight size={18} />
+
+              <ArrowRight
+                size={18}
+              />
             </button>
 
             <div
@@ -324,6 +361,7 @@ export default function CheckoutPage() {
               <ShieldCheck
                 size={15}
               />
+
               Secure checkout
             </div>
           </div>
