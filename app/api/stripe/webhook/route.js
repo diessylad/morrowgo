@@ -1,8 +1,14 @@
 import {
+  randomUUID,
   createHash,
   createHmac,
   timingSafeEqual
 } from 'crypto';
+
+import {
+  createEsimGoTransaction,
+  getEsimInstallDetails
+} from '../../../../lib/esimgoFulfillment';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,7 +62,7 @@ async function redisCommand(command) {
       .json()
       .catch(() => null);
 
-  if (!response.ok) {
+  if (!response.ok || !data || data.error) {
     throw new Error(
       `Redis failed: ${response.status}`
     );
@@ -412,15 +418,25 @@ async function validateEsimGoOrder(
   };
 }
 
-async function saveOrder(
-  key,
-  order
-) {
-  await redisCommand([
-    'SET',
-    key,
-    JSON.stringify(order)
+async function saveOrder(key, order, lockKey, lockToken) {
+  // Only the current lock owner may change the order.
+  const saved = await redisCommand([
+    'EVAL',
+    "if redis.call('GET', KEYS[1]) == ARGV[1] then redis.call('SET', KEYS[2], ARGV[2]); return 1 else return 0 end",
+    '2', lockKey, key, lockToken, JSON.stringify(order)
   ]);
+  if (saved !== 1) throw new Error('Order lock lost');
+}
+
+async function finishInstallation(apiKey, order, persist) {
+  const installDetails = await getEsimInstallDetails(apiKey, order.orderReference);
+  await persist({
+    ...order,
+    installDetails,
+    status: 'ready',
+    fulfillmentStatus: 'ready',
+    updatedAt: new Date().toISOString()
+  });
 }
 
 export async function POST(
@@ -573,6 +589,11 @@ export async function POST(
   const lockKey =
     `morrowgo:lock:${sessionId}`;
 
+  const fulfillmentEnabled =
+    String(process.env.ESIM_GO_FULFILLMENT_ENABLED || '').toLowerCase() === 'true';
+  const lockToken = randomUUID();
+  const attemptKey = `morrowgo:fulfillment-attempt:${sessionId}`;
+  const persist = (order) => saveOrder(orderKey, order, lockKey, lockToken);
   let lockAcquired = false;
 
   try {
@@ -586,7 +607,7 @@ export async function POST(
       await redisCommand([
         'SET',
         lockKey,
-        event.id,
+        lockToken,
         'NX',
         'EX',
         '300'
@@ -602,10 +623,8 @@ export async function POST(
         }
       );
 
-      return Response.json({
-        received: true,
-        duplicate: true
-      });
+      // Ask Stripe to retry if the current owner fails.
+      return Response.json({ received: false, retry: true }, { status: 503 });
     }
 
     lockAcquired = true;
@@ -620,41 +639,41 @@ export async function POST(
         orderKey
       ]);
 
+    let existingOrder = null;
     if (existing) {
-      let existingOrder =
-        null;
+      // Corrupt state must never be treated as permission to buy again.
+      existingOrder = JSON.parse(existing);
+      if (!existingOrder || !existingOrder.status) throw new Error('Invalid stored order');
 
-      try {
-        existingOrder =
-          JSON.parse(
-            existing
-          );
-      } catch {
+      if (existingOrder.status === 'ready') {
+        return Response.json({ received: true, duplicate: true });
       }
-
-      if (
-        existingOrder &&
-        existingOrder.status &&
-        existingOrder.status !==
-          'processing'
-      ) {
-        console.log(
-          'MORROWGO_ORDER_ALREADY_EXISTS',
-          {
-            sessionId,
-            status:
-              existingOrder.status
-          }
-        );
-
-        return Response.json({
-          received: true,
-          duplicate: true
-        });
+      if (existingOrder.orderReference) {
+        if (fulfillmentEnabled) {
+          await finishInstallation(esimGoApiKey, existingOrder, persist);
+        }
+        return Response.json({ received: true });
       }
     }
 
+    // A permanent marker protects against duplicate purchases even after a
+    // process crash, Redis write failure, or expiration of the 300-second lock.
+    if (await redisCommand(['GET', attemptKey])) {
+      console.error('MORROWGO_FULFILLMENT_RECONCILIATION_REQUIRED', { sessionId });
+      return Response.json({ received: true, requiresReconciliation: true });
+    }
+
+    if (existingOrder &&
+        existingOrder.status !== 'processing' &&
+        !(fulfillmentEnabled && (
+          existingOrder.status === 'validated' ||
+          (existingOrder.status === 'fulfilling' && existingOrder.fulfillmentStatus === 'transaction_pending')
+        ))) {
+      return Response.json({ received: true, duplicate: true });
+    }
+
     const baseOrder = {
+      ...existingOrder,
       stripeSessionId:
         sessionId,
 
@@ -687,7 +706,7 @@ export async function POST(
         null,
 
       createdAt:
-        new Date()
+        existingOrder?.createdAt || new Date()
           .toISOString(),
 
       updatedAt:
@@ -695,10 +714,7 @@ export async function POST(
           .toISOString()
     };
 
-    await saveOrder(
-      orderKey,
-      baseOrder
-    );
+    await persist(baseOrder);
 
     console.log(
       'MORROWGO_ORDER_CREATED',
@@ -732,6 +748,9 @@ export async function POST(
         status:
           'validated',
 
+        bundleName: bundle.name,
+        fulfillmentStatus: 'awaiting_fulfillment',
+
         esimGoValidation: {
           valid: true,
 
@@ -751,10 +770,35 @@ export async function POST(
             .toISOString()
       };
 
-      await saveOrder(
-        orderKey,
-        validatedOrder
-      );
+      await persist(validatedOrder);
+
+      if (fulfillmentEnabled) {
+        const purchasingOrder = {
+          ...validatedOrder,
+          status: 'fulfilling',
+          fulfillmentStatus: 'transaction_pending',
+          updatedAt: new Date().toISOString()
+        };
+        await persist(purchasingOrder);
+        const claimed = await redisCommand([
+          'SET', attemptKey, lockToken, 'NX'
+        ]);
+        if (claimed !== 'OK') {
+          return Response.json({ received: true, requiresReconciliation: true });
+        }
+
+        // Do not retry a transaction with an uncertain result. Keep the marker.
+        const transaction = await createEsimGoTransaction(esimGoApiKey, bundle.name);
+        const purchasedOrder = {
+          ...purchasingOrder,
+          orderReference: transaction.orderReference,
+          fulfillmentStatus: 'installation_pending',
+          updatedAt: new Date().toISOString()
+        };
+        await persist(purchasedOrder);
+        await finishInstallation(esimGoApiKey, purchasedOrder, persist);
+      }
+
 
       console.log(
         'MORROWGO_ESIMGO_VALIDATE_OK',
@@ -789,10 +833,7 @@ export async function POST(
             .toISOString()
       };
 
-      await saveOrder(
-        orderKey,
-        failedOrder
-      );
+      await persist(failedOrder);
 
       console.error(
         'MORROWGO_ESIMGO_VALIDATE_FAILED',
@@ -813,17 +854,17 @@ export async function POST(
       'MORROWGO_ORDER_PROCESSING_ERROR',
       {
         sessionId,
-        error:
-          error?.message ||
-          'Unknown error'
+        error: 'Order processing failed'
       }
     );
+    return Response.json({ received: false, error: 'Order processing failed' }, { status: 500 });
   } finally {
     if (lockAcquired) {
       try {
         await redisCommand([
-          'DEL',
-          lockKey
+          'EVAL',
+          "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end",
+          '1', lockKey, lockToken
         ]);
       } catch {
       }
