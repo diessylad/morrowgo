@@ -17,36 +17,42 @@ const destinations = [
   {
     name: 'Germany',
     ru: 'Германия',
+    iso: 'DE',
     price: '€4.50',
     image: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Turkey',
     ru: 'Турция',
+    iso: 'TR',
     price: '€3.90',
     image: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'USA',
     ru: 'США',
+    iso: 'US',
     price: '€4.90',
     image: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Italy',
     ru: 'Италия',
+    iso: 'IT',
     price: '€4.90',
     image: 'https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Spain',
     ru: 'Испания',
+    iso: 'ES',
     price: '€4.50',
     image: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=900&q=80'
   },
   {
     name: 'Thailand',
     ru: 'Таиланд',
+    iso: 'TH',
     price: '€4.90',
     image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=900&q=80'
   }
@@ -120,7 +126,10 @@ export default function Home() {
   const [lang, setLang] = useState('en');
   const [query, setQuery] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [livePrices, setLivePrices] = useState({});
+
   const t = copy[lang];
+
   const filteredDestinations = destinations.filter((destination) =>
     [destination.name, destination.ru].some((name) =>
       name.toLocaleLowerCase().includes(searchTerm)
@@ -128,25 +137,83 @@ export default function Home() {
   );
 
   useEffect(() => {
+    async function loadPrices() {
+      const prices = {};
+
+      await Promise.all(
+        destinations.map(async (destination) => {
+          try {
+            const response = await fetch(
+              `/api/esimgo/catalogue?country=${destination.iso}`
+            );
+
+            const data = await response.json();
+
+            if (
+              data.ok &&
+              Array.isArray(data.packages) &&
+              data.packages.length > 0
+            ) {
+              const firstPrice = Number(data.packages[0].price);
+
+              if (Number.isFinite(firstPrice)) {
+                prices[destination.iso] = firstPrice;
+              }
+            }
+          } catch {
+            // Если API временно недоступен,
+            // остаётся старая резервная цена.
+          }
+        })
+      );
+
+      setLivePrices(prices);
+    }
+
+    loadPrices();
+  }, []);
+
+  useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
 
   function submitSearch(event) {
     event.preventDefault();
-    setSearchTerm(query.trim().toLocaleLowerCase());
-    document.getElementById('destinations').scrollIntoView({ behavior: 'smooth' });
+
+    setSearchTerm(
+      query.trim().toLocaleLowerCase()
+    );
+
+    document
+      .getElementById('destinations')
+      .scrollIntoView({
+        behavior: 'smooth'
+      });
   }
 
   return (
     <main>
       <header className="nav wrap">
-        <a className="logo">MORROWGO</a>
+        <a className="logo">
+          MORROWGO
+        </a>
 
         <nav>
-          <a href="#destinations">eSIM</a>
-          <a href="#destinations">{t.destinations}</a>
-          <a href="#how">{t.how}</a>
-          <a href="#support">{t.support}</a>
+          <a href="#destinations">
+            eSIM
+          </a>
+
+          <a href="#destinations">
+            {t.destinations}
+          </a>
+
+          <a href="#how">
+            {t.how}
+          </a>
+
+          <a href="#support">
+            {t.support}
+          </a>
         </nav>
 
         <div className="navRight">
@@ -155,17 +222,41 @@ export default function Home() {
           <span
             role="button"
             tabIndex={0}
-            aria-label={lang === 'en' ? 'Switch to Russian' : 'Переключить на английский'}
+            aria-label={
+              lang === 'en'
+                ? 'Switch to Russian'
+                : 'Переключить на английский'
+            }
             onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
+              if (
+                event.key === 'Enter' ||
+                event.key === ' '
+              ) {
                 event.preventDefault();
-                setLang(lang === 'en' ? 'ru' : 'en');
+
+                setLang(
+                  lang === 'en'
+                    ? 'ru'
+                    : 'en'
+                );
               }
             }}
-            onClick={() => setLang(lang === 'en' ? 'ru' : 'en')}
-            style={{ cursor: 'pointer' }}
+            onClick={() =>
+              setLang(
+                lang === 'en'
+                  ? 'ru'
+                  : 'en'
+              )
+            }
+            style={{
+              cursor: 'pointer'
+            }}
           >
-            ◎ &nbsp; {lang === 'en' ? 'EN' : 'RU'}⌄
+            ◎ &nbsp;
+            {lang === 'en'
+              ? 'EN'
+              : 'RU'}
+            ⌄
           </span>
 
           <button className="cart">
@@ -195,30 +286,49 @@ export default function Home() {
               {t.desc2}
             </p>
 
-            <form className="search" onSubmit={submitSearch}>
+            <form
+              className="search"
+              onSubmit={submitSearch}
+            >
               <Search />
+
               <input
                 type="text"
                 aria-label={t.search}
                 placeholder={t.search}
                 value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) =>
+                  setQuery(
+                    event.target.value
+                  )
+                }
               />
-              <button type="submit" aria-label={t.submitSearch}>
+
+              <button
+                type="submit"
+                aria-label={
+                  t.submitSearch
+                }
+              >
                 <ArrowRight />
               </button>
             </form>
 
             <div className="chips">
               {t.chips.map((x) => (
-                <span key={x}>{x}</span>
+                <span key={x}>
+                  {x}
+                </span>
               ))}
             </div>
           </div>
 
           <div className="phone">
             <div className="phoneTop">
-              9:41 <span>▮▮▮ ᯤ ▰</span>
+              9:41
+              <span>
+                ▮▮▮ ᯤ ▰
+              </span>
             </div>
 
             <div className="phoneLogo">
@@ -238,7 +348,8 @@ export default function Home() {
             <div className="phoneLine" />
 
             <div className="activated">
-              ✓ &nbsp; {t.activated}
+              ✓ &nbsp;
+              {t.activated}
             </div>
           </div>
 
@@ -294,15 +405,27 @@ export default function Home() {
         className="wrap destinations"
       >
         <div className="sectionHead">
-          <h2>{t.popular}</h2>
+          <h2>
+            {t.popular}
+          </h2>
 
-          <button onClick={() => { setQuery(''); setSearchTerm(''); }}>
+          <button
+            onClick={() => {
+              setQuery('');
+              setSearchTerm('');
+            }}
+          >
             {t.view}
             <ArrowRight size={16} />
           </button>
         </div>
 
-        {filteredDestinations.length === 0 && <p role="status">{t.noResults}</p>}
+        {filteredDestinations.length === 0 && (
+          <p role="status">
+            {t.noResults}
+          </p>
+        )}
+
         <div className="cards">
           {filteredDestinations.map((d) => (
             <article
@@ -311,21 +434,35 @@ export default function Home() {
             >
               <img
                 src={d.image}
-                alt={lang === 'ru' ? d.ru : d.name}
+                alt={
+                  lang === 'ru'
+                    ? d.ru
+                    : d.name
+                }
               />
 
               <div className="cardBody">
                 <strong>
-                  {lang === 'ru' ? d.ru : d.name}
+                  {lang === 'ru'
+                    ? d.ru
+                    : d.name}
                 </strong>
 
-                <small>{t.from}</small>
+                <small>
+                  {t.from}
+                </small>
 
                 <div>
-                  <b>{d.price}</b>
+                  <b>
+                    {livePrices[d.iso]
+                      ? `$${livePrices[d.iso].toFixed(2)}`
+                      : d.price}
+                  </b>
 
                   <button>
-                    <ArrowRight size={16} />
+                    <ArrowRight
+                      size={16}
+                    />
                   </button>
                 </div>
               </div>
@@ -338,7 +475,9 @@ export default function Home() {
         id="how"
         className="wrap how"
       >
-        <h2>{t.how}</h2>
+        <h2>
+          {t.how}
+        </h2>
 
         <div className="steps">
           <Step
@@ -394,7 +533,9 @@ export default function Home() {
             </small>
 
             <div>
-              <span>Your email</span>
+              <span>
+                Your email
+              </span>
 
               <button>
                 <ArrowRight />
@@ -411,7 +552,11 @@ export default function Home() {
   );
 }
 
-function Benefit({ icon, top, bottom }) {
+function Benefit({
+  icon,
+  top,
+  bottom
+}) {
   return (
     <div className="benefit">
       {icon}
@@ -424,7 +569,12 @@ function Benefit({ icon, top, bottom }) {
   );
 }
 
-function Step({ n, icon, title, text }) {
+function Step({
+  n,
+  icon,
+  title,
+  text
+}) {
   return (
     <div className="step">
       <span className="num">
@@ -436,8 +586,13 @@ function Step({ n, icon, title, text }) {
       </div>
 
       <div>
-        <b>{title}</b>
-        <p>{text}</p>
+        <b>
+          {title}
+        </b>
+
+        <p>
+          {text}
+        </p>
       </div>
     </div>
   );
