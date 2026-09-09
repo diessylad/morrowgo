@@ -36,7 +36,7 @@ test('the fulfillment waiting state is recognized even before status catches up'
   assert.equal(result.poll, false);
 });
 
-for (const status of ['validation_failed', 'failed', 'fulfillment_failed']) {
+for (const status of ['validation_failed', 'failed', 'fulfillment_failed', 'fulfillment_uncertain', 'error']) {
   test(status + ' stops polling and explains that payment is already confirmed', () => {
     const result = orderPresentation({ paid: true, status, fulfillmentStatus: 'awaiting_fulfillment' });
     assert.equal(result.key, 'attention');
@@ -53,6 +53,22 @@ test('ready is terminal and accurately states the page delivery limitation', () 
   assert.match(result.text, /has been issued/i);
   assert.match(result.text, /not yet available on this page/i);
 });
+
+for (const status of ['unknown', 'processing']) {
+  test('a ready fulfillment marker gives consistent ready presentation for ' + status, () => {
+    const result = orderPresentation({ paid: true, status, fulfillmentStatus: 'ready' });
+    assert.equal(result.key, 'ready');
+    assert.equal(result.poll, false);
+  });
+}
+
+for (const status of ['validation_failed', 'fulfillment_uncertain', 'fulfillment_failed', 'failed', 'error']) {
+  test('presentation failure ' + status + ' takes precedence over a stale ready fulfillment marker', () => {
+    const result = orderPresentation({ paid: true, status, fulfillmentStatus: 'ready' });
+    assert.equal(result.key, 'attention');
+    assert.equal(result.poll, false);
+  });
+}
 
 test('an uncertain transaction asks for review instead of endless preparation', () => {
   const result = orderPresentation({ paid: true, status: 'fulfilling', fulfillmentStatus: 'transaction_pending' });
@@ -145,10 +161,11 @@ test('a Stripe session that does not exist returns 404 without reading Redis', a
 });
 
 test('unpaid sessions do not read stored fulfillment information', async t => {
-  const f = fixture(t, { session: { payment_status: 'unpaid' }, order: { status: 'ready' } });
+  const f = fixture(t, { session: { payment_status: 'unpaid' }, order: { status: 'ready', fulfillmentStatus: 'ready', installDetails: { activationCode: 'private-installation' } } });
   const { response, data } = await f.get();
   assert.equal(response.status, 200);
-  assert.deepEqual(data, { ok: true, testMode: true, paid: false, status: 'payment_pending' });
+  assert.deepEqual(data, { ok: true, testMode: true, paid: false, customerStatus: 'payment_pending', status: 'payment_pending' });
+  assert.equal(data.installation, undefined);
   assert.equal(f.calls.length, 1);
 });
 
@@ -156,8 +173,17 @@ test('paid sessions wait for webhook persistence instead of inventing a ready or
   const f = fixture(t);
   const { response, data } = await f.get();
   assert.equal(response.status, 200);
-  assert.deepEqual(data, { ok: true, testMode: true, paid: true, status: 'processing' });
+  assert.deepEqual(data, { ok: true, testMode: true, paid: true, customerStatus: 'payment_confirmed', status: 'processing', iso: null, amount: 500, currency: 'usd' });
   assert.equal(f.calls.length, 2);
+});
+
+test('payment confirmed before webhook persistence includes checkout details without installation', async t => {
+  const f = fixture(t, { session: { metadata: { iso: 'DE', apiKey: 'private-session-value' }, amount_total: 0, currency: 'eur' } });
+  const { response, data } = await f.get();
+  assert.equal(response.status, 200);
+  assert.deepEqual(data, { ok: true, testMode: true, paid: true, customerStatus: 'payment_confirmed', status: 'processing', iso: 'DE', amount: 0, currency: 'eur' });
+  assert.equal(data.installation, undefined);
+  assert.equal(JSON.stringify(data).includes('private-session-value'), false);
 });
 
 for (const status of ['validated', 'validation_failed', 'ready', 'unknown_future_state']) {
@@ -165,7 +191,12 @@ for (const status of ['validated', 'validation_failed', 'ready', 'unknown_future
     const f = fixture(t, { order: { status, fulfillmentStatus: status === 'validated' ? 'awaiting_fulfillment' : null, iso: 'DE', amount: 700, currency: 'eur' } });
     const { response, data } = await f.get();
     assert.equal(response.status, 200);
-    assert.deepEqual(data, { ok: true, paid: true, testMode: true, status, fulfillmentStatus: status === 'validated' ? 'awaiting_fulfillment' : null, iso: 'DE', amount: 700, currency: 'eur' });
+    assert.deepEqual(data, {
+      ok: true, paid: true, testMode: true, status,
+      customerStatus: status === 'ready' ? 'ready' : status === 'validated' ? 'awaiting_esim' : 'needs_attention',
+      fulfillmentStatus: status === 'validated' ? 'awaiting_fulfillment' : null, iso: 'DE', amount: 700, currency: 'eur',
+      ...(status === 'ready' ? { installation: null } : {})
+    });
   });
 }
 
@@ -200,21 +231,75 @@ test('a stored order missing status requires review instead of automatic process
   const { response, data } = await f.get();
   assert.equal(response.status, 200);
   assert.equal(data.status, 'unknown');
+  assert.equal(data.customerStatus, 'needs_attention');
   assert.equal(orderPresentation(data).poll, false);
   assert.equal(orderPresentation(data).key, 'attention');
 });
 
-test('status JSON is an allowlist and never exposes private installation or customer data', async t => {
+test('ready installation JSON is an allowlist without ICCID, customer data, API keys or raw source', async t => {
   const privateValue = 'private-installation-and-customer-value';
+  const installation = {
+    appleInstallUrl: 'https://esimsetup.apple.com/esim_qrcode_provisioning?carddata=demo',
+    androidInstallUrl: 'https://example.test/install?code=demo',
+    smdpAddress: 'demo.smdp.test', matchingId: 'demo-matching-id', activationCode: 'LPA:1$demo.smdp.test$demo-matching-id', profileStatus: 'Released'
+  };
   const f = fixture(t, { order: {
     status: 'ready', iso: 'DE', amount: 500, currency: 'usd', fulfillmentStatus: 'ready',
-    orderReference: privateValue, installDetails: { activationCode: privateValue, matchingId: privateValue, smdpAddress: privateValue, iccid: privateValue },
+    orderReference: privateValue, installDetails: { ...installation, iccid: privateValue, email: privateValue, apiKey: privateValue, raw: { secret: privateValue } },
     email: privateValue, customer: { email: privateValue }, validationResult: { secret: privateValue }, apiKey: privateValue
   }, session: { customer_details: { email: privateValue }, metadata: { secret: privateValue } } });
   const { response, data } = await f.get();
   assert.equal(response.status, 200);
-  assert.deepEqual(Object.keys(data).sort(), ['amount', 'currency', 'fulfillmentStatus', 'iso', 'ok', 'paid', 'status', 'testMode']);
+  assert.deepEqual(Object.keys(data).sort(), ['amount', 'currency', 'customerStatus', 'fulfillmentStatus', 'installation', 'iso', 'ok', 'paid', 'status', 'testMode']);
+  assert.deepEqual(data.installation, installation);
   assert.equal(JSON.stringify(data).includes(privateValue), false);
+});
+
+test('ready legacy esim data produces an activation code from the approved installation fields', async t => {
+  const f = fixture(t, { order: { status: 'ready', esim: { smdpAddress: 'demo.smdp.test', matchingId: 'demo-id', iccid: 'private-iccid' } } });
+  const { data } = await f.get();
+  assert.deepEqual(data.installation, {
+    appleInstallUrl: null, androidInstallUrl: null,
+    smdpAddress: 'demo.smdp.test', matchingId: 'demo-id',
+    activationCode: 'LPA:1$demo.smdp.test$demo-id', profileStatus: null
+  });
+  assert.equal(JSON.stringify(data).includes('private-iccid'), false);
+});
+
+for (const status of ['validated', 'awaiting_fulfillment', 'processing', 'fulfilling', 'unknown_future_state']) {
+  test('paid but not ready order ' + status + ' cannot expose installation data', async t => {
+    const f = fixture(t, { order: { status, installDetails: { activationCode: 'private-unreleased-code' } } });
+    const { response, data } = await f.get();
+    assert.equal(response.status, 200);
+    assert.equal(data.customerStatus, status === 'unknown_future_state' ? 'needs_attention' : 'awaiting_esim');
+    assert.equal(data.installation, undefined);
+    assert.equal(JSON.stringify(data).includes('private-unreleased-code'), false);
+  });
+}
+
+for (const status of ['validation_failed', 'fulfillment_uncertain', 'fulfillment_failed', 'failed', 'error']) {
+  test('failure ' + status + ' wins over stale fulfillment ready and hides installation', async t => {
+    const f = fixture(t, { order: { status, fulfillmentStatus: 'ready', installDetails: { activationCode: 'private-unreleased-code' } } });
+    const { response, data } = await f.get();
+    assert.equal(response.status, 200);
+    assert.equal(data.customerStatus, 'needs_attention');
+    assert.equal(data.installation, undefined);
+  });
+}
+
+test('an uncertain transaction is customer attention with installation withheld', async t => {
+  const f = fixture(t, { order: { status: 'fulfilling', fulfillmentStatus: 'transaction_pending', installDetails: { activationCode: 'private-unreleased-code' } } });
+  const { data } = await f.get();
+  assert.equal(data.customerStatus, 'needs_attention');
+  assert.equal(data.installation, undefined);
+});
+
+test('a ready fulfillment marker retains the remote customer contract for paid orders', async t => {
+  const f = fixture(t, { order: { status: 'fulfilling', fulfillmentStatus: 'ready', installDetails: { activationCode: 'LPA:1$demo.smdp.test$demo-id' } } });
+  const { data } = await f.get();
+  assert.equal(data.customerStatus, 'ready');
+  assert.equal(data.status, 'fulfilling');
+  assert.equal(data.installation.activationCode, 'LPA:1$demo.smdp.test$demo-id');
 });
 
 for (const options of [{ redisError: true }, { redisStatus: 503 }, { redisMalformed: true }, { redisThrow: true }]) {
