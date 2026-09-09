@@ -31,6 +31,9 @@ export default function CheckoutPage() {
   const [loading, setLoading] =
     useState(true);
 
+  const [paymentLoading, setPaymentLoading] =
+    useState(false);
+
   const [error, setError] =
     useState('');
 
@@ -51,10 +54,7 @@ export default function CheckoutPage() {
     setIso(country);
     setPlanId(selectedPlan);
 
-    if (
-      !country ||
-      !selectedPlan
-    ) {
+    if (!country || !selectedPlan) {
       setError(
         'Invalid eSIM plan.'
       );
@@ -131,6 +131,61 @@ export default function CheckoutPage() {
     }
 
     return 'Data plan';
+  }
+
+  async function continueToPayment() {
+    if (!iso || !planId || !plan) {
+      return;
+    }
+
+    try {
+      setPaymentLoading(true);
+      setError('');
+
+      const response =
+        await fetch(
+          '/api/stripe/checkout',
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type':
+                'application/json'
+            },
+
+            body:
+              JSON.stringify({
+                iso,
+                plan: planId
+              })
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data?.ok ||
+        !data?.url
+      ) {
+        throw new Error(
+          data?.stripeError ||
+          data?.error ||
+          'Could not start payment'
+        );
+      }
+
+      window.location.href =
+        data.url;
+    } catch (paymentError) {
+      setError(
+        paymentError?.message ||
+        'Could not start payment.'
+      );
+
+      setPaymentLoading(false);
+    }
   }
 
   return (
@@ -226,7 +281,7 @@ export default function CheckoutPage() {
           <p
             style={{
               marginTop: '40px',
-              color: '#999'
+              color: '#ffb4b4'
             }}
           >
             {error}
@@ -315,11 +370,12 @@ export default function CheckoutPage() {
             </div>
 
             <button
-              onClick={() => {
-                alert(
-                  'Stripe payment will be connected next.'
-                );
-              }}
+              onClick={
+                continueToPayment
+              }
+              disabled={
+                paymentLoading
+              }
               style={{
                 width: '100%',
                 marginTop: '26px',
@@ -329,7 +385,14 @@ export default function CheckoutPage() {
                 padding: '16px',
                 fontSize: '16px',
                 fontWeight: '600',
-                cursor: 'pointer',
+                cursor:
+                  paymentLoading
+                    ? 'wait'
+                    : 'pointer',
+                opacity:
+                  paymentLoading
+                    ? 0.7
+                    : 1,
                 display: 'flex',
                 justifyContent:
                   'center',
@@ -338,11 +401,15 @@ export default function CheckoutPage() {
                 gap: '10px'
               }}
             >
-              Continue to payment
+              {paymentLoading
+                ? 'Opening Stripe...'
+                : 'Continue to payment'}
 
-              <ArrowRight
-                size={18}
-              />
+              {!paymentLoading && (
+                <ArrowRight
+                  size={18}
+                />
+              )}
             </button>
 
             <div
