@@ -105,6 +105,101 @@ async function getStripeSession(
   return data;
 }
 
+function getCustomerStatus(order) {
+  const status =
+    String(
+      order?.status || ''
+    );
+
+  const fulfillmentStatus =
+    String(
+      order?.fulfillmentStatus || ''
+    );
+
+  if (
+    status === 'validation_failed' ||
+    status === 'fulfillment_uncertain' ||
+    status === 'fulfillment_failed' ||
+    status === 'failed' ||
+    status === 'error'
+  ) {
+    return 'needs_attention';
+  }
+
+  if (status === 'fulfilling' && fulfillmentStatus === 'transaction_pending') {
+    return 'needs_attention';
+  }
+
+  if (status === 'ready' || fulfillmentStatus === 'ready') {
+    return 'ready';
+  }
+
+  if (
+    status === 'validated' ||
+    status === 'awaiting_fulfillment' ||
+    status === 'processing' ||
+    status === 'fulfilling' ||
+    fulfillmentStatus ===
+      'awaiting_fulfillment' ||
+    fulfillmentStatus ===
+      'transaction_pending' ||
+    fulfillmentStatus ===
+      'installation_pending'
+  ) {
+    return 'awaiting_esim';
+  }
+
+  return 'needs_attention';
+}
+
+function getInstallation(order) {
+  const source =
+    order?.installDetails ||
+    order?.esim ||
+    null;
+
+  if (!source) {
+    return null;
+  }
+
+  const smdpAddress =
+    source.smdpAddress ||
+    null;
+
+  const matchingId =
+    source.matchingId ||
+    null;
+
+  const activationCode =
+    source.activationCode ||
+    (
+      smdpAddress &&
+      matchingId
+        ? `LPA:1$${smdpAddress}$${matchingId}`
+        : null
+    );
+
+  return {
+    appleInstallUrl:
+      source.appleInstallUrl ||
+      null,
+
+    androidInstallUrl:
+      source.androidInstallUrl ||
+      null,
+
+    smdpAddress,
+
+    matchingId,
+
+    activationCode,
+
+    profileStatus:
+      source.profileStatus ||
+      null
+  };
+}
+
 export async function GET(request) {
   try {
     const url =
@@ -134,10 +229,6 @@ export async function GET(request) {
       );
     }
 
-    /*
-      Проверяем оплату напрямую
-      через Stripe.
-    */
     const stripeSession =
       await getStripeSession(
         sessionId
@@ -165,15 +256,13 @@ export async function GET(request) {
         ok: true,
         testMode: stripeSession.livemode === false,
         paid: false,
+        customerStatus:
+          'payment_pending',
         status:
           'payment_pending'
       });
     }
 
-    /*
-      Ищем заказ MORROWGO,
-      созданный webhook.
-    */
     const orderKey =
       `morrowgo:order:${sessionId}`;
 
@@ -183,18 +272,33 @@ export async function GET(request) {
         orderKey
       ]);
 
-    /*
-      Stripe уже подтвердил оплату,
-      но webhook может прийти
-      на несколько секунд позже.
-    */
     if (!stored) {
       return json({
         ok: true,
         testMode: stripeSession.livemode === false,
         paid: true,
+
+        customerStatus:
+          'payment_confirmed',
+
         status:
-          'processing'
+          'processing',
+
+        iso:
+          stripeSession
+            ?.metadata
+            ?.iso ||
+          null,
+
+        amount:
+          stripeSession
+            .amount_total ??
+          null,
+
+        currency:
+          stripeSession
+            .currency ||
+          null
       });
     }
 
@@ -219,12 +323,17 @@ export async function GET(request) {
       );
     }
 
-    return json({
+    const customerStatus =
+      getCustomerStatus(order);
+
+    const result = {
       ok: true,
 
       paid: true,
       testMode: stripeSession.livemode === false,
       fulfillmentStatus: order.fulfillmentStatus || null,
+
+      customerStatus,
 
       status:
         order.status ||
@@ -232,6 +341,9 @@ export async function GET(request) {
 
       iso:
         order.iso ||
+        stripeSession
+          ?.metadata
+          ?.iso ||
         null,
 
       amount:
@@ -245,13 +357,28 @@ export async function GET(request) {
         stripeSession
           .currency ||
         null
-    });
-  } catch (error) {
+    };
+
+    /*
+      Installation details are exposed
+      only after the order is actually ready.
+    */
+    if (
+      customerStatus === 'ready'
+    ) {
+      result.installation =
+        getInstallation(order);
+    }
+
+    return json(
+      result
+    );
+  } catch {
     return json(
       {
         ok: false,
-
-        error: 'Could not load order'
+        error:
+          'Could not load order'
       },
       {
         status: 500
