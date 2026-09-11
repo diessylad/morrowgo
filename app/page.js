@@ -330,8 +330,8 @@ export default function Home() {
             ⌄
           </span>
 
-          <a className="cart" href="/help" style={{color:'#111'}}>
-            {t.support}
+          <a className="cart" href="/account" style={{color:'#111'}}>
+            My MORROWGO
           </a>
         </div>
       </header>
@@ -663,7 +663,9 @@ export default function Home() {
           </div>
 
           <div className="customerLinks">
+            <a href="/account">My MORROWGO</a>
             <a href="/help">{lang === 'ru' ? 'Помощь и FAQ' : 'Help & FAQ'}</a>
+            <a href="mailto:support@morrowgo.com">support@morrowgo.com</a>
             <a href="/compatibility">{lang === 'ru' ? 'Совместимость телефона' : 'Device compatibility'}</a>
             <a href="/demo/order">{lang === 'ru' ? 'Пример заказа · демо' : 'Sample order · demo'}</a>
           </div>
