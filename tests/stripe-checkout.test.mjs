@@ -2,16 +2,20 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const source = await readFile(new URL('../app/api/stripe/checkout/route.js', import.meta.url), 'utf8');
+const authModule = 'data:text/javascript;base64,' + Buffer.from('export async function getVerifiedAccount() { return globalThis.__checkoutAccount; }').toString('base64');
+const source = (await readFile(new URL('../app/api/stripe/checkout/route.js', import.meta.url), 'utf8')).replace("'../../../../lib/auth/session'", JSON.stringify(authModule));
 const { POST } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 const privateValue = 'test-only-private-stripe-value';
 
 function fixture(t, options = {}) {
   const originalFetch = globalThis.fetch;
+  const originalAccount = globalThis.__checkoutAccount;
+  globalThis.__checkoutAccount = options.account || { configured: false, user: null, error: null };
   const originalKey = process.env.STRIPE_SECRET_KEY;
   process.env.STRIPE_SECRET_KEY = privateValue;
   t.after(() => {
     globalThis.fetch = originalFetch;
+    globalThis.__checkoutAccount = originalAccount;
     if (originalKey === undefined) delete process.env.STRIPE_SECRET_KEY;
     else process.env.STRIPE_SECRET_KEY = originalKey;
   });
@@ -108,3 +112,47 @@ test('invalid country is rejected before any provider call', async t => {
   assert.deepEqual(data, { ok: false, error: 'Invalid checkout request' });
   assert.equal(f.calls.length, 0);
 });
+
+const userA = '11111111-1111-4111-8111-111111111111';
+const userB = '22222222-2222-4222-8222-222222222222';
+
+test('authenticated checkout binds only the verified server user and catalogue label', async t => {
+  const f = fixture(t, { account: { configured: true, user: { id: userA }, error: null } });
+  const { response } = await f.send({ iso: 'DE', plan: 'plan-example', user_id: userB,
+    morrowgo_user_id: userB, metadata: { morrowgo_user_id: userB, morrowgo_plan_name: 'forged label' },
+    client_reference_id: userB, customer: 'cus_forged' });
+  assert.equal(response.status, 200);
+  const params = f.stripeParams();
+  assert.equal(params.get('metadata[morrowgo_user_id]'), userA);
+  assert.equal(params.get('metadata[morrowgo_plan_name]'), 'Germany · 1 GB / 7 days');
+  assert.equal(params.get('customer'), null);
+  assert.equal(params.get('client_reference_id'), null);
+  assert.equal(params.toString().includes(userB), false);
+});
+
+for (const account of [
+  { configured: false, user: null, error: null },
+  { configured: true, user: null, error: { name: 'AuthSessionMissingError' } },
+  { configured: true, user: null, error: null }
+]) {
+  test('guest cannot assign a paid order to a supplied user ID: ' + JSON.stringify(account), async t => {
+    const f = fixture(t, { account });
+    const { response } = await f.send({ iso: 'DE', plan: 'plan-example', user_id: userB, metadata: { morrowgo_user_id: userB } });
+    assert.equal(response.status, 200);
+    assert.equal(f.stripeParams().get('metadata[morrowgo_user_id]'), null);
+  });
+}
+
+for (const account of [
+  { configured: true, user: null, error: { name: 'AuthRetryableFetchError' } },
+  { configured: true, user: null, error: 'unavailable' },
+  { configured: true, user: { id: 'forged' }, error: null }
+]) {
+  test('failed identity verification cannot silently charge an authenticated customer as guest: ' + JSON.stringify(account), async t => {
+    const f = fixture(t, { account });
+    const { response, data } = await f.send();
+    assert.equal(response.status, 500);
+    assert.deepEqual(data, { ok: false, error: 'Could not create checkout' });
+    assert.equal(f.calls.length, 0);
+  });
+}

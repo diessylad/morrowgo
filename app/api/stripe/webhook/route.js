@@ -10,6 +10,8 @@ import {
   getEsimInstallDetails
 } from '../../../../lib/esimgoFulfillment';
 
+import { syncPaidCustomerOrder } from '../../../../lib/account/stripeOrders';
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -581,6 +583,15 @@ export async function POST(
     return Response.json({
       received: true
     });
+  }
+
+  // Sync the account independently of Redis's fulfillment idempotency. A Stripe
+  // retry can repair this row even if fulfillment was processed previously.
+  try {
+    await syncPaidCustomerOrder(session, event.created);
+  } catch {
+    console.error('MORROWGO_CUSTOMER_ORDER_SYNC_FAILED');
+    return Response.json({ received: false, error: 'Account order storage failed' }, { status: 500 });
   }
 
   const orderKey =

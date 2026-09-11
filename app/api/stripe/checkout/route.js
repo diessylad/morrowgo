@@ -1,3 +1,5 @@
+import { getVerifiedAccount } from '../../../../lib/auth/session';
+
 export const dynamic = 'force-dynamic';
 
 function formatData(plan) {
@@ -60,6 +62,17 @@ export async function POST(request) {
           status: 400
         }
       );
+    }
+
+    // Only Supabase's server-verified session can bind an account to payment.
+    // Browser-supplied user_id, customer IDs and metadata are intentionally ignored.
+    const account = await getVerifiedAccount();
+    if (account.error && account.error.name !== 'AuthSessionMissingError') {
+      throw new Error('Account verification unavailable');
+    }
+    const accountUserId = account.user?.id || null;
+    if (accountUserId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(accountUserId)) {
+      throw new Error('Invalid verified account');
     }
 
     const origin =
@@ -217,6 +230,11 @@ export async function POST(request) {
       'metadata[plan_id]',
       planId
     );
+
+    if (accountUserId) {
+      stripeBody.set('metadata[morrowgo_user_id]', accountUserId.toLowerCase());
+      stripeBody.set('metadata[morrowgo_plan_name]', `${selectedPlan.country} · ${dataLabel} / ${durationLabel}`.slice(0, 500));
+    }
 
     const stripeResponse =
       await fetch(
