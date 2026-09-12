@@ -32,6 +32,7 @@ function fixture(flag, options = {}) {
   let accountFailures = options.accountFailures || 0;
   globalThis.__webhookAdmin = { rpc: async (name, args) => {
     accountCalls.push({ name, args });
+    if (options.accountError) return { data: null, error: options.accountError, status: options.accountStatus };
     if (options.accountOwnerMismatch || accountFailures-- > 0) return { data: null, error: { message: 'test-private-database-error' } };
     return { data: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', error: null };
   } };
@@ -278,6 +279,51 @@ test('account storage failure retries before fulfillment and exposes no upstream
   assert.equal(f.db.size, 0); assert.equal(f.calls.length, 0);
   assert.equal((await f.send(linkedPayment())).status, 200);
   assert.equal(f.accountCalls.length, 2); assert.deepEqual(f.calls, ['catalogue','validate']);
+});
+
+test('account sync logs safe Supabase diagnostics only on the server and stays fail closed', async t => {
+  const f = fixture('false', { accountStatus: 404, accountError: {
+    message: 'Could not find the function public.record_paid_customer_order in the schema cache', code: 'PGRST202',
+    details: 'PRIVATE_ROW_DATA', hint: 'PRIVATE_HINT', headers: { authorization: 'PRIVATE_AUTH' }
+  } });
+  const logged = t.mock.method(console, 'error', () => {});
+  const response = await f.send(linkedPayment());
+  assert.equal(response.status, 500);
+  assert.deepEqual(await response.json(), { received: false, error: 'Account order storage failed' });
+  assert.equal(f.db.size, 0); assert.equal(f.calls.length, 0);
+  const [marker, diagnostic] = logged.mock.calls[0].arguments;
+  assert.equal(marker, 'MORROWGO_CUSTOMER_ORDER_SYNC_FAILED');
+  assert.equal(diagnostic.code, 'PGRST202'); assert.match(diagnostic.message, /schema cache/);
+  assert.equal(diagnostic.details.httpStatus, 404); assert.equal(diagnostic.details.stage, 'rpc');
+  assert.equal(JSON.stringify(diagnostic).includes('PRIVATE_'), false);
+  assert.equal(JSON.stringify(diagnostic).includes('cs_test_'), false);
+});
+
+test('reflected secrets never reach webhook diagnostics or HTTP responses', async t => {
+  const f = fixture('false', { accountStatus: 403, accountError: {
+    message: 'permission denied test_webhook_secret test_redis_token test_esim_key sk_live_FAKE_SECRET',
+    code: '42501', details: 'customer PRIVATE_DATA', stack: 'token PRIVATE_DATA'
+  } });
+  const logged = t.mock.method(console, 'error', () => {});
+  const response = await f.send(linkedPayment());
+  const output = JSON.stringify(logged.mock.calls.map(call => call.arguments)) + await response.text();
+  for (const secret of ['test_webhook_secret', 'test_redis_token', 'test_esim_key', 'sk_live_FAKE_SECRET', 'PRIVATE_DATA']) {
+    assert.equal(output.includes(secret), false);
+  }
+  assert.match(output, /permission denied/); assert.match(output, /42501/);
+  assert.equal(response.status, 500); assert.equal(f.db.size, 0); assert.equal(f.calls.length, 0);
+});
+
+test('a rejected RPC promise is logged safely and guest requests still skip it', async t => {
+  const f = fixture('false');
+  globalThis.__webhookAdmin.rpc = async () => { throw Object.assign(new Error('fetch failed'), { code: 'ECONNRESET', details: 'PRIVATE_DATA' }); };
+  const logged = t.mock.method(console, 'error', () => {});
+  assert.equal((await f.send(linkedPayment())).status, 500);
+  const diagnostic = logged.mock.calls[0].arguments[1];
+  assert.equal(diagnostic.message, 'fetch failed'); assert.equal(diagnostic.code, 'ECONNRESET');
+  assert.equal(diagnostic.details.stage, 'rpc'); assert.equal(f.db.size, 0); assert.equal(f.calls.length, 0);
+  assert.equal((await f.send()).status, 200);
+  assert.equal(logged.mock.calls.length, 1);
 });
 
 test('a Redis-ready duplicate still repairs the account row without provider calls', async () => {

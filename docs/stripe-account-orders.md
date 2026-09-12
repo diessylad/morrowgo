@@ -52,6 +52,22 @@ returns a generic HTTP 500 and Stripe can retry. No Redis/fulfillment work is
 started by that failed attempt. A DB commit followed by a network timeout is
 safe to retry because the mapping is unique.
 
+For diagnosis, the server log `MORROWGO_CUSTOMER_ORDER_SYNC_FAILED` now includes
+the upstream `message` (redacted and limited to 500 characters), `code`, and an
+allowlisted `details` object: failure stage, HTTP status, RPC name, and booleans
+indicating whether the Supabase URL/server key are configured. It never logs
+the full error/session/customer, raw database details/hints, stack, request
+headers, credentials or RPC argument values. The HTTP response stays generic.
+For example, `PGRST202` with HTTP 404 identifies an RPC/schema-cache lookup
+failure; `42501` identifies a permission failure. Configuration booleans confirm
+presence only, not key validity or that the key and URL belong to the same project.
+
+This diagnostics-only update needs no new migration or environment variable.
+Deploy both `lib/account/stripeOrders.js` and `app/api/stripe/webhook/route.js`
+together, then Resend the existing failed Stripe test event and inspect its
+Vercel log. A new payment is not required. The original generic log does not
+contain enough information to establish which upstream failure occurred.
+
 Account payment status is separate from eSIM validation/delivery. A payment can
 appear as `paid` even when provider validation fails. This change neither issues
 eSIMs nor creates `customer_esims` records or top-ups, and does not modify the

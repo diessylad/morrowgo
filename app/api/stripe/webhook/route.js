@@ -10,7 +10,7 @@ import {
   getEsimInstallDetails
 } from '../../../../lib/esimgoFulfillment';
 
-import { syncPaidCustomerOrder } from '../../../../lib/account/stripeOrders';
+import { syncPaidCustomerOrder, getCustomerOrderSyncDiagnostic } from '../../../../lib/account/stripeOrders';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -589,8 +589,8 @@ export async function POST(
   // retry can repair this row even if fulfillment was processed previously.
   try {
     await syncPaidCustomerOrder(session, event.created);
-  } catch {
-    console.error('MORROWGO_CUSTOMER_ORDER_SYNC_FAILED');
+  } catch (error) {
+    console.error('MORROWGO_CUSTOMER_ORDER_SYNC_FAILED', getCustomerOrderSyncDiagnostic(error));
     return Response.json({ received: false, error: 'Account order storage failed' }, { status: 500 });
   }
 
