@@ -337,3 +337,30 @@
   .adFeatures>div,.adFeatures>button{padding:18px 17px}
   .adWords{right:39px;top:65px}
 }
+
+/* Mobile product composition: a compact scene rather than isolated artwork. */
+@media(max-width:700px){
+  .heroScene{min-height:410px;margin-top:24px;isolation:isolate}
+  .heroDeviceAsset{width:290px;left:10%;right:auto;top:0}
+  .apeArtwork{display:block;width:200px;height:250px;right:-24px;top:93px;z-index:0;pointer-events:none}
+  .japanFloat{width:119px;left:0;top:27px}
+  .destinationArt{height:97px}
+  .editorialFloat{left:5px;top:224px;width:112px;padding:15px}
+  .editorialFloat>span{font-size:22px}
+  .editorialFloat>div{margin-top:21px}
+  .referenceNative{padding:27px 24px}
+  .referenceNative h2{font-size:35px;line-height:1.06}
+  .adDeviceAsset{width:285px;margin:8px auto -100px}
+  .adFeatures>div,.adFeatures>button{padding:14px 15px;margin:8px 0}
+}
+@media(max-width:360px){
+  .heroScene{min-height:367px}
+  .heroDeviceAsset{width:255px;left:7%;top:0}
+  .apeArtwork{width:170px;height:213px;right:-20px;top:85px}
+  .japanFloat{width:101px;top:26px}
+  .destinationArt{height:81px}
+  .editorialFloat{width:94px;left:1px;top:204px;padding:12px}
+  .editorialFloat>span{font-size:20px}
+  .referenceNative h2{font-size:31px}
+  .adDeviceAsset{width:248px;margin-bottom:-86px}
+}
