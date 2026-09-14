@@ -10,6 +10,8 @@ const accountSync = (await readFile(new URL('../lib/account/stripeOrders.js', im
   .replace("import 'server-only';", '')
   .replace("'../supabase/admin'", JSON.stringify(adminStub));
 const webhook = (await readFile(new URL('../app/api/stripe/webhook/route.js', import.meta.url), 'utf8'))
+  .replace("'../../../../lib/airalo/fulfillment.mjs'", JSON.stringify(new URL('../lib/airalo/fulfillment.mjs', import.meta.url).href))
+  .replace("'../../../../lib/airalo/account'", JSON.stringify(moduleUrl('export async function syncAiraloEsim() {}')))
   .replace("'../../../../lib/esimgoFulfillment'", JSON.stringify(moduleUrl(fulfillment)))
   .replace("'../../../../lib/account/stripeOrders'", JSON.stringify(moduleUrl(accountSync)));
 const { POST } = await import(moduleUrl(webhook));

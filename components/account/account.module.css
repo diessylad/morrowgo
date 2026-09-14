@@ -3,3 +3,6 @@
 @media(max-width:700px){.page .headerActions .textLink{display:inline-flex}}
 
 .grid>aside{align-self:start}
+
+/* Account surfaces share the approved homepage palette; homepage is untouched. */
+.page{background:#f5f5f2;color:#171817}.header,.sidebarNote,.footer,.details>div,.install,.copyRow,.orderRow{border-color:#dcded9}.page :is(.card,.panel,.empty,.stat,.orderList){background:linear-gradient(145deg,#fff,#eeefeb);border-color:#daddd5;box-shadow:0 12px 34px #15181108}.page :is(.intro,.planName,.muted,.notice,.sidebarNote,.details dt,.orderMain p,.panel p,.empty p,.usageLine,.stat span,.remaining small){color:#60645e}.page .menu a{color:#565b54}.page .menu .active{background:#171a17;color:#fff;border-color:#171a17}.page .button{background:#181b18;color:#fff!important;border-color:#181b18}.page .secondary{background:transparent;color:#222!important;border-color:#aeb3a9}.page .textLink,.page .accountDetail{color:#242824!important}.page .badge{background:#e0eee1;color:#29432e;border-color:#c6d8c9}.page .progress>span{background:#89c998}.page :is(.prelaunch,.demoBanner){background:#e9ede5;color:#414a3e;border-color:#d6dfd0}.page .copyRow code{color:#252a24}.page :is(a,button,summary):focus-visible{outline-color:#3c6945}

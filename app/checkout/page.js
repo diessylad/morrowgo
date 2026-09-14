@@ -80,7 +80,7 @@ export default function CheckoutPage() {
 
         const response =
           await fetch(
-            `/api/esimgo/catalogue?country=${iso}`
+            `/api/catalogue?country=${iso}`
           );
 
         const data =
@@ -368,7 +368,7 @@ export default function CheckoutPage() {
                   fontSize: '28px'
                 }}
               >
-                $
+                €
                 {Number(
                   plan.price
                 ).toFixed(2)}{' USD'}

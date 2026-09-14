@@ -37,7 +37,7 @@ export default function DestinationPage() {
         setError('');
 
         const response = await fetch(
-          `/api/esimgo/catalogue?country=${iso}`
+          `/api/catalogue?country=${iso}`
         );
 
         const data =
@@ -214,7 +214,7 @@ export default function DestinationPage() {
           </p>
         )}
 
-        {!loading && !error && <div className="planControls"><label>Minimum validity<select value={minimumDays} onChange={e => setMinimumDays(Number(e.target.value))}><option value={0}>Any duration</option><option value={7}>7 days</option><option value={14}>14 days</option><option value={30}>30 days</option></select></label><label>Sort plans<select value={sort} onChange={e => setSort(e.target.value)}><option value="price">Lowest total price</option><option value="duration">Shortest validity</option></select></label><a href="/compatibility">Check your phone →</a><p>{visiblePlans.length} plans · Prices in USD. Validity does not necessarily begin on arrival; activation rules depend on the plan.</p>{visiblePlans.length === 0 && <><p>No plans match this duration.</p><button onClick={() => setMinimumDays(0)}>Show all plans</button></>}</div>}
+        {!loading && !error && <div className="planControls"><label>Minimum validity<select value={minimumDays} onChange={e => setMinimumDays(Number(e.target.value))}><option value={0}>Any duration</option><option value={7}>7 days</option><option value={14}>14 days</option><option value={30}>30 days</option></select></label><label>Sort plans<select value={sort} onChange={e => setSort(e.target.value)}><option value="price">Lowest total price</option><option value="duration">Shortest validity</option></select></label><a href="/compatibility">Check your phone →</a><p>{visiblePlans.length} plans · Prices in EUR. Validity does not necessarily begin on arrival; activation rules depend on the plan.</p>{visiblePlans.length === 0 && <><p>No plans match this duration.</p><button onClick={() => setMinimumDays(0)}>Show all plans</button></>}</div>}
         {!loading &&
           !error && (
             <div
@@ -311,6 +311,7 @@ export default function DestinationPage() {
                         : 'days'}
                     </div>
 
+                    <p style={{fontSize:12,color:'#aaa',lineHeight:1.7}}>{plan.operator}{plan.networks?.length ? ` · ${plan.networks.join(' / ')}` : ''}<br/>{plan.packageType === 'data' ? 'Data only' : 'Data, calls and texts'} · {plan.topupAvailable ? 'Top-ups depend on your eSIM' : 'No top-up advertised'}{plan.fairUsage && <><br/>{plan.fairUsage}</>}</p>
                     <div
                       style={{
                         display:
@@ -329,7 +330,7 @@ export default function DestinationPage() {
                             '22px'
                         }}
                       >
-                        $
+                        €
                         {Number(
                           plan.price
                         ).toFixed(

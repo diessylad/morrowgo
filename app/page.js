@@ -1,5 +1,3 @@
 import Experience from '../components/studio/Experience';
-
-export default function HomePage() {
-  return <Experience />;
-}
+import { getVerifiedAccount } from '../lib/auth/session';
+export default async function HomePage() { const { user } = await getVerifiedAccount(); return <Experience authenticated={!!user} />; }

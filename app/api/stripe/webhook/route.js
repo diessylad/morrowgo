@@ -1,3 +1,5 @@
+import { fulfillAiraloSession } from '../../../../lib/airalo/fulfillment.mjs';
+import { syncAiraloEsim } from '../../../../lib/airalo/account';
 import {
   randomUUID,
   createHash,
@@ -465,18 +467,6 @@ export async function POST(
     );
   }
 
-  if (!esimGoApiKey) {
-    return Response.json(
-      {
-        ok: false,
-        error:
-          'eSIM Go API key is not configured'
-      },
-      {
-        status: 500
-      }
-    );
-  }
 
   const rawBody =
     await request.text();
@@ -584,6 +574,13 @@ export async function POST(
       received: true
     });
   }
+
+  if (session.metadata?.provider === 'airalo') {
+    try { const result = await fulfillAiraloSession(session, event, redisCommand, syncPaidCustomerOrder, syncAiraloEsim); return Response.json(result, {status:result.retry ? 503 : 200}); }
+    catch { console.error('MORROWGO_AIRALO_PROCESSING_FAILED'); return Response.json({received:false,error:'Sandbox order processing failed'}, {status:500}); }
+  }
+  // Legacy sessions retain their original provider and safety markers.
+  if (!esimGoApiKey) return Response.json({received:false,error:'Legacy provider unavailable'}, {status:503});
 
   // Sync the account independently of Redis's fulfillment idempotency. A Stripe
   // retry can repair this row even if fulfillment was processed previously.

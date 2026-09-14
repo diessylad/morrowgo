@@ -5,12 +5,15 @@ import { readFile } from 'node:fs/promises';
 const authModule = 'data:text/javascript;base64,' + Buffer.from('export async function getVerifiedAccount() { return globalThis.__checkoutAccount; }').toString('base64');
 const source = (await readFile(new URL('../app/api/stripe/checkout/route.js', import.meta.url), 'utf8')).replace("'../../../../lib/auth/session'", JSON.stringify(authModule));
 const { POST } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
-const privateValue = 'test-only-private-stripe-value';
+const privateValue = 'sk_test_private_fixture';
 
 function fixture(t, options = {}) {
   const originalFetch = globalThis.fetch;
   const originalAccount = globalThis.__checkoutAccount;
   globalThis.__checkoutAccount = options.account || { configured: false, user: null, error: null };
+  const originalMode = process.env.AIRALO_MODE;
+  process.env.AIRALO_MODE = 'sandbox';
+  t.after(() => {if(originalMode === undefined) delete process.env.AIRALO_MODE; else process.env.AIRALO_MODE=originalMode;});
   const originalKey = process.env.STRIPE_SECRET_KEY;
   process.env.STRIPE_SECRET_KEY = privateValue;
   t.after(() => {
@@ -24,7 +27,7 @@ function fixture(t, options = {}) {
   globalThis.fetch = async (url, init = {}) => {
     calls.push({ url: String(url), init });
     assert.equal(init.cache, 'no-store');
-    if (String(url) === 'https://morrowgo.test/api/esimgo/catalogue?country=DE') {
+    if (String(url) === 'https://morrowgo.test/api/catalogue?country=DE') {
       if (options.catalogueThrow) throw new Error(privateValue);
       return Response.json({ ok: true, packages: [plan] });
     }
@@ -80,7 +83,7 @@ test('checkout charges the verified catalogue price and ignores browser price ov
   assert.equal(response.status, 200);
   const params = f.stripeParams();
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), '499');
-  assert.equal(params.get('line_items[0][price_data][currency]'), 'usd');
+  assert.equal(params.get('line_items[0][price_data][currency]'), 'eur');
   assert.equal(params.get('metadata[iso]'), 'DE');
   assert.equal(params.get('metadata[plan_id]'), 'plan-example');
 });

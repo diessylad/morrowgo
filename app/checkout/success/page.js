@@ -41,8 +41,8 @@ export default function SuccessPage() {
     return () => { cancelled = true; controller.abort(); clearTimeout(timer); clearTimeout(deadline); };
   }, [refresh]);
   const view = orderPresentation(order);
-  const total = Number.isFinite(order?.amount) && order?.currency === 'usd'
-    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', currencyDisplay: 'code' }).format(order.amount / 100)
+  const total = Number.isFinite(order?.amount) && ['usd','eur'].includes(order?.currency)
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: order.currency.toUpperCase(), currencyDisplay: 'code' }).format(order.amount / 100)
     : null;
   async function copyReference() {
     try { await navigator.clipboard.writeText(sessionId); setCopied('Order reference copied.'); }
@@ -54,6 +54,7 @@ export default function SuccessPage() {
     {order?.testMode === true && <div className={styles.banner}>Test order — no real Stripe payment. This is a checkout test, not confirmation of a working eSIM.</div>}
     {order && <section className={styles.card}><h2>Order details</h2><dl className={styles.details}><div><dt>Payment</dt><dd>{order.paid ? (order.testMode ? 'Test payment confirmed' : 'Confirmed') : 'Pending'}</dd></div><div><dt>eSIM</dt><dd>{view.key === 'ready' ? 'Issued' : view.key === 'attention' ? 'Needs review' : 'Not ready to install'}</dd></div>{order.iso && <div><dt>Destination</dt><dd>{order.iso}</dd></div>}{total && <div><dt>Total</dt><dd>{total}</dd></div>}</dl></section>}
     {/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId) && <section className={styles.card}><h2>Keep your order reference</h2><p>Save this reference if you need help with your order. Keep your checkout link private.</p><div className={styles.reference}>{sessionId}</div><div className={styles.actions}><button className={`${styles.button} ${styles.secondary}`} onClick={copyReference}>Copy reference</button></div><p role="status" className={styles.muted}>{copied}</p></section>}
+    {order?.installation && <section className={styles.card}><h2>Installation details</h2><p>{order.testMode ? 'Sandbox eSIM — these test details cannot install an eSIM.' : 'Keep installation details private.'}</p><dl className={styles.details}>{Object.entries(order.installation).filter(([key,value]) => ['smdpAddress','activationCode','matchingId'].includes(key) && value).map(([key,value]) => <div key={key}><dt>{key === 'smdpAddress' ? 'SM-DP+ address' : 'Activation code'}</dt><dd>{value}</dd></div>)}</dl></section>}
     {paused && <p className={styles.banner}>Automatic checks have paused. You can check again below; no new payment or order will be created.</p>}
     <div className={styles.actions}><button className={styles.button} disabled={checking || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)} onClick={() => setRefresh(v => v + 1)}>{checking ? 'Checking…' : 'Check status again'}</button><Link className={`${styles.button} ${styles.secondary}`} href="/help">Order help</Link><Link className={`${styles.button} ${styles.secondary}`} href="/">Back to MORROWGO</Link></div>
   </div></main>;

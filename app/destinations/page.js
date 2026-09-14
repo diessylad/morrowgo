@@ -80,7 +80,7 @@ export default function DestinationsPage() {
         setError('');
 
         const response = await fetch(
-          '/api/esimgo/countries'
+          '/api/catalogue/countries'
         );
 
         const data =
@@ -101,6 +101,7 @@ export default function DestinationsPage() {
           data.countries
             .map((item) => ({
               iso: item.iso,
+              fromPrice: item.fromPrice,
 
               name:
                 getCountryName(
@@ -407,7 +408,7 @@ export default function DestinationsPage() {
                           }}
                         >
                           {
-                            country.iso
+                            `From €${country.fromPrice.toFixed(2)}`
                           }
                         </div>
                       </div>

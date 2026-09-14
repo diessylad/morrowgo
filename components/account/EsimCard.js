@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, Copy, Globe2, Plus } from 'lucide-react';
 import styles from './account.module.css';
+import {getUsageSummary} from '../../lib/esims/usage';
 
 const statusLabels = {
   active: 'Active', ready: 'Ready to install', pending: 'Preparing',
@@ -29,7 +30,11 @@ function destinationLabel(esim) {
   return 'Travel eSIM';
 }
 
-export default function EsimCard({ esim, usage = {}, demo = false, asOf }) {
+export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, demo = false, asOf }) {
+  const [esim,setEsim] = useState(initialEsim);
+  const [loading,setLoading] = useState(false);
+  const usage = esim === initialEsim ? initialUsage : getUsageSummary(esim);
+  async function refresh(){setLoading(true);try{const r=await fetch(`/api/account/esims/${esim.id}/sandbox`);const d=await r.json();if(!r.ok)throw new Error();setEsim(d.esim);setNotice('Sandbox data refreshed. Test eSIMs cannot be installed.');}catch{setNotice('Could not refresh Sandbox details. Please try again later.');}finally{setLoading(false);}}
   const [notice, setNotice] = useState('');
   const [topUpOpen, setTopUpOpen] = useState(false);
   const now = asOf ? Date.parse(asOf) : Date.now();
@@ -54,6 +59,8 @@ export default function EsimCard({ esim, usage = {}, demo = false, asOf }) {
       <span className={styles.badge}>{statusLabels[esim.status] || 'Status unavailable'}{demo ? ' · demo' : ''}</span>
     </div>
     <p className={styles.planName}>{esim.planName || 'Plan information pending'}{demo ? ' · example plan' : ''}</p>
+    {!demo && <button className={`${styles.button} ${styles.secondary}`} disabled={loading} onClick={refresh}>{loading ? "Refreshing…" : "Refresh eSIM details"}</button>}
+    {(esim.sandbox || esim.planName?.endsWith(' · Sandbox')) && <p className={styles.notice}>Sandbox · simulated usage. This test eSIM cannot be installed.</p>}
     <div className={styles.usage}>
       {usage.isUnlimited === true ? <p className={styles.remaining}>Unlimited data</p> : usage.remainingLabel ? <p className={styles.remaining}>{usage.remainingLabel}<small>remaining</small></p> : <p className={styles.usageUnknown}>Usage not available yet.</p>}
       <div className={styles.usageLine}><span>{usage.usedLabel ? `${usage.usedLabel} used` : 'Used data not reported'}</span>{remainingPercent !== null && <span>{Math.round(remainingPercent)}% remaining</span>}</div>
@@ -69,9 +76,11 @@ export default function EsimCard({ esim, usage = {}, demo = false, asOf }) {
     </dl>
     {esim.rechargeable === true && <div className={styles.actions}><button className={`${styles.button} ${styles.secondary}`} type="button" onClick={() => setTopUpOpen(!topUpOpen)} aria-expanded={topUpOpen}><Plus size={15} />Top up</button></div>}
     {topUpOpen && <p className={styles.notice} role="status">This {demo ? 'example ' : ''}plan supports top-ups. Top-up ordering is not open yet. No purchase has been started.</p>}
+    {topUpOpen && esim.topups?.map(p => <p className={styles.muted} key={p.id}>{p.title} · €{p.price.toFixed(2)}</p>)}
     <details className={styles.install}>
       <summary>Installation details <ChevronDown size={16} /></summary>
       {installFields.length ? <><p className={styles.muted}>{demo ? 'Sample values only. They cannot install an eSIM.' : 'Keep these values private. Follow your phone’s manual eSIM setup instructions and your plan’s activation terms.'}</p>{installFields.map(([label, value]) => <div className={styles.copyRow} key={label}><div><span>{label}</span><code>{value}</code></div><button aria-label={`Copy ${demo ? 'sample ' : ''}${label}`} type="button" onClick={() => copy(value, label)}><Copy size={16} /></button></div>)}</> : <p className={styles.muted}>Installation details are not available yet. They will appear after your eSIM is issued.</p>}
+      {esim.instructions?.map((step,i) => <p className={styles.muted} key={i}>{step}</p>)}
       <p className={styles.notice} aria-live="polite" role="status">{notice}</p>
     </details>
   </article>;

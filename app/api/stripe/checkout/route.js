@@ -22,7 +22,7 @@ export async function POST(request) {
   const stripeSecretKey =
     process.env.STRIPE_SECRET_KEY;
 
-  if (!stripeSecretKey) {
+  if (!stripeSecretKey || !stripeSecretKey.startsWith('sk_test_') || process.env.AIRALO_MODE?.trim().toLowerCase() !== 'sandbox') {
     return Response.json(
       {
         ok: false,
@@ -83,7 +83,7 @@ export async function POST(request) {
     // Цена из браузера НЕ используется.
     const catalogueResponse =
       await fetch(
-        `${origin}/api/esimgo/catalogue?country=${encodeURIComponent(
+        `${origin}/api/catalogue?country=${encodeURIComponent(
           iso
         )}`,
         {
@@ -203,7 +203,7 @@ export async function POST(request) {
 
     stripeBody.set(
       'line_items[0][price_data][currency]',
-      'usd'
+      'eur'
     );
 
     stripeBody.set(
@@ -231,6 +231,8 @@ export async function POST(request) {
       planId
     );
 
+    stripeBody.set('metadata[provider]', 'airalo');
+    stripeBody.set('metadata[airalo_mode]', 'sandbox');
     if (accountUserId) {
       stripeBody.set('metadata[morrowgo_user_id]', accountUserId.toLowerCase());
       stripeBody.set('metadata[morrowgo_plan_name]', `${selectedPlan.country} · ${dataLabel} / ${durationLabel}`.slice(0, 500));
