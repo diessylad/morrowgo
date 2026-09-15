@@ -56,7 +56,7 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
   return <article className={styles.card}>
     <div className={styles.cardTop}>
       <div className={styles.destination}><span className={styles.destinationIcon}><Globe2 size={22} strokeWidth={1.2} /></span><h3>{destinationLabel(esim)}</h3></div>
-      <span className={styles.badge}>{statusLabels[esim.status] || 'Status unavailable'}{demo ? ' · demo' : ''}</span>
+      <span className={styles.badge} data-active={esim.status === 'active'}>{statusLabels[esim.status] || 'Status unavailable'}{demo ? ' · demo' : ''}</span>
     </div>
     <p className={styles.planName}>{esim.planName || 'Plan information pending'}{demo ? ' · example plan' : ''}</p>
     {!demo && <button className={`${styles.button} ${styles.secondary}`} disabled={loading} onClick={refresh}>{loading ? "Refreshing…" : "Refresh eSIM details"}</button>}

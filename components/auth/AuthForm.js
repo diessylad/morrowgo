@@ -23,9 +23,9 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
   const needsEmail = mode !== 'reset';
   const needsPassword = mode !== 'forgot';
   return <main className={styles.page}>
-    <header className={styles.header}><Link href="/" className={styles.brand}>MORROWGO</Link><Link href="/help">Help & support ↗</Link></header>
+    <header className={styles.header}><Link href="/" className={styles.brand}><img src="/icon.svg" width="24" height="24" alt=""/> MORROWGO</Link><Link href="/help">Help & support ↗</Link></header>
     <div className={styles.content}>
-      <section className={styles.intro}><p className={styles.eyebrow}>MY MORROWGO</p><h1>More travel.<br /><span>Less to think about.</span></h1><p>A personal space for your eSIMs, orders and the journeys ahead.</p><Link href="/demo/account" className={styles.preview}>Explore a demo account ↗</Link></section>
+
       <section className={styles.card} aria-labelledby="auth-heading"><p className={styles.eyebrow}>YOUR NEXT CONNECTION</p><h2 id="auth-heading">{info.title}</h2><p className={styles.description}>{info.description}</p>
         {!configured && <p className={styles.notice} role="status">Account access is being prepared. You can explore plans and use guest checkout while we finish setup.</p>}
         {message === 'password-updated' && <p className={styles.notice} role="status">Your password has been updated. Sign in with your new password.</p>}

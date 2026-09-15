@@ -6,7 +6,7 @@ import styles from './account.module.css';
 
 export default function DashboardOverview({ esims, orders, esimCards, esimsUnavailable = false, ordersUnavailable = false }) {
   return <>
-    <AccountHeading eyebrow="YOUR TRIP. CONNECTED." title="Your world, connected.">Your eSIMs, orders and travel connections, together in one place.</AccountHeading>
+    <AccountHeading eyebrow="YOUR TRIP. CONNECTED." title="Welcome back.">Your eSIMs, orders and travel connections, together in one place.</AccountHeading>
     <div className={styles.stats}>
       <div className={styles.stat}><span>My eSIMs</span><strong>{esimsUnavailable ? '—' : esims.length}</strong></div>
       <div className={styles.stat}><span>Active eSIMs</span><strong>{esimsUnavailable ? '—' : esims.filter(esim => esim.status === 'active').length}</strong></div>
