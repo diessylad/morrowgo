@@ -2,7 +2,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { orderPresentation } from '../../../lib/orderPresentation';
-import styles from '../../customer.module.css';
+import Header from '../../../components/customer/Header';
+import { ArrowRight, Copy } from 'lucide-react';
+import styles from './success.module.css';
 
 export default function SuccessPage() {
   const [order, setOrder] = useState(null);
@@ -48,14 +50,19 @@ export default function SuccessPage() {
     try { await navigator.clipboard.writeText(sessionId); setCopied('Order reference copied.'); }
     catch { setCopied('Select the order reference above to copy it manually.'); }
   }
-  return <main className={styles.page}><div className={styles.wrap}>
-    <header className={styles.nav}><Link href="/">MORROWGO</Link><div className={styles.links}><Link href="/help">Help & FAQ</Link><Link href="/compatibility">Device compatibility</Link></div></header>
+  async function copyInstallation(value, label) {
+    try { await navigator.clipboard.writeText(String(value)); setCopied(`${label} copied.`); }
+    catch { setCopied('Copy unavailable. Select the value and copy it manually.'); }
+  }
+  return <div className={styles.page}><Header/><main className={styles.wrap}>
+
     <section className={styles.hero} aria-live="polite"><span className={styles.eyebrow}>YOUR ORDER</span><h1>{error ? 'Order status unavailable' : view.title}</h1><p>{error || view.text}</p></section>
     {order?.testMode === true && <div className={styles.banner}>Test order — no real Stripe payment. This is a checkout test, not confirmation of a working eSIM.</div>}
-    {order && <section className={styles.card}><h2>Order details</h2><dl className={styles.details}><div><dt>Payment</dt><dd>{order.paid ? (order.testMode ? 'Test payment confirmed' : 'Confirmed') : 'Pending'}</dd></div><div><dt>eSIM</dt><dd>{view.key === 'ready' ? 'Issued' : view.key === 'attention' ? 'Needs review' : 'Not ready to install'}</dd></div>{order.iso && <div><dt>Destination</dt><dd>{order.iso}</dd></div>}{total && <div><dt>Total</dt><dd>{total}</dd></div>}</dl></section>}
-    {/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId) && <section className={styles.card}><h2>Keep your order reference</h2><p>Save this reference if you need help with your order. Keep your checkout link private.</p><div className={styles.reference}>{sessionId}</div><div className={styles.actions}><button className={`${styles.button} ${styles.secondary}`} onClick={copyReference}>Copy reference</button></div><p role="status" className={styles.muted}>{copied}</p></section>}
-    {order?.installation && <section className={styles.card}><h2>Installation details</h2><p>{order.testMode ? 'Sandbox eSIM — these test details cannot install an eSIM.' : 'Keep installation details private.'}</p><dl className={styles.details}>{Object.entries(order.installation).filter(([key,value]) => ['smdpAddress','activationCode','matchingId'].includes(key) && value).map(([key,value]) => <div key={key}><dt>{key === 'smdpAddress' ? 'SM-DP+ address' : 'Activation code'}</dt><dd>{value}</dd></div>)}</dl></section>}
+    {order && <section className={styles.card}><h2>Order details</h2><dl className={styles.details}><div><dt>Payment</dt><dd className={order.paid ? styles.confirmed : undefined}>{order.paid ? (order.testMode ? 'Test payment confirmed' : 'Confirmed') : 'Pending'}</dd></div><div><dt>eSIM</dt><dd className={view.key === 'ready' ? styles.confirmed : undefined}>{view.key === 'ready' ? 'Issued' : view.key === 'attention' ? 'Needs review' : 'Not ready to install'}</dd></div>{order.iso && <div><dt>Destination</dt><dd>{order.iso}</dd></div>}{total && <div><dt>Total</dt><dd>{total}</dd></div>}</dl></section>}
+    {/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId) && <section className={styles.card}><h2>Keep your order reference</h2><p>Save this reference if you need help with your order. Keep your checkout link private.</p><div className={styles.reference}>{sessionId}</div><div className={styles.actions}><button className={`${styles.button} ${styles.secondary}`} onClick={copyReference}>Copy reference</button></div></section>}
+    {order?.installation && <section className={styles.card}><h2>Installation details</h2><p>{order.testMode ? 'Sandbox eSIM — these test details cannot install an eSIM.' : 'Keep installation details private.'}</p><dl className={styles.details}>{Object.entries(order.installation).filter(([key,value]) => ['smdpAddress','activationCode','matchingId'].includes(key) && value).map(([key,value]) => <div key={key}><dt>{key === 'smdpAddress' ? 'SM-DP+ address' : 'Activation code'}</dt><dd className={styles.installValue}><code>{value}</code><button type="button" className={styles.copy} aria-label={`Copy ${key === 'smdpAddress' ? 'SM-DP+ address' : 'Activation code'}`} onClick={() => copyInstallation(value, key === 'smdpAddress' ? 'SM-DP+ address' : 'Activation code')}><Copy size={14}/>Copy</button></dd></div>)}</dl></section>}
     {paused && <p className={styles.banner}>Automatic checks have paused. You can check again below; no new payment or order will be created.</p>}
-    <div className={styles.actions}><button className={styles.button} disabled={checking || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)} onClick={() => setRefresh(v => v + 1)}>{checking ? 'Checking…' : 'Check status again'}</button><Link className={`${styles.button} ${styles.secondary}`} href="/help">Order help</Link><Link className={`${styles.button} ${styles.secondary}`} href="/">Back to MORROWGO</Link></div>
-  </div></main>;
+    <p role="status" aria-live="polite" className={styles.muted}>{copied}</p>
+    <div className={styles.actions}><Link className={styles.button} href="/">Back to MORROWGO <ArrowRight size={17}/></Link><button className={`${styles.button} ${styles.secondary}`} disabled={checking || !/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)} onClick={() => setRefresh(v => v + 1)}>{checking ? 'Checking…' : 'Check status again'}</button><Link className={`${styles.button} ${styles.secondary}`} href="/help">Order help</Link></div>
+  </main></div>;
 }
