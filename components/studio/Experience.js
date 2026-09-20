@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRight, ArrowRight, Search, Globe2, Signal, Check, Plus, Minus, X, ShieldCheck, Smartphone, Headphones, ChevronLeft, Zap, Layers, MessageSquare, BatteryMedium } from 'lucide-react';
 import s from './studio.module.css';
+import Header from '../shared/Header';
 
 const countries = [
   { name: 'Japan', flag: '🇯🇵', code: 'JP', region: 'Asia', city: 'Tokyo', zone: '35.67° N / 139.65° E' },
@@ -66,11 +67,7 @@ export default function Experience({ authenticated = false }) {
   function goSearch() { search.current.focus(); search.current.scrollIntoView({ behavior: 'auto', block: 'center' }); }
   return <div className={s.root} ref={root}>
     <a href="#content" className={s.skip}>Skip to content</a>
-    <header className={s.header}>
-      <a className={s.wordmark} href="/" aria-label="MORROWGO home"><Mark/>MORROWGO</a>
-      <nav aria-label="Main navigation"><a href="#destinations">Destinations</a><a href="#how">How it works</a><a href="#product">The experience</a></nav>
-      <a className={s.accountLink} href={authenticated ? "/account" : "/login"}>{authenticated ? "My account" : "Sign in"}</a><button className={s.navCta} onClick={goSearch}>Find your eSIM <Arrow/></button>
-    </header>
+    <Header authenticated={authenticated} home onSearch={goSearch}/>
     <main id="content">
       <section className={s.hero} aria-labelledby="hero-title">
         <div className={s.heroLayout}>
