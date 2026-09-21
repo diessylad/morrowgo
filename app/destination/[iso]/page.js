@@ -10,6 +10,7 @@ import Header from '../../../components/shared/Header';
 import base from '../../../components/customer/customer.module.css';
 import s from './destination.module.css';
 import PlanCard from '../../../components/destination/PlanCard';
+import mobile from '../../../components/shared/mobile.module.css';
 import TravelArtwork from '../../../components/destination/TravelArtwork';
 
 export default function DestinationPage() {
@@ -127,13 +128,13 @@ export default function DestinationPage() {
     );
   }
 
-  return <div className={`${base.page} ${s.page}`}><Header/><TravelArtwork/><main className={s.wrap}>
+  return <div className={`${base.page} ${s.page} ${mobile.page} ${mobile.tariff}`}><Header/><TravelArtwork/><main className={s.wrap}>
     <div className={s.content}>
       <a className={s.back} href="/destinations"><ArrowLeft size={18}/>All destinations</a>
       <div className={s.country}><span aria-hidden="true">{flag}</span><label className={s.srOnly} htmlFor="destination-country">Destination</label><select id="destination-country" value={iso} onChange={e=>router.push(`/destination/${encodeURIComponent(e.target.value)}`)}>{!countries.some(c=>(c.iso||c.code)===iso)&&<option value={iso}>{name}</option>}{countries.map(c=><option key={c.iso||c.code} value={c.iso||c.code}>{c.name}</option>)}</select><ChevronDown size={16}/></div>
       <h1 className={s.title}>Stay connected<br/>in {name}.</h1>
       <p className={s.description}>Instant eSIM. Reliable coverage. No extra fees.</p>
-      <div className={s.benefits}><span><Zap/>Instant<br/>activation</span><span><Signal/>Reliable<br/>coverage</span><span><Smartphone/>No physical<br/>SIM</span><span><Globe2/>200+<br/>countries</span></div>
+      <TravelArtwork mobile/><div className={s.benefits}><span><Zap/>Instant<br/>activation</span><span><Signal/>Reliable<br/>coverage</span><span><Smartphone/>No physical<br/>SIM</span><span><Globe2/>200+<br/>countries</span></div>
       <section className={s.plans} aria-label="Available eSIM plans">
         {loading ? <p className={s.empty} role="status">Loading plans…</p> : error ? <p className={s.empty} role="alert">{error}</p> : <>
           <div className={s.cardList}>{displayedPlans.map(plan=><PlanCard key={plan.id} plan={plan} recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)} formatData={formatData} onBuy={openCheckout}/>)}</div>
@@ -141,7 +142,7 @@ export default function DestinationPage() {
         </>}
       </section>
       <div className={s.compatibility}><Info size={19}/><div><span>Top-ups subject to eSIM compatibility.</span> <a href="/compatibility">Check device compatibility <ArrowRight size={16}/></a></div></div>
-      <p className={s.notice}>Sandbox · test eSIMs cannot be installed. Prices as listed.</p>
+      <p className={`${s.notice} ${process.env.NODE_ENV === 'production' ? mobile.productionNotice : ''}`}>Sandbox · test eSIMs cannot be installed. Prices as listed.</p>
     </div>
   </main></div>;
 }

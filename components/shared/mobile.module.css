@@ -1,0 +1,35 @@
+/* All visual overrides are limited to the requested mobile breakpoint. */
+.only,.menu,.mobileArrow{display:none}
+@media(max-width:767px){
+.page{--paper:#fefefc;--ink:#0a0a0a;--muted:#60615c;--line:#deded8;background:var(--paper)!important;color:var(--ink)!important;font-family:Arial,Helvetica,sans-serif;min-height:100dvh!important;overflow-x:hidden;padding:20px 20px calc(96px + env(safe-area-inset-bottom))!important}
+.only{display:block}.headerRoot{background:#fefefc!important;overflow:visible!important}.headerRoot header{height:72px!important;padding:0 20px!important;border:0!important;box-shadow:none!important;background:#fefefc!important;gap:12px!important}.headerRoot header>nav,.headerRoot header>a:not(:first-child),.headerRoot header>button{display:none!important}.headerRoot header>a:first-child{font-size:17px;letter-spacing:2.2px}.headerRoot .menu{display:block;position:relative;margin-left:auto}.menu summary{display:grid;place-items:center;width:44px;height:44px;cursor:pointer;list-style:none;color:#0a0a0a}.menu summary::-webkit-details-marker{display:none}.menu>div{position:absolute;right:0;top:48px;width:230px;padding:12px;background:#fefefc;border:1px solid #deded8;border-radius:12px;display:grid;z-index:30}.menu a{padding:12px;font-size:15px;color:#0a0a0a}.menu summary:focus-visible,.page :is(a,button,input):focus-visible{outline:2px solid #555;outline-offset:3px}
+.destinations .back{border:0!important;background:none!important;color:#0a0a0a!important;border-radius:0!important;padding:0!important;min-height:36px;font-size:14px}.intro{margin-top:20px!important}.intro>div{color:#60615c!important;margin-bottom:8px!important;font-size:11px!important}.intro h1{font-size:44px!important;line-height:1.08;letter-spacing:-1.8px}.intro p{font-size:18px!important;line-height:1.5;color:#60615c!important;margin:12px 0 0!important}.search{height:56px!important;margin-top:22px!important;background:transparent!important;border-color:#deded8!important;box-shadow:none!important}.search input{min-width:0;color:#0a0a0a!important;font:inherit!important;font-size:16px!important}.search:focus-within{outline:2px solid #777;outline-offset:2px}.countries{grid-template-columns:1fr!important;gap:11px!important;margin-top:18px!important}.country{min-height:80px;padding:14px 16px!important;border-radius:14px!important;border-color:#deded8!important;background:transparent!important;color:#0a0a0a!important;box-shadow:none!important;gap:12px}.country>div{min-width:0}.country>div>span{flex:none}.country>div>div>div:first-child{font-size:16px!important;overflow-wrap:anywhere}.country>div>div>div:last-child{color:#60615c!important;font-size:13px!important}.country>svg{flex:none}
+.tariff{padding:0 0 calc(96px + env(safe-area-inset-bottom))!important}.tariff>main{padding:20px 20px 0!important;min-height:0!important;width:100%}.tariff>main>div{width:100%;max-width:none}.tariff p{color:#60615c}.productionNotice{display:none}.tariff>main>div>p:last-child{font-size:11px;line-height:1.5}.tariff>main{order:1}.tariff{display:flex;flex-direction:column}
+.compatibility>div>header{display:none}.compatibility>div>section:first-of-type{padding:8px 0 24px}.compatibility h1{font-size:42px;line-height:1.08;letter-spacing:-1.8px;margin:16px 0}.compatibility p{font-size:18px;line-height:1.55;color:#60615c}.compatibility>div>div{grid-template-columns:1fr;gap:14px}.compatibility section{background:transparent;box-shadow:none}.compatibility>div>div>section,.compatibility>div>section:last-child{padding:24px;border:1px solid #deded8;border-radius:16px;color:#0a0a0a}.compatibility h2{font-size:26px;margin-bottom:16px}.compatibility li{font-size:17px;line-height:1.55;color:#454640;margin-bottom:12px}.compatibility ol{padding-left:21px;margin-bottom:18px}.compatibility a{color:#0a0a0a}.compatibility label{color:#454640;font-size:16px;line-height:1.5}.compatibility input{accent-color:#0a0a0a}.compatibility>div>section:last-child>div>a{background:#0a0a0a!important;color:#fff!important;border-color:#0a0a0a!important;box-shadow:none;width:100%;font-size:15px}.desktopArrow{display:none}.mobileArrow{display:inline-block;vertical-align:middle;margin-left:3px}.compatibility>div>section:first-of-type>span{color:#60615c}
+}
+@media(max-width:767px){
+.compatibility h1{font-size:42px!important;line-height:1.08!important;letter-spacing:-1.8px!important}
+.compatibility p{font-size:18px!important;line-height:1.55!important;color:#60615c!important}
+.compatibility h2{font-size:26px!important;color:#0a0a0a!important}
+.compatibility li{font-size:17px!important;line-height:1.55!important;color:#454640!important}
+.compatibility a{color:#0a0a0a!important}
+.compatibility label{color:#454640!important;font-size:16px!important;line-height:1.5!important}
+.compatibility section{box-shadow:none!important}
+}
+/* One page surface at every viewport, including the browser's outer canvas. */
+:global(html):has(.page),
+:global(body):has(.page),
+.page{background:#fefefc!important;color:#0a0a0a!important}
+.page>div,.page>main,.page>div>header{background:transparent!important}
+.destinations .back{background:transparent!important;color:#0a0a0a!important;border-color:#deded8!important}
+.destinations .intro>div,.destinations .intro p,.destinations>div>div{color:#60615c!important}
+.destinations .search{background:transparent!important;border-color:#deded8!important;box-shadow:none!important}
+.destinations .search input{color:#0a0a0a!important}
+.destinations .country{background:#fff!important;color:#0a0a0a!important;border-color:#deded8!important;box-shadow:none!important}
+.destinations .country>div>div>div:last-child{color:#60615c!important}
+.compatibility>div>header{border-color:#deded8}
+.compatibility h1,.compatibility h2,.compatibility a{color:#0a0a0a!important}
+.compatibility p,.compatibility li,.compatibility label,.compatibility>div>section>span{color:#60615c!important}
+.compatibility>div>div>section,.compatibility>div>section:last-child{background:#fff!important;border-color:#deded8!important;box-shadow:none!important}
+.compatibility>div>section:last-child>div>a{background:#0a0a0a!important;color:#fff!important;border-color:#0a0a0a!important;box-shadow:none!important}
+.compatibility input{accent-color:#0a0a0a}

@@ -25,3 +25,8 @@
 @media(max-width:1100px){.exactArtwork{position:relative;display:block;top:auto;right:auto;width:724px;max-width:100%;height:auto;margin-left:auto}}
 
 @media(min-width:1101px){.card{padding-top:5px;padding-bottom:5px}.recommended{min-height:96px}}
+
+.artworkViewport{display:contents}
+@media(max-width:767px){.artworkViewport{display:none}.planInfo>span,.buy>span{color:#60615c}.card{border-color:#deded8}}
+.mobileArtwork{display:none}
+@media(max-width:767px){.mobileArtwork{display:block;width:calc(100% + 40px);max-width:none;height:auto;margin:16px -20px 22px;border:0;border-radius:0;box-shadow:none}}

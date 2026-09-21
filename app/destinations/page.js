@@ -12,6 +12,9 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+import Header from '../../components/shared/Header';
+import mobile from '../../components/shared/mobile.module.css';
+
 import { useRouter } from 'next/navigation';
 
 function getFlag(iso) {
@@ -165,7 +168,7 @@ export default function DestinationsPage() {
     ]);
 
   return (
-    <main
+    <><div className={mobile.only}><Header/></div><main className={`${mobile.page} ${mobile.destinations}`}
       style={{
         minHeight: '100vh',
         background: '#080808',
@@ -180,7 +183,7 @@ export default function DestinationsPage() {
           margin: '0 auto'
         }}
       >
-        <button
+        <button className={mobile.back}
           onClick={() =>
             router.push('/')
           }
@@ -202,7 +205,7 @@ export default function DestinationsPage() {
           Back
         </button>
 
-        <div
+        <div className={mobile.intro}
           style={{
             marginTop: '42px'
           }}
@@ -242,7 +245,7 @@ export default function DestinationsPage() {
           </p>
         </div>
 
-        <div
+        <div className={mobile.search}
           style={{
             marginTop: '30px',
             display: 'flex',
@@ -269,6 +272,7 @@ export default function DestinationsPage() {
               )
             }
             placeholder="Search country"
+            aria-label="Search country"
             style={{
               flex: 1,
               background:
@@ -321,7 +325,7 @@ export default function DestinationsPage() {
 
         {!loading &&
           !error && (
-            <div
+            <div className={mobile.countries}
               style={{
                 marginTop: '24px',
                 display: 'grid',
@@ -332,7 +336,7 @@ export default function DestinationsPage() {
             >
               {filteredCountries.map(
                 (country) => (
-                  <button
+                  <button className={mobile.country}
                     key={
                       country.iso
                     }
@@ -423,6 +427,6 @@ export default function DestinationsPage() {
             </div>
           )}
       </div>
-    </main>
+    </main></>
   );
 }
