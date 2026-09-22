@@ -44,29 +44,29 @@ export default function Experience({ authenticated = false }) {
       <section className={s.hero} aria-labelledby="hero-title">
         <div className={s.heroLayout}>
           <div className={s.heroCopy}>
-            <div data-motion-reveal className={s.networkLabel}><i className={s.dot}/> GLOBAL eSIM NETWORK</div>
-            <MotionHeading as="h1" id="hero-title">Stay<br/>Connected<br/>Further</MotionHeading>
-            <p className={s.heroDescription}>Instant eSIM for 200+ countries.<br/>No borders. No extra fees. Just freedom.</p>
+            <div data-motion-reveal data-motion-delay="200" className={s.networkLabel}><i className={s.dot}/> GLOBAL eSIM NETWORK</div>
+            <MotionHeading data-motion-delay="350" as="h1" id="hero-title">Stay<br/>Connected<br/>Further</MotionHeading>
+            <p data-motion-delay="650" className={s.heroDescription}>Instant eSIM for 200+ countries.<br/>No borders. No extra fees. Just freedom.</p>
             
-            <form className={s.search} onSubmit={e => { e.preventDefault(); if (filtered.length === 1) open(filtered[0], { currentTarget: search.current }); else document.getElementById('destinations').scrollIntoView(); }}>
+            <form data-motion-enter="scaleReveal" data-motion-delay="800" className={s.search} onSubmit={e => { e.preventDefault(); if (filtered.length === 1) open(filtered[0], { currentTarget: search.current }); else document.getElementById('destinations').scrollIntoView(); }}>
               <Search size={22}/><label className={s.srOnly} htmlFor="destination-search">Where are you going?</label>
               <input ref={search} id="destination-search" placeholder="Where are you going?" value={query} onChange={e => { setQuery(e.target.value); setRegion('All'); }}/>
               <button aria-label="Search destinations"><Arrow/></button>
             </form>
             <div className={s.heroBenefits}>{[[Zap, 'Instant activation'], [Signal, 'Reliable coverage'], [BatteryMedium, 'No physical SIM'], [Globe2, '200+ countries']].map(([Icon, text]) => <div key={text}><Icon size={21} strokeWidth={1.5}/><span>{text}</span></div>)}</div>
           </div>
-          <div className={s.heroScene} ref={scene} data-motion-visual aria-label="MORROWGO app interface preview">
-            <div className={s.apeArtwork}><Image src="/brand/editorial-ape-right.png" alt="" width={1122} height={1402} sizes="(max-width: 360px) 170px, (max-width: 700px) 200px, 340px" priority/></div>
+          <div className={s.heroScene} ref={scene} data-motion-scene aria-label="MORROWGO app interface preview">
+            <div className={s.apeArtwork} data-motion-visual="ape"><Image src="/brand/editorial-ape-right.png" alt="" width={1122} height={1402} sizes="(max-width: 360px) 170px, (max-width: 700px) 200px, 340px" priority/></div>
             <span className={s.sceneWords}>PEOPLE<br/>PLACES<br/>STORIES<br/>ALWAYS<br/>CONNECTED<span/></span>
-            <button className={s.japanFloat} onClick={e => open(countries[0], e)}>
+            <button className={s.japanFloat} data-motion-visual="japan" onClick={e => open(countries[0], e)}>
               <span className={s.destinationArt} aria-hidden="true"><svg viewBox="0 0 240 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="fuji-sky" x2="0" y2="1"><stop stopColor="#afbdc4"/><stop offset="1" stopColor="#e0e0d5"/></linearGradient><linearGradient id="fuji-rock" x2=".7" y2="1"><stop stopColor="#cbd0cd"/><stop offset="1" stopColor="#465968"/></linearGradient></defs><path fill="url(#fuji-sky)" d="M0 0h240v170H0z"/><path fill="#a7b5b9" d="M0 138 54 108 77 121 121 93 173 119 200 104 240 129v41H0z"/><path fill="url(#fuji-rock)" d="m18 158 95-117 17-5 13 8 88 114z"/><path fill="#d8dedc" d="m84 78 29-37 17-5 13 8 26 36-22-13 3 15-20-27-5 23-6-20-16 28 5-23z"/><path stroke="#8d9ea4" strokeWidth="2" fill="none" d="m119 68-39 69m52-78 24 85m-34-59-7 59m38-53 31 58"/><path fill="#233b42" d="m0 138 19 5 18-12 21 9 23-9 25 19 29-11 26 12 31-12 48-13v44H0z"/><g fill="#172b2d"><path d="m203 83-8 19h5l-12 22h8l-16 25h20v21h5v-21h20l-17-25h9l-12-22h5z"/><path d="m227 101-8 18h5l-13 25h11v26h5v-26h13l-11-25h6z"/><path d="m23 121-12 27h8v22h6v-22h10z"/></g></svg></span>
               <span className={s.japanName}>Japan <span>🇯🇵</span></span><span className={s.japanPrice}>{catalogue.find(c => c.code === 'JP') ? `From ${money(catalogue.find(c => c.code === 'JP').fromPrice)}` : 'View plans'} <Arrow/></span>
             </button>
-            <div className={s.editorialFloat}><span>Travel<br/>Without<br/>Limits</span><div>MORROWGO <Arrow diagonal/></div></div>
-            <button className={s.heroDeviceAsset} onClick={e => open(countries[0], e)} aria-label="Open Japan eSIM plans">
+            <div className={s.editorialFloat} data-motion-visual="travel"><span>Travel<br/>Without<br/>Limits</span><div>MORROWGO <Arrow diagonal/></div></div>
+            <button className={s.heroDeviceAsset} data-motion-visual="phone" onClick={e => open(countries[0], e)} aria-label="Open Japan eSIM plans">
               <Image src="/brand/hero-japan-phone.png" alt="MORROWGO Japan eSIM on a premium smartphone" width={1086} height={1448} sizes="(max-width: 700px) 58vw, 390px" priority/>
             </button>
-            <div className={s.connectionNote}>A<br/>BETTER<br/>TOMORROW<br/>CONNECTS<br/>PEOPLE<span/></div>
+            <div className={s.connectionNote} data-motion-visual="tomorrow">A<br/>BETTER<br/>TOMORROW<br/>CONNECTS<br/>PEOPLE<span/></div>
           </div>
         </div>
         <div className={s.demoNote}>Sandbox · Test purchases only. Phone imagery shows sample usage; test eSIMs cannot be installed.</div>
@@ -74,22 +74,22 @@ export default function Experience({ authenticated = false }) {
       <section id="destinations" className={s.section} data-reveal aria-labelledby="dest-title">
         <div className={s.sectionTitle}><span data-motion-reveal className={s.index}>01 / EXPLORE</span><MotionHeading id="dest-title">Where to next?</MotionHeading><span className={s.secondary}>A small world.<br/>A lot to discover.</span></div>
         <div className={s.filters} aria-label="Filter destinations">{['All', 'Europe', 'Asia', 'Americas'].map(r => <button key={r} aria-pressed={region === r} onClick={() => setRegion(r)}>{r === 'All' ? 'Popular destinations' : r}</button>)}<span aria-live="polite">{filtered.length} destinations</span></div>
-        <a className={s.accountLink} href="/destinations">View all destinations →</a><div className={s.destinationGrid}>{filtered.map(c => <button key={c.code} className={s.destination} onClick={e => open(c, e)}>
-          <span className={s.destMeta}>{c.region}<span>{c.code}</span></span><span className={s.flag} aria-hidden="true">{c.flag}</span><span className={s.destName}>{c.name}</span><span className={s.destPrice}>From {money(c.fromPrice)} <Arrow diagonal/></span>
+        <a className={s.accountLink} href="/destinations">View all destinations →</a><div className={s.destinationGrid}>{filtered.map(c => <button key={c.code} className={s.destination} data-motion-card onClick={e => open(c, e)}>
+          <span className={s.destMeta}>{c.region}<span>{c.code}</span></span><span className={s.flag} data-motion-card-art aria-hidden="true">{c.flag}</span><span className={s.destName}>{c.name}</span><span className={s.destPrice}>From {money(c.fromPrice)} <Arrow diagonal/></span>
         </button>)}</div>
         {!filtered.length && <div className={s.empty}><p>{catalogueState === 'loading' ? 'Loading destinations…' : catalogueState === 'error' ? 'Destinations are temporarily unavailable. Please try again shortly.' : 'No matching destinations.'}</p><button onClick={() => { setQuery(''); setRegion('All'); }}>Show all destinations <Arrow/></button></div>}
       </section>
-      <section id="how" className={`${s.section} ${s.how}`} data-reveal aria-labelledby="how-title"><div><span data-motion-reveal className={s.index}>02 / NO FRICTION</span><MotionHeading id="how-title">Three steps.<br/>Then you’re there.</MotionHeading></div><div className={s.steps}>{[['Choose your plan', 'Your destination. Your data.'], ['Pay securely', 'One clear total.'], ['Get connected', 'Install your eSIM and go.']].map(([title, text], i) => <div key={title}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></div>)}</div></section>
+      <section id="how" className={`${s.section} ${s.how}`} data-reveal aria-labelledby="how-title"><div><span data-motion-reveal className={s.index}>02 / NO FRICTION</span><MotionHeading id="how-title">Three steps.<br/>Then you’re there.</MotionHeading></div><div className={s.steps}>{[['Choose your plan', 'Your destination. Your data.'], ['Pay securely', 'One clear total.'], ['Get connected', 'Install your eSIM and go.']].map(([title, text], i) => <div key={title} data-motion-step><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></div>)}</div></section>
       <section id="product" className={`${s.product} ${s.referenceNative}`} data-reveal aria-labelledby="product-title">
         <div className={s.productIntro}>
           <span data-motion-reveal className={s.index}>03</span><MotionHeading id="product-title">All your<br/>connections<br/>in one app.</MotionHeading>
           <p>Buy. Install. Manage. Anytime, anywhere.</p><div className={s.comingSoon}>COMING SOON</div>
           <div className={s.storeLabels} aria-label="Coming soon on App Store and Google Play"><span>App Store <small>Coming soon</small></span><span>Google Play <small>Coming soon</small></span></div>
         </div>
-        <div className={s.adDeviceAsset} data-motion-visual aria-hidden="true">
+        <div className={s.adDeviceAsset} data-motion-visual="app" aria-hidden="true">
           <Image src="/brand/app-phone-closeup.png" alt="" width={1122} height={1402} sizes="(max-width: 700px) 72vw, 460px"/>
         </div>
-        <div className={s.adFeatures}><div><Signal size={23}/><span>Track your data</span></div><button onClick={() => router.push('/account/esims')} aria-label="Top up"><Plus size={23}/><span>Top up anytime</span></button><div><Layers size={23}/><span>Manage multiple eSIMs</span></div><div><MessageSquare size={23}/><span>Get support 24/7<small>Planned app feature</small></span></div></div>
+        <div className={s.adFeatures} data-motion-support><div><Signal size={23}/><span>Track your data</span></div><button onClick={() => router.push('/account/esims')} aria-label="Top up"><Plus size={23}/><span>Top up anytime</span></button><div><Layers size={23}/><span>Manage multiple eSIMs</span></div><div><MessageSquare size={23}/><span>Get support 24/7<small>Planned app feature</small></span></div></div>
         <span className={s.adWords}>SAME<br/>WORLD<br/>MORE<br/>FREEDOM<i/></span>
       </section>
       <section className={s.finalCta}><span data-motion-reveal className={s.index}>READY WHEN YOU ARE</span><MotionHeading>Go further.<br/>Stay connected.</MotionHeading><button className={s.navCta} onClick={goSearch}>Find your eSIM <Arrow/></button><div className={s.trust}>{[[Globe2, '200+ countries'], [ShieldCheck, 'Secure payment'], [BatteryMedium, 'No physical SIM'], [Headphones, 'Support']].map(([Icon, text]) => <span key={text}><Icon size={18}/>{text}</span>)}</div></section>

@@ -1,4 +1,4 @@
-.root { --motion-ease: cubic-bezier(0.22, 1, 0.36, 1); }
+.root { --motion-ease: cubic-bezier(0.16, 1, 0.3, 1); }
 @media (prefers-reduced-motion: no-preference) {
   :global(html):has(.root) { scroll-behavior: smooth; }
   .root :is(button, a, summary) {
@@ -23,3 +23,21 @@
 .root [data-motion-header] header{transition:background-color 650ms var(--motion-ease),box-shadow 650ms var(--motion-ease),backdrop-filter 650ms var(--motion-ease)}
 .root [data-motion-header][data-scrolled="true"] header{background:rgba(254,254,252,.94)!important;backdrop-filter:blur(8px);box-shadow:0 1px 0 #10141018}
 .root [data-motion-line]{transform-origin:left center}
+
+/* Keep the approved right-edge crop stable while the suitcase scales. */
+.root [data-motion-visual="suitcase"]{transform-origin:top right}
+.root:has([data-motion-visual="suitcase"]){overflow-x:clip}
+
+@media(prefers-reduced-motion:no-preference){
+ .root [data-motion-card]{transition:transform 700ms var(--motion-ease),scale 700ms var(--motion-ease),translate 550ms var(--motion-ease),background-color 550ms var(--motion-ease)}
+ .root [data-motion-card-art]{transition:transform 800ms var(--motion-ease)}
+ @media(hover:hover){.root [data-motion-card]:hover{scale:1.012}.root [data-motion-card]:hover [data-motion-card-art]{transform:translateY(-2px) scale(1.04)}}
+ @media(hover:none){.root [data-motion-card][data-motion-centered="true"] [data-motion-card-art]{transform:translateY(-2px) scale(1.035)}}
+ .root [data-motion-card]:active{scale:.99}
+}
+
+@media(prefers-reduced-motion:no-preference) and (hover:hover){
+ .root button:not([data-motion-visual]){position:relative;isolation:isolate;overflow:hidden}
+ .root button:not([data-motion-visual])::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 25%,#ffffff20 50%,transparent 75%);transform:translateX(-120%);transition:transform 600ms var(--motion-ease)}
+ .root button:not([data-motion-visual]):hover::after{transform:translateX(120%)}
+}
