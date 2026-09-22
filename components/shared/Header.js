@@ -14,7 +14,7 @@ export default function Header({ authenticated, home = false, onSearch }) {
     return () => { active = false; };
   }, [authenticated]);
   const prefix = home ? '' : '/';
-  return <div className={`${s.root} ${mobile.headerRoot}`} style={{position:'relative',zIndex:10}}>
+  return <div data-motion-header className={`${s.root} ${mobile.headerRoot}`} style={{position:'relative',zIndex:10}}>
     <header className={s.header}>
       <a className={s.wordmark} href="/" aria-label="MORROWGO home"><span className={s.mark} aria-hidden="true"><i/><i/><i/><i/></span>MORROWGO</a>
       <nav aria-label="Main navigation"><a href={`${prefix}#destinations`}>Destinations</a><a href={`${prefix}#how`}>How it works</a><a href={`${prefix}#product`}>The experience</a></nav>

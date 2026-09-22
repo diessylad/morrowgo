@@ -1,0 +1,25 @@
+.root { --motion-ease: cubic-bezier(0.22, 1, 0.36, 1); }
+@media (prefers-reduced-motion: no-preference) {
+  :global(html):has(.root) { scroll-behavior: smooth; }
+  .root :is(button, a, summary) {
+    transition: translate 550ms var(--motion-ease), background-color 550ms var(--motion-ease), color 550ms var(--motion-ease), border-color 550ms var(--motion-ease), opacity 550ms var(--motion-ease);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .root :is(button, a) svg { transition: transform 550ms var(--motion-ease); }
+  .root :is(button, a):active { translate: 0 1px; }
+  .root [data-motion-visual] { transition: translate 120ms var(--motion-ease); }
+  @media (hover: hover) and (pointer: fine) {
+    .root button:not(:disabled):hover { translate: 0 -2px; }
+    .root :is(button, a):hover svg { transform: translateX(3px); }
+    .root nav a:hover { text-underline-offset: 5px; text-decoration-thickness: 1px; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :global(html):has(.root) { scroll-behavior: auto; }
+  .root *, .root *::before, .root *::after { animation: none !important; transition: none !important; }
+}
+
+.root [data-motion-header]{position:sticky!important;top:0;z-index:20!important;overflow:visible}
+.root [data-motion-header] header{transition:background-color 650ms var(--motion-ease),box-shadow 650ms var(--motion-ease),backdrop-filter 650ms var(--motion-ease)}
+.root [data-motion-header][data-scrolled="true"] header{background:rgba(254,254,252,.94)!important;backdrop-filter:blur(8px);box-shadow:0 1px 0 #10141018}
+.root [data-motion-line]{transform-origin:left center}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowRight, ArrowLeft, ChevronDown, Globe2, Zap, Signal, Smartphone, Info
@@ -12,8 +12,13 @@ import s from './destination.module.css';
 import PlanCard from '../../../components/destination/PlanCard';
 import mobile from '../../../components/shared/mobile.module.css';
 import TravelArtwork from '../../../components/destination/TravelArtwork';
+import usePremiumMotion from '../../../components/shared/usePremiumMotion';
+import motion from '../../../components/shared/motion.module.css';
+import MotionHeading from '../../../components/shared/MotionHeading';
 
 export default function DestinationPage() {
+  const root = useRef(null);
+  usePremiumMotion(root);
   const params = useParams();
   const router = useRouter();
 
@@ -128,11 +133,11 @@ export default function DestinationPage() {
     );
   }
 
-  return <div className={`${base.page} ${s.page} ${mobile.page} ${mobile.tariff}`}><Header/><TravelArtwork/><main className={s.wrap}>
+  return <div ref={root} className={`${base.page} ${s.page} ${mobile.page} ${mobile.tariff} ${motion.root}`}><Header/><TravelArtwork/><main className={s.wrap}>
     <div className={s.content}>
       <a className={s.back} href="/destinations"><ArrowLeft size={18}/>All destinations</a>
       <div className={s.country}><span aria-hidden="true">{flag}</span><label className={s.srOnly} htmlFor="destination-country">Destination</label><select id="destination-country" value={iso} onChange={e=>router.push(`/destination/${encodeURIComponent(e.target.value)}`)}>{!countries.some(c=>(c.iso||c.code)===iso)&&<option value={iso}>{name}</option>}{countries.map(c=><option key={c.iso||c.code} value={c.iso||c.code}>{c.name}</option>)}</select><ChevronDown size={16}/></div>
-      <h1 className={s.title}>Stay connected<br/>in {name}.</h1>
+      <MotionHeading as="h1" className={s.title}>Stay connected<br/>in {name}.</MotionHeading>
       <p className={s.description}>Instant eSIM. Reliable coverage. No extra fees.</p>
       <TravelArtwork mobile/><div className={s.benefits}><span><Zap/>Instant<br/>activation</span><span><Signal/>Reliable<br/>coverage</span><span><Smartphone/>No physical<br/>SIM</span><span><Globe2/>200+<br/>countries</span></div>
       <section className={s.plans} aria-label="Available eSIM plans">
