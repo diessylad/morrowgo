@@ -371,3 +371,6 @@
 .heroDeviceAsset:hover{transform:translate(var(--pointer-x),var(--pointer-y));filter:drop-shadow(0 30px 28px rgba(0,0,0,.17))}
 .destination:hover{transform:translateY(-1px)}
 @media(prefers-reduced-motion:reduce){.heroDeviceAsset:hover,.destination:hover{translate:none;transform:none}}
+
+/* The licensed Waves canvas is confined to the existing hero stacking context. */
+.hero{position:relative;isolation:isolate}
