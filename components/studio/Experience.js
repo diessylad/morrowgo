@@ -9,6 +9,7 @@ import Header from '../shared/Header';
 import usePremiumMotion from '../shared/usePremiumMotion';
 import motion from '../shared/motion.module.css';
 import MotionHeading from '../shared/MotionHeading';
+import HeroWaves from './HeroWaves';
 
 const countries = [
   { name: 'Japan', flag: '🇯🇵', code: 'JP', region: 'Asia', city: 'Tokyo', zone: '35.67° N / 139.65° E' },
@@ -42,10 +43,11 @@ export default function Experience({ authenticated = false }) {
     <Header authenticated={authenticated} home onSearch={goSearch}/>
     <main id="content">
       <section className={s.hero} aria-labelledby="hero-title">
+        <HeroWaves/>
         <div className={s.heroLayout}>
           <div className={s.heroCopy}>
             <div data-motion-reveal data-motion-delay="200" className={s.networkLabel}><i className={s.dot}/> GLOBAL eSIM NETWORK</div>
-            <MotionHeading data-motion-delay="350" as="h1" id="hero-title">Stay<br/>Connected<br/>Further</MotionHeading>
+            <MotionHeading data-motion-delay="350" as="h1" id="hero-title">Stay<br/>Connected<br/><span style={{color:'#888984'}}>Further</span></MotionHeading>
             <p data-motion-delay="650" className={s.heroDescription}>Instant eSIM for 200+ countries.<br/>No borders. No extra fees. Just freedom.</p>
             
             <form data-motion-enter="scaleReveal" data-motion-delay="800" className={s.search} onSubmit={e => { e.preventDefault(); if (filtered.length === 1) open(filtered[0], { currentTarget: search.current }); else document.getElementById('destinations').scrollIntoView(); }}>

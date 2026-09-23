@@ -28,7 +28,7 @@ export default function usePremiumMotion(root) {
           const preset = lines.length ? motionPresets.maskedTextReveal : motionPresets.softReveal;
           (lines.length ? [...lines] : [el]).forEach((unit, index) => {
             const animation = unit.animate(preset, {
-              duration: headline ? 1050 : 900,
+              duration: el.tagName === 'H1' ? 850 : headline ? 1050 : 900,
               delay: (Number(el.dataset.motionDelay) || Math.min(stagger, 2) * 90) + index * (el.tagName === 'H1' ? 150 : 110),
               easing, fill: 'backwards'
             });
@@ -52,8 +52,8 @@ export default function usePremiumMotion(root) {
         const preset = motionPresets[type] || motionPresets.softReveal;
         const effects = [
           el.animate(preset.map(({ transform }) => ({ transform })),
-            { duration: 1100, delay, easing, composite: 'add', fill: 'both' }),
-          el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 850, delay, easing, fill: 'both' })
+            { duration: el.dataset.motionVisual === 'ape' ? 300 : 1000, delay, easing, composite: 'add', fill: 'both' }),
+          el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: el.dataset.motionVisual === 'ape' ? 300 : 850, delay, easing, fill: 'both' })
         ];
         effects.forEach(animation => {
           animations.add(animation);
@@ -148,7 +148,7 @@ export default function usePremiumMotion(root) {
       const visible = new IntersectionObserver(entries => {
         entries.forEach(entry => {
           layers.filter(layer => layer.anchor === entry.target).forEach(layer => {
-            if (entry.isIntersecting) { active.add(layer); enter(layer.el, layer.hero ? ({ phone: 450, japan: 600, travel: 700, tomorrow: 850, ape: 900 }[layer.el.dataset.motionVisual] || 450) : 100, layer.el.dataset.motionVisual === 'ape' ? 'imageReveal' : 'scaleReveal'); }
+            if (entry.isIntersecting) { active.add(layer); enter(layer.el, layer.hero ? ({ phone: 600, japan: 650, travel: 750, tomorrow: 800, ape: 0 }[layer.el.dataset.motionVisual] ?? 450) : 100, layer.el.dataset.motionVisual === 'ape' ? 'imageReveal' : 'scaleReveal'); }
             else active.delete(layer);
           });
         });
