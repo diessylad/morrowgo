@@ -374,3 +374,27 @@
 
 /* The licensed Waves canvas is confined to the existing hero stacking context. */
 .hero{position:relative;isolation:isolate}
+
+/* Fit the approved scene as one unit on short windows. atan2 converts the
+   available CSS length to a unitless scale without resize JS. The cap keeps
+   the original composition pixel-identical whenever it already fits. */
+@media (min-width:701px) {
+  .heroScene {
+    --scene-fit:clamp(.5,tan(atan2(max(0px,calc(100svh - 150px)),610px)),1);
+    transform-origin:55% 42%;
+    transform:translateY(calc((1 - var(--scene-fit)) * -270.9px)) scale(var(--scene-fit));
+  }
+}
+@media (min-width:1201px) {
+  .heroScene {
+    --scene-fit:clamp(.5,tan(atan2(max(0px,calc(100svh - 156px)),664px)),1);
+    transform:translateY(calc((1 - var(--scene-fit)) * -310.8px)) scale(calc(1.085 * var(--scene-fit)));
+  }
+}
+@media (min-width:701px) and (max-width:850px) {
+  .heroScene {
+    /* The existing ape overhang is 40px; only compensate where it exceeds
+       the page's 5vw gutter. Keep the same layered tablet composition. */
+    --scene-fit:min(clamp(.5,tan(atan2(max(0px,calc(100svh - 150px)),610px)),1),clamp(.5,tan(atan2(28.49vw,calc(23.49vw + 40px))),1));
+  }
+}
