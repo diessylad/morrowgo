@@ -133,7 +133,7 @@ export default function DestinationPage() {
     );
   }
 
-  return <div ref={root} className={`${base.page} ${s.page} ${mobile.page} ${mobile.tariff} ${motion.root}`}><Header/><TravelArtwork/><main className={s.wrap}>
+  return <div ref={root} className={`${base.page} ${s.page} ${mobile.page} ${mobile.tariff} ${motion.root}`}><Header transparent/><TravelArtwork/><main className={s.wrap}>
     <div className={s.content}>
       <a className={s.back} href="/destinations"><ArrowLeft size={18}/>All destinations</a>
       <div className={s.country}><span aria-hidden="true">{flag}</span><label className={s.srOnly} htmlFor="destination-country">Destination</label><select id="destination-country" value={iso} onChange={e=>router.push(`/destination/${encodeURIComponent(e.target.value)}`)}>{!countries.some(c=>(c.iso||c.code)===iso)&&<option value={iso}>{name}</option>}{countries.map(c=><option key={c.iso||c.code} value={c.iso||c.code}>{c.name}</option>)}</select><ChevronDown size={16}/></div>

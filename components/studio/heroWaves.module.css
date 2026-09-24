@@ -2,3 +2,4 @@
 .canvas{display:block;width:100%;height:100%;opacity:.46}
 .atmosphere{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.72;mix-blend-mode:multiply}
 @media(max-width:767px){.canvas{opacity:.38}.atmosphere{opacity:.42;object-position:44% center}}
+
