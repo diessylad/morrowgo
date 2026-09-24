@@ -1,0 +1,5 @@
+.switcher{display:flex;gap:8px;border-bottom:1px solid #deded8;margin:0 0 18px;padding:0 0 12px}
+.switcher button{flex:1;min-height:44px;padding:10px 18px;border:1px solid transparent;border-radius:24px;background:transparent;color:#60615c;font:inherit;font-size:14px;cursor:pointer;transition:background .25s,color .25s,border-color .25s}
+.switcher button[aria-pressed=true]{background:#0a0a0a;color:#fefefc;border-color:#0a0a0a}
+.switcher button:focus-visible{outline:2px solid #388253;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.switcher button{transition:none}}

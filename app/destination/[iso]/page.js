@@ -10,6 +10,8 @@ import Header from '../../../components/shared/Header';
 import base from '../../../components/customer/customer.module.css';
 import s from './destination.module.css';
 import PlanCard from '../../../components/destination/PlanCard';
+import PlanCategory from '../../../components/destination/PlanCategory';
+import { selectPlans } from '../../../components/quick-buy/selectPlans.mjs';
 import mobile from '../../../components/shared/mobile.module.css';
 import TravelArtwork from '../../../components/destination/TravelArtwork';
 import usePremiumMotion from '../../../components/shared/usePremiumMotion';
@@ -92,19 +94,8 @@ export default function DestinationPage() {
     }
   }, [iso]);
 
-  const displayedPlans = useMemo(() => {
-    const remaining = [...new Map(packages.map(p => [p.id, p])).values()];
-    const amount = p => Number(p.dataGB) || Number(p.dataMB) / 1024 || 0;
-    const selected = [];
-    for (const target of [1, 3, 5, 10, 20]) {
-      const unlimited = target === 20 && remaining.some(p => p.unlimited);
-      const candidates = remaining.filter(p => unlimited ? p.unlimited : !p.unlimited);
-      candidates.sort((a,b) => (unlimited ? 0 : Math.abs(amount(a)-target)-Math.abs(amount(b)-target)) || Number(a.price)-Number(b.price) || Number(b.duration)-Number(a.duration) || String(a.id).localeCompare(String(b.id)));
-      const plan = candidates[0] || remaining[0];
-      if (plan) { selected.push(plan); remaining.splice(remaining.indexOf(plan), 1); }
-    }
-    return selected;
-  }, [packages]);
+  const [category, setCategory] = useState('fixed');
+  const displayedPlans = useMemo(() => selectPlans(packages, category), [packages, category]);
   const flag = /^[A-Z]{2}$/.test(iso) ? String.fromCodePoint(...[...iso].map(c => c.charCodeAt(0) + 127397)) : '';
   const name = countryName || iso;
 
@@ -142,8 +133,9 @@ export default function DestinationPage() {
       <TravelArtwork mobile/><div className={s.benefits}><span><Zap/>Instant<br/>activation</span><span><Signal/>Reliable<br/>coverage</span><span><Smartphone/>No physical<br/>SIM</span><span><Globe2/>200+<br/>countries</span></div>
       <section className={s.plans} aria-label="Available eSIM plans">
         {loading ? <p className={s.empty} role="status">Loading plans…</p> : error ? <p className={s.empty} role="alert">{error}</p> : <>
-          <div className={s.cardList}>{displayedPlans.map(plan=><PlanCard key={plan.id} plan={plan} recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)} formatData={formatData} onBuy={openCheckout}/>)}</div>
-          {!displayedPlans.length && <p className={s.empty}>No plans are currently available for this destination.</p>}
+          <PlanCategory value={category} onChange={setCategory}/>
+          <div className={s.cardList}>{displayedPlans.map(plan=><PlanCard key={plan.id} plan={plan} recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)} formatData={formatData} onBuy={openCheckout} showSpeedDetails/>)}</div>
+          {!displayedPlans.length && <p className={s.empty}>No {category === 'unlimited' ? 'unlimited' : 'fixed-data'} plans are currently available for this destination.</p>}
         </>}
       </section>
       <div className={s.compatibility}><Info size={19}/><div><span>Top-ups subject to eSIM compatibility.</span> <a href="/compatibility">Check device compatibility <ArrowRight size={16}/></a></div></div>

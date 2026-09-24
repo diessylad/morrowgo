@@ -10,6 +10,7 @@ import usePremiumMotion from '../shared/usePremiumMotion';
 import motion from '../shared/motion.module.css';
 import MotionHeading from '../shared/MotionHeading';
 import HeroWaves from './HeroWaves';
+import QuickBuy from '../quick-buy/QuickBuy';
 
 const countries = [
   { name: 'Japan', flag: '🇯🇵', code: 'JP', region: 'Asia', city: 'Tokyo', zone: '35.67° N / 139.65° E' },
@@ -28,6 +29,7 @@ export default function Experience({ authenticated = false }) {
   const [catalogue, setCatalogue] = useState([]);
   const [catalogueState, setCatalogueState] = useState('loading');
   useEffect(() => { let active = true; fetch('/api/catalogue/countries').then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(d => { if(active){setCatalogue(d.countries);setCatalogueState('ready');} }).catch(() => {if(active)setCatalogueState('error');}); return () => {active=false;}; }, []);
+  const [quickBuyCountry, setQuickBuyCountry] = useState(null);
   const [query, setQuery] = useState('');
   const [region, setRegion] = useState('All');
   const scene = useRef(null);
@@ -36,7 +38,7 @@ export default function Experience({ authenticated = false }) {
   const search = useRef(null);
   const matches = catalogue.filter(c => `${c.name} ${c.region} ${c.code}`.toLowerCase().includes(query.toLowerCase().trim()) && (region === 'All' || c.region === region));
   const filtered = !query.trim() && region === 'All' ? countries.map(c => catalogue.find(item => item.code === c.code)).filter(Boolean) : matches;
-  function open(c) { router.push(`/destination/${c.code}`); }
+  function open(c) { setQuickBuyCountry(c); }
   function goSearch() { search.current.focus(); search.current.scrollIntoView({ behavior: 'auto', block: 'center' }); }
   return <div className={`${s.root} ${motion.root}`} ref={root}>
     <a href="#content" className={s.skip}>Skip to content</a>
@@ -98,5 +100,6 @@ export default function Experience({ authenticated = false }) {
     </main>
     <footer className={s.footer}><a href="/" className={s.wordmark}><Mark/>MORROWGO</a><span>More places. Brighter tomorrows.</span><span>© 2026 MORROWGO</span></footer>
 
+    {quickBuyCountry && <QuickBuy key={quickBuyCountry.code} country={quickBuyCountry} onClose={() => setQuickBuyCountry(null)}/>}
   </div>;
 }
