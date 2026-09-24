@@ -1,8 +1,8 @@
-.wrap{position:relative;max-width:1440px;margin:0 auto;padding:30px 7.8% 52px;min-height:1060px;overflow:hidden}.content{position:relative;z-index:4;width:48%;max-width:580px}.back{display:inline-flex;align-items:center;gap:18px;color:#81818c;text-decoration:none;font-size:14px;margin:0 0 34px;min-height:30px}.country{position:relative;display:flex;align-items:center;gap:12px;width:max-content;max-width:100%;border:1px solid #e0e0df;border-radius:30px;padding:11px 18px;margin-bottom:18px}.country>span{font-size:25px}.country select{appearance:none;background:transparent;border:0;font:inherit;font-size:17px;color:#111;max-width:240px;padding-right:24px;cursor:pointer}.country>svg{position:absolute;right:18px;pointer-events:none}.title{font-size:clamp(40px,4.8vw,68px);line-height:1.01;letter-spacing:-3.7px;font-weight:400;margin:0 0 15px;overflow-wrap:anywhere}.description{font-size:19px;line-height:1.4;letter-spacing:-.6px;color:#777781;margin:0 0 27px}.benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 0 24px}.benefits span{font-size:12px;line-height:1.4}.benefits svg{display:block;width:27px;height:27px;stroke-width:1.8;margin-bottom:9px}.cardList{display:grid;gap:12px}.more{display:flex;align-items:center;justify-content:center;gap:16px;width:100%;border:1px solid #b5b5ba;border-radius:11px;min-height:49px;margin-top:13px;background:transparent;color:#111;font:inherit;font-size:14px;cursor:pointer}.compatibility{display:flex;align-items:flex-start;gap:12px;margin-top:26px;font-size:11px;line-height:1.7;color:#878792}.compatibility>svg{flex:none;margin-top:2px}.compatibility a{color:#171717;text-decoration:none;display:inline-flex;gap:9px;align-items:center}.notice{font-size:10px;color:#8a8a91;line-height:1.5;margin:12px 0 0}.empty{padding:30px 0;color:#777;font-size:14px}.srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.wrap :is(a,button,select):focus-visible{outline:2px solid #454b40;outline-offset:4px}
+.wrap{position:relative;max-width:1440px;margin:0 auto;padding:30px 7.8% 52px;min-height:1060px;overflow:hidden}.content{position:relative;z-index:4;width:48%;max-width:580px}.back{display:inline-flex;align-items:center;gap:18px;color:#81818c;text-decoration:none;font-size:14px;margin:0 0 34px;min-height:30px}.country{position:relative;display:flex;align-items:center;gap:12px;width:max-content;max-width:100%;border:1px solid #e0e0df;border-radius:30px;padding:11px 18px;margin-bottom:18px}.country>span{font-size:25px}.country select{appearance:none;background:transparent;border:0;font:inherit;font-size:17px;color:#111;max-width:240px;padding-right:24px;cursor:pointer}.country>svg{position:absolute;right:18px;pointer-events:none}.title{font-size:clamp(40px,4.8vw,68px);line-height:1.01;letter-spacing:-3.7px;font-weight:400;margin:0 0 15px;overflow-wrap:anywhere}.description{font-size:19px;line-height:1.4;letter-spacing:-.6px;color:#777781;margin:0 0 27px}.benefits{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 0 24px}.benefits span{font-size:12px;line-height:1.4}.benefits svg{display:block;width:27px;height:27px;stroke-width:1.8;margin-bottom:9px}.cardList{display:grid;gap:12px}.more{display:flex;align-items:center;justify-content:center;gap:16px;width:100%;border:1px solid #b5b5ba;border-radius:11px;min-height:49px;margin-top:13px;background:transparent;color:#111;font:inherit;font-size:14px;cursor:pointer}.empty{padding:30px 0;color:#777;font-size:14px}.srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.wrap :is(a,button,select):focus-visible{outline:2px solid #454b40;outline-offset:4px}
 @media(max-width:1100px) and (min-width:701px){.wrap{padding:26px 5% 40px}.content{width:55%}.title{font-size:50px;letter-spacing:-2.8px}.description{font-size:16px}.benefits{gap:10px}}
-@media(max-width:700px){.wrap{padding:24px 20px 0;min-height:0}.content{width:100%;max-width:none}.back{font-size:13px;margin-bottom:22px;gap:12px}.country{padding:9px 14px;margin-bottom:16px}.country>span{font-size:23px}.country select{font-size:16px;max-width:230px}.title{font-size:clamp(37px,9.7vw,55px);letter-spacing:-2.1px;line-height:1.02;margin-bottom:12px}.description{font-size:15px;letter-spacing:-.35px;margin-bottom:25px;line-height:1.45}.benefits{gap:12px;margin-bottom:23px}.benefits span{font-size:10px}.benefits svg{width:25px;height:25px;margin-bottom:8px}.compatibility{font-size:10px;margin-top:20px}.compatibility a{display:flex}.notice{font-size:9px}.cardList{gap:11px}.more{font-size:14px;min-height:48px}}
+@media(max-width:700px){.wrap{padding:24px 20px 0;min-height:0}.content{width:100%;max-width:none}.back{font-size:13px;margin-bottom:22px;gap:12px}.country{padding:9px 14px;margin-bottom:16px}.country>span{font-size:23px}.country select{font-size:16px;max-width:230px}.title{font-size:clamp(37px,9.7vw,55px);letter-spacing:-2.1px;line-height:1.02;margin-bottom:12px}.description{font-size:15px;letter-spacing:-.35px;margin-bottom:25px;line-height:1.45}.benefits{gap:12px;margin-bottom:23px}.benefits span{font-size:10px}.benefits svg{width:25px;height:25px;margin-bottom:8px}.cardList{gap:11px}.more{font-size:14px;min-height:48px}}
 /* Match the approved wide desktop composition without a centered width cap. */
-@media(min-width:1101px){.wrap{max-width:none;margin:0;padding:16px 7.8% 30px;min-height:1000px}.content{width:48%;max-width:none}.back{margin-bottom:25px}.country{margin-bottom:16px}.country select{width:auto;max-width:220px}.title{font-size:clamp(60px,4.7vw,82px);line-height:1.01;letter-spacing:-3.5px;margin-bottom:13px}.description{font-size:21px;margin-bottom:26px}.benefits{margin-bottom:22px;gap:24px}.benefits span{font-size:13px}.cardList{gap:11px}.compatibility{margin-top:20px}}
+@media(min-width:1101px){.wrap{max-width:none;margin:0;padding:16px 7.8% 30px;min-height:1000px}.content{width:48%;max-width:none}.back{margin-bottom:25px}.country{margin-bottom:16px}.country select{width:auto;max-width:220px}.title{font-size:clamp(60px,4.7vw,82px);line-height:1.01;letter-spacing:-3.5px;margin-bottom:13px}.description{font-size:21px;margin-bottom:26px}.benefits{margin-bottom:22px;gap:24px}.benefits span{font-size:13px}.cardList{gap:11px}}
 @media(min-width:1101px){.country select{width:174px;max-width:100%}.title{font-size:clamp(62px,4.85vw,84px)}}
 
 @media(min-width:701px){.wrap{overflow:visible;clip-path:inset(-76px 0 0 0)}}
@@ -11,7 +11,7 @@
 
 .page{position:relative;background:#fefefc;overflow:visible}
 .wrap{clip-path:none;overflow:visible}
-@media(min-width:1101px){.page{min-height:1086px}.wrap{min-height:0;padding-bottom:18px}.cardList{gap:8px}.compatibility{margin-top:15px}}
+@media(min-width:1101px){.page{min-height:1086px}.wrap{min-height:0;padding-bottom:18px}.cardList{gap:8px}}
 
 @media(min-width:1101px){.cardList{gap:6px}}
 @media(max-width:1100px){.page{display:flex;flex-direction:column}.page>header{order:0}.wrap{order:1;width:100%;box-sizing:border-box}.page>img{order:2}}
@@ -29,4 +29,23 @@
 .page > div:first-child > header::before,
 .page > div:first-child > header::after {
   content: none;
+}
+
+/* Compact destination cards: the shared card's horizontal grid gap must not
+   also create a large empty row above the full-width fair-use note. */
+.cardList{gap:6px}
+.cardList>article{min-height:0;padding-top:8px;padding-bottom:8px;row-gap:4px}
+.cardList>article>div:first-child h2{margin-bottom:3px}
+.cardList>article>div:first-child p{margin-bottom:2px}
+.cardList>article>div:last-of-type>span{margin-top:4px}
+.cardList>article>p{align-self:end;overflow-wrap:anywhere}
+@media(max-width:1100px){
+  .cardList>article{padding-top:9px;padding-bottom:9px;row-gap:4px}
+}
+
+/* Tighten only the desktop flow between hero copy and tariff cards. */
+@media(min-width:1101px){
+  .description{margin-bottom:10px}
+  .benefits{margin-bottom:8px}
+  .plans>[role="group"]{margin-bottom:8px;padding-bottom:6px}
 }

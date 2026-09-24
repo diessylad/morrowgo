@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-  ArrowRight, ArrowLeft, ChevronDown, Globe2, Zap, Signal, Smartphone, Info
+  ArrowLeft, ChevronDown, Globe2, Zap, Signal, Smartphone
 } from 'lucide-react';
 
 import Header from '../../../components/shared/Header';
@@ -138,8 +138,6 @@ export default function DestinationPage() {
           {!displayedPlans.length && <p className={s.empty}>No {category === 'unlimited' ? 'unlimited' : 'fixed-data'} plans are currently available for this destination.</p>}
         </>}
       </section>
-      <div className={s.compatibility}><Info size={19}/><div><span>Top-ups subject to eSIM compatibility.</span> <a href="/compatibility">Check device compatibility <ArrowRight size={16}/></a></div></div>
-      <p className={`${s.notice} ${process.env.NODE_ENV === 'production' ? mobile.productionNotice : ''}`}>Sandbox · test eSIMs cannot be installed. Prices as listed.</p>
     </div>
   </main></div>;
 }
