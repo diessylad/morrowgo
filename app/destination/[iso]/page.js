@@ -1,5 +1,7 @@
 'use client';
 
+import { startCheckout } from '../../../components/purchase/startCheckout';
+
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -10,6 +12,7 @@ import Header from '../../../components/shared/Header';
 import base from '../../../components/customer/customer.module.css';
 import s from './destination.module.css';
 import PlanCard from '../../../components/destination/PlanCard';
+import PurchaseBar from '../../../components/purchase/PurchaseBar';
 import PlanCategory from '../../../components/destination/PlanCategory';
 import { selectPlans } from '../../../components/quick-buy/selectPlans.mjs';
 import mobile from '../../../components/shared/mobile.module.css';
@@ -96,6 +99,8 @@ export default function DestinationPage() {
 
   const [category, setCategory] = useState('fixed');
   const displayedPlans = useMemo(() => selectPlans(packages, category), [packages, category]);
+  const [selectedId, setSelectedId] = useState(null);
+  const selectedPlan = displayedPlans.find(plan => plan.id === selectedId) || displayedPlans[0];
   const flag = /^[A-Z]{2}$/.test(iso) ? String.fromCodePoint(...[...iso].map(c => c.charCodeAt(0) + 127397)) : '';
   const name = countryName || iso;
 
@@ -114,15 +119,7 @@ export default function DestinationPage() {
     return 'Data plan';
   }
 
-  function openCheckout(plan) {
-    router.push(
-      `/checkout?iso=${encodeURIComponent(
-        iso
-      )}&plan=${encodeURIComponent(
-        plan.id
-      )}`
-    );
-  }
+  function openCheckout(plan) { return startCheckout(iso, plan); }
 
   return <div ref={root} className={`${base.page} ${s.page} ${mobile.page} ${mobile.tariff} ${motion.root}`}><Header transparent/><TravelArtwork/><main className={s.wrap}>
     <div className={s.content}>
@@ -134,10 +131,10 @@ export default function DestinationPage() {
       <section className={s.plans} aria-label="Available eSIM plans">
         {loading ? <p className={s.empty} role="status">Loading plans…</p> : error ? <p className={s.empty} role="alert">{error}</p> : <>
           <PlanCategory value={category} onChange={setCategory}/>
-          <div className={s.cardList}>{displayedPlans.map(plan=><PlanCard key={plan.id} plan={plan} recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)} formatData={formatData} onBuy={openCheckout} showSpeedDetails/>)}</div>
+          <div className={s.cardList}>{displayedPlans.map(plan=><PlanCard key={plan.id} plan={plan} recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)} formatData={formatData} onBuy={openCheckout} onSelect={plan=>setSelectedId(plan.id)} selected={plan.id===selectedPlan?.id} showSpeedDetails/>)}</div>
           {!displayedPlans.length && <p className={s.empty}>No {category === 'unlimited' ? 'unlimited' : 'fixed-data'} plans are currently available for this destination.</p>}
         </>}
       </section>
     </div>
-  </main></div>;
+  </main>{!loading && !error && selectedPlan && <PurchaseBar key={iso} plan={selectedPlan} country={name} formatData={formatData} onBuy={openCheckout}/>}</div>;
 }

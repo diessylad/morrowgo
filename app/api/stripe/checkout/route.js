@@ -189,9 +189,9 @@ export async function POST(request) {
 
     stripeBody.set(
       'cancel_url',
-      `${origin}/checkout?iso=${encodeURIComponent(
+      `${origin}/destination/${encodeURIComponent(
         iso
-      )}&plan=${encodeURIComponent(
+      )}?plan=${encodeURIComponent(
         planId
       )}&canceled=true`
     );

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import PurchaseBar from '../purchase/PurchaseBar';
+import { startCheckout } from '../purchase/startCheckout';
 import { X } from 'lucide-react';
 import s from './quickBuy.module.css';
 import PlanCard from '../destination/PlanCard';
@@ -21,12 +22,13 @@ function price(plan) {
 // Mount with a country { code, name, flag }; unmount onClose. No catalogue or
 // payment state is duplicated: checkout revalidates the chosen package ID.
 export default function QuickBuy({ country, onClose }) {
-  const router = useRouter();
+  const [selectedId, setSelectedId] = useState(null);
   const dialog = useRef(null);
   const titleId = useId();
   const [packages, setPlans] = useState([]);
   const [category, setCategory] = useState('fixed');
   const plans = selectPlans(packages, category);
+  const selectedPlan = plans.find(plan => plan.id === selectedId) || plans[0];
   const [status, setStatus] = useState('loading');
   const [attempt, setAttempt] = useState(0);
   const iso = String(country.code || country.iso || '').toUpperCase();
@@ -75,10 +77,7 @@ export default function QuickBuy({ country, onClose }) {
     return () => { active = false; clearTimeout(timeout); controller.abort(); };
   }, [iso, attempt]);
 
-  function buy(plan) {
-    onClose();
-    router.push(`/checkout?iso=${encodeURIComponent(iso)}&plan=${encodeURIComponent(plan.id)}`);
-  }
+  function buy(plan) { return startCheckout(iso, plan); }
   return <dialog ref={dialog} className={s.dialog} aria-labelledby={titleId}
     onKeyDown={event => {
       if (event.key !== 'Tab') return;
@@ -104,20 +103,12 @@ export default function QuickBuy({ country, onClose }) {
         {status === 'ready' && plans.length > 0 && <div className={s.cardList}>
           {plans.map(plan => <PlanCard key={plan.id} plan={plan}
             recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)}
-            formatData={allowance} onBuy={buy} showSpeedDetails/>)}
-          <details className={s.networkDetails}><summary>Network &amp; plan details</summary>
-            {plans.map(plan => <div key={plan.id}><strong>{allowance(plan)} · {plan.duration} days · {price(plan)}</strong>
-              {plan.operator && <p>{plan.operator}</p>}
-              {plan.networks?.length > 0 && <p>Networks: {plan.networks.join(' / ')}</p>}
-              {(plan.speed || plan.networkTypes?.length > 0) && <p>{plan.speed || plan.networkTypes.join(' / ')}</p>}
-              {plan.fairUsage && <p>{plan.fairUsage}</p>}
-            </div>)}
-          </details>
+            formatData={allowance} onBuy={buy} onSelect={plan => setSelectedId(plan.id)} selected={plan.id === selectedPlan?.id} showSpeedDetails/>)}
+
         </div>}
       </div>
-      <footer className={s.actions}>
-        <a className={s.details} href={`/destination/${encodeURIComponent(iso)}`}>View details</a>
-      </footer>
+      {status === 'ready' && selectedPlan ? <PurchaseBar embedded key={iso} plan={selectedPlan} country={name} formatData={allowance} onBuy={buy} detailsHref={`/destination/${encodeURIComponent(iso)}`}/> : <footer className={s.actions}><a className={s.details} href={`/destination/${encodeURIComponent(iso)}`}>View details</a></footer>}
+
     </div>
   </dialog>;
 }
