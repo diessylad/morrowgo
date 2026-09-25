@@ -5,6 +5,7 @@ import { useEffect, useId, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { loginAction, registerAction, forgotPasswordAction, resetPasswordAction, oauthAction, resendConfirmationAction } from '../../lib/auth/actions';
 import styles from './auth.module.css';
+import Header from '../shared/Header';
 
 function ProviderIcon({ provider }) {
   if (provider === 'apple') return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.05 12.54c.03 3.22 2.82 4.29 2.85 4.3-.02.08-.45 1.53-1.47 3.03-.89 1.29-1.81 2.58-3.26 2.61-1.42.03-1.88-.84-3.51-.84-1.63 0-2.14.81-3.49.87-1.4.05-2.46-1.4-3.36-2.68-1.83-2.64-3.23-7.46-1.35-10.72.93-1.62 2.59-2.65 4.39-2.68 1.37-.03 2.66.92 3.5.92.84 0 2.42-1.14 4.07-.97.69.03 2.64.28 3.9 2.12-.1.06-2.33 1.36-2.3 4.04ZM14.37 4.61c.75-.91 1.26-2.18 1.12-3.44-1.08.04-2.4.72-3.18 1.63-.7.8-1.31 2.09-1.15 3.32 1.2.09 2.44-.61 3.21-1.51Z"/></svg>;
@@ -78,8 +79,9 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
   const [state, action] = useFormState(info.action, {});
   const needsEmail = mode !== 'reset';
   const needsPassword = mode !== 'forgot';
-  return <main className={styles.page}>
-    <header className={styles.header}><Link href="/" className={styles.brand}><img src="/icon.svg" width="24" height="24" alt=""/> MORROWGO</Link><Link href="/help">Help & support ↗</Link></header>
+  return <div className={styles.shell}>
+    <Header />
+    <main className={styles.page}>
     <div className={styles.content}>
 
       <section className={styles.card} aria-labelledby="auth-heading"><p className={styles.eyebrow}>YOUR NEXT CONNECTION</p><h2 id="auth-heading">{info.title}</h2><p className={styles.description}>{info.description}</p>
@@ -112,5 +114,5 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
       </section>
     </div>
     <footer className={styles.footer}><span>Real eSIM delivery is currently disabled during pre-launch.</span><Link href="/destinations">Explore destinations ↗</Link></footer>
-  </main>;
+  </main></div>;
 }
