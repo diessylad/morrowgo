@@ -27,7 +27,9 @@ async function fixture(t, overrides = {}, configured = true) {
     resetPasswordForEmail: { data: {}, error: null },
     verifyOtp: { data: { user: verifiedUser }, error: null },
     updateUser: { data: { user: verifiedUser }, error: null },
-    signOut: { error: null }
+    signOut: { error: null },
+    resend: { error: null },
+    signInWithOAuth: { data: { url: 'https://project.supabase.co/auth/v1/authorize' }, error: null }
   };
   const client = { auth: Object.fromEntries(Object.keys(defaults).map(name => [name, async (...args) => {
     calls.push({ name, args });
@@ -37,18 +39,19 @@ async function fixture(t, overrides = {}, configured = true) {
   }])) };
   const key = `__morrowgoAuthTest_${randomUUID()}`;
   globalThis[key] = configured ? client : null;
-  t.after(() => { delete globalThis[key]; });
-  const serverUrl = moduleUrl(`export function createServerSupabaseClient() { return globalThis[${JSON.stringify(key)}]; }`);
+  t.after(() => { delete globalThis[key]; delete globalThis[key + '_cleared']; });
+  const serverUrl = moduleUrl(`export function createServerSupabaseClient() { return globalThis[${JSON.stringify(key)}]; } export function clearAuthCookies() { globalThis[${JSON.stringify(key + '_cleared')}] = true; }`);
   const actions = await import(moduleUrl(actionSource
     .replace("'next/navigation'", JSON.stringify(redirectUrl))
     .replace("'../supabase/server'", JSON.stringify(serverUrl))
+    .replace("'./providers'", JSON.stringify(moduleUrl(`export async function isOAuthProviderEnabled() { return ${overrides.providerEnabled !== false}; }`)))
     .replace("'./config.mjs'", JSON.stringify(configUrl))));
   const session = await import(moduleUrl(sessionSource
     .replace("import 'server-only';", '')
     .replace("'next/navigation'", JSON.stringify(redirectUrl))
     .replace("'../supabase/server'", JSON.stringify(serverUrl))
     .replace("'./config.mjs'", JSON.stringify(configUrl))));
-  return { actions, session, calls, client };
+  return { actions, session, calls, client, cookiesCleared: () => globalThis[key + '_cleared'] === true };
 }
 
 async function redirected(promise, location) {
@@ -203,4 +206,51 @@ test('logout without configured authentication returns safely to sign in', async
   const f = await fixture(t, {}, false);
   await redirected(f.actions.logoutAction(), '/login');
   assert.deepEqual(f.calls, []);
+});
+
+for (const provider of ['google', 'apple']) {
+  test(`${provider} uses SSR PKCE callback and redirects through Supabase for new/returning users`, async t => {
+    const f = await fixture(t);
+    await redirected(f.actions.oauthAction({}, form({ provider })), 'https://project.supabase.co/auth/v1/authorize');
+    assert.deepEqual(f.calls, [{ name: 'signInWithOAuth', args: [{ provider, options: { redirectTo: 'https://www.morrowgo.com/auth/callback', skipBrowserRedirect: true } }] }]);
+  });
+}
+test('unsupported or disabled OAuth provider cannot initiate a redirect', async t => {
+  const f = await fixture(t, { providerEnabled: false });
+  assert.ok((await f.actions.oauthAction({}, form({ provider: 'google' }))).error);
+  assert.ok((await f.actions.oauthAction({}, form({ provider: 'attacker' }))).error);
+  assert.deepEqual(f.calls, []);
+});
+test('OAuth backend failures remain friendly', async t => {
+  const f = await fixture(t, { signInWithOAuth: { error: { message: 'private-secret' } } });
+  const result = await f.actions.oauthAction({}, form({ provider: 'apple' }));
+  assert.ok(result.error); assert.equal(JSON.stringify(result).includes('private-secret'), false);
+});
+test('resend validates the email and uses the production confirmation callback', async t => {
+  const f = await fixture(t);
+  assert.ok((await f.actions.resendConfirmationAction({}, form({ email: 'invalid' }))).error);
+  assert.equal(f.calls.length, 0);
+  assert.ok((await f.actions.resendConfirmationAction({}, form({ email: verifiedUser.email }))).success);
+  assert.deepEqual(f.calls, [{ name: 'resend', args: [{ type: 'signup', email: verifiedUser.email, options: { emailRedirectTo: 'https://www.morrowgo.com/auth/callback' } }] }]);
+});
+test('resend does not disclose already-confirmed or missing accounts', async t => {
+  const a = await fixture(t);
+  const b = await fixture(t, { resend: { error: { message: 'already confirmed' } } });
+  const c = await fixture(t, { resend: new Error('private-server-error') });
+  const expected = await a.actions.resendConfirmationAction({}, form({ email: verifiedUser.email }));
+  assert.deepEqual(await b.actions.resendConfirmationAction({}, form({ email: verifiedUser.email })), expected);
+  assert.deepEqual(await c.actions.resendConfirmationAction({}, form({ email: verifiedUser.email })), expected);
+});
+test('logout still clears browser credentials when Supabase sign-out fails', async t => {
+  for (const result of [{ error: { message: 'unavailable' } }, new Error('offline')]) {
+    const f = await fixture(t, { signOut: result });
+    await redirected(f.actions.logoutAction(), '/login');
+    assert.equal(f.cookiesCleared(), true);
+  }
+});
+
+test('a sign-out outage after password update still reports the completed reset and clears cookies', async t => {
+  const f = await fixture(t, { signOut: new Error('offline') });
+  await redirected(f.actions.resetPasswordAction({}, form({ password, confirmPassword: password, token_hash: tokenHash })), '/login?message=password-updated');
+  assert.equal(f.cookiesCleared(), true);
 });

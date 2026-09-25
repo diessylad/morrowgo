@@ -18,7 +18,7 @@ test('post-auth redirects cannot escape protected account paths', () => {
 });
 test('email redirect origin ignores invalid protocol and embedded credentials', () => {
   assert.equal(siteOrigin({ NEXT_PUBLIC_SITE_URL: 'https://a:b@evil.example' }), 'https://www.morrowgo.com');
-  assert.equal(siteOrigin({ NEXT_PUBLIC_SITE_URL: 'http://127.0.0.1:3019' }), 'http://127.0.0.1:3019');
+  assert.equal(siteOrigin({ NODE_ENV: 'development', NEXT_PUBLIC_SITE_URL: 'http://127.0.0.1:3019' }), 'http://127.0.0.1:3019');
 });
 test('password length respects UTF-8 byte limit; credentials and recovery inputs bounded', () => {
   assert.equal(validEmail('traveller@example.test'), true);
@@ -29,4 +29,11 @@ test('password length respects UTF-8 byte limit; credentials and recovery inputs
   assert.equal(validRecoveryToken('local-test-confirmation'), true);
   assert.equal(validRecoveryToken('x'), false);
   assert.equal(validRecoveryToken('<script>oops</script>'), false);
+});
+
+test('production redirects are canonical even with a stale local or attacker-controlled environment origin', () => {
+  for (const origin of ['http://localhost:3000', 'http://127.0.0.1:3099', 'https://other.example']) {
+    assert.equal(siteOrigin({ NODE_ENV: 'production', NEXT_PUBLIC_SITE_URL: origin }), 'https://www.morrowgo.com');
+    assert.equal(siteOrigin({ NODE_ENV: 'development', VERCEL_ENV: 'production', NEXT_PUBLIC_SITE_URL: origin }), 'https://www.morrowgo.com');
+  }
 });

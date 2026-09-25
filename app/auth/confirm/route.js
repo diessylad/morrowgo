@@ -13,12 +13,17 @@ export async function GET(request) {
     if (type === 'recovery') {
       // The one-time token is consumed only on password submission, not by link scanners.
       path = `/reset-password?token_hash=${encodeURIComponent(token_hash)}`;
-    } else if (['signup', 'email_change'].includes(type)) {
+    } else if (['signup', 'email', 'email_change'].includes(type)) {
       const client = createServerSupabaseClient();
       try {
         if (client) {
-          const { error } = await client.auth.verifyOtp({ token_hash, type });
-          if (!error) path = safeAccountPath(url.searchParams.get('next'));
+          const { data, error } = await client.auth.verifyOtp({ token_hash, type });
+          if (!error && data?.session && data?.user?.email_confirmed_at) {
+            path = safeAccountPath(url.searchParams.get('next'));
+          } else if (!error && type === 'email_change') {
+            // Secure email change may need confirmation from both email addresses.
+            path = '/login?message=email-change-pending';
+          }
         }
       } catch { /* Fail closed with a generic message. */ }
     }

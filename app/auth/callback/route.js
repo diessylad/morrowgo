@@ -6,12 +6,13 @@ export async function GET(request) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   let path = '/login?message=link-invalid';
-  if (code && code.length < 2048) {
+  if (url.searchParams.has('error')) path = '/login?message=oauth-failed';
+  else if (code && code.length < 2048) {
     try {
       const client = createServerSupabaseClient();
       if (client) {
-        const { error } = await client.auth.exchangeCodeForSession(code);
-        if (!error) path = safeAccountPath(url.searchParams.get('next'));
+        const { data, error } = await client.auth.exchangeCodeForSession(code);
+        if (!error && data?.session && data?.user?.email_confirmed_at) path = safeAccountPath(url.searchParams.get('next'));
       }
     } catch { /* Do not expose authentication errors or tokens. */ }
   }

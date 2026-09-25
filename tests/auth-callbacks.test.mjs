@@ -9,15 +9,17 @@ const confirmSource = await readFile(new URL('../app/auth/confirm/route.js', imp
 const configUrl = moduleUrl(await readFile(new URL('../lib/auth/config.mjs', import.meta.url), 'utf8'));
 const nextResponseUrl = moduleUrl(`export const NextResponse = { redirect(url) { return new Response(null, { status: 307, headers: { Location: String(url) } }); } };`);
 const tokenHash = 'test_only_recovery_hash_1234567890';
-const configuredOrigin = 'https://accounts.morrowgo.test';
+const configuredOrigin = 'https://www.morrowgo.com';
 
 async function fixture(t, options = {}) {
   const calls = [];
   const oldOrigin = process.env.NEXT_PUBLIC_SITE_URL;
+  const oldMode = process.env.NODE_ENV;
+  process.env.NODE_ENV = options.development ? 'development' : 'production';
   process.env.NEXT_PUBLIC_SITE_URL = options.siteOrigin || configuredOrigin;
   const client = { auth: Object.fromEntries(['verifyOtp', 'exchangeCodeForSession'].map(name => [name, async (...args) => {
     calls.push({ name, args });
-    const result = Object.hasOwn(options, name) ? options[name] : { error: null };
+    const result = Object.hasOwn(options, name) ? options[name] : { data: { session: { access_token: 'test-only' }, user: { email_confirmed_at: '2026-09-25' } }, error: null };
     if (result instanceof Error) throw result;
     return result;
   }])) };
@@ -25,6 +27,7 @@ async function fixture(t, options = {}) {
   globalThis[key] = options.configured === false ? null : client;
   t.after(() => {
     delete globalThis[key];
+    if (oldMode === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = oldMode;
     if (oldOrigin === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
     else process.env.NEXT_PUBLIC_SITE_URL = oldOrigin;
   });
@@ -55,7 +58,7 @@ test('recovery GET preserves the one-time token without consuming it or authenti
 });
 
 test('recovery redirects to configured 127.0.0.1 origin even when Next request URL says localhost', async t => {
-  const f = await fixture(t, { siteOrigin: 'http://127.0.0.1:3017' });
+  const f = await fixture(t, { development: true, siteOrigin: 'http://127.0.0.1:3017' });
   const destination = await f.request('confirm', { type: 'recovery', token_hash: tokenHash }, 'http://localhost:3017');
   assert.equal(destination, `http://127.0.0.1:3017/reset-password?token_hash=${tokenHash}`);
   assert.deepEqual(f.calls, []);
@@ -142,4 +145,24 @@ test('PKCE callback without configured authentication fails closed', async t => 
 test('invalid configured origin falls back to MORROWGO, never to the untrusted request host', async t => {
   const f = await fixture(t, { siteOrigin: 'javascript:alert(1)' });
   assert.equal(await f.request('callback', { code: 'test-only-pkce-code' }, 'https://attacker.example'), 'https://www.morrowgo.com/account');
+});
+
+test('OAuth rejection does not exchange an attached code or expose provider error details', async t => {
+  const f = await fixture(t);
+  assert.equal(await f.request('callback', { error: 'access_denied', error_description: 'private-details', code: 'ignored' }), `${configuredOrigin}/login?message=oauth-failed`);
+  assert.deepEqual(f.calls, []);
+});
+test('a successful response without a session cannot authorize account access', async t => {
+  const f = await fixture(t, { exchangeCodeForSession: { data: { session: null }, error: null }, verifyOtp: { data: { session: null }, error: null } });
+  assert.equal(await f.request('callback', { code: 'test-only' }), `${configuredOrigin}/login?message=link-invalid`);
+  assert.equal(await f.request('confirm', { type: 'signup', token_hash: tokenHash }), `${configuredOrigin}/login?message=link-invalid`);
+});
+test('secure email change first confirmation gets a useful message, not a false account redirect', async t => {
+  const f = await fixture(t, { verifyOtp: { data: { session: null }, error: null } });
+  assert.equal(await f.request('confirm', { type: 'email_change', token_hash: tokenHash }), `${configuredOrigin}/login?message=email-change-pending`);
+});
+test('email token verification works without a PKCE verifier or previous browser session', async t => {
+  const f = await fixture(t);
+  assert.equal(await f.request('confirm', { type: 'email', token_hash: tokenHash }), `${configuredOrigin}/account`);
+  assert.deepEqual(f.calls.map(c => c.name), ['verifyOtp']);
 });
