@@ -2,7 +2,8 @@
 import { Text, Localized, useLanguage } from './../i18n/Provider';
 import en from './../../locales/en.json';
 
-import { useState } from 'react';
+import { countryFlag } from '../../lib/account/presentation.mjs';
+import { useEffect, useState } from 'react';
 import { ChevronDown, Copy, Globe2, Plus } from 'lucide-react';
 import styles from './account.module.css';
 import {getUsageSummary} from '../../lib/esims/usage';
@@ -32,14 +33,15 @@ function destinationLabel(esim) {
   return en["m_d9efbf5ef99d"];
 }
 
-export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, demo = false, asOf }) {
+export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, demo = false, asOf, installationOpen = false, topUpInitiallyOpen = false }) {
   const { language } = useLanguage();
   const [esim,setEsim] = useState(initialEsim);
   const [loading,setLoading] = useState(false);
   const usage = esim === initialEsim ? initialUsage : getUsageSummary(esim);
   async function refresh(){setLoading(true);try{const r=await fetch(`/api/account/esims/${esim.id}/sandbox`);const d=await r.json();if(!r.ok)throw new Error();setEsim(d.esim);setNotice(en["m_44c3e0fe67a0"]);}catch{setNotice(en["m_e2206d8023af"]);}finally{setLoading(false);}}
   const [notice, setNotice] = useState('');
-  const [topUpOpen, setTopUpOpen] = useState(false);
+  const [topUpOpen, setTopUpOpen] = useState(topUpInitiallyOpen);
+  useEffect(() => { setTopUpOpen(topUpInitiallyOpen); }, [topUpInitiallyOpen]);
   const now = asOf ? Date.parse(asOf) : Date.now();
   const expiry = Date.parse(esim.expiresAt);
   const days = Number.isFinite(expiry) && Number.isFinite(now) ? Math.max(0, Math.ceil((expiry - now) / 86400000)) : null;
@@ -56,9 +58,9 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
     catch { setNotice(en["m_7263bcf330df"]); }
   }
 
-  return <article className={styles.card}>
+  return <article className={styles.card} id={`esim-${esim.id}`}>
     <div className={styles.cardTop}>
-      <div className={styles.destination}><span className={styles.destinationIcon}><Globe2 size={22} strokeWidth={1.2} /></span><h3><Text>{destinationLabel(esim)}</Text></h3></div>
+      <div className={styles.destination}><span className={styles.destinationIcon}>{countryFlag(esim.destinationIso)}</span><h3><Text>{destinationLabel(esim)}</Text></h3></div>
       <span className={styles.badge} data-active={esim.status === 'active'}><Text>{statusLabels[esim.status] || en["m_f261ff7629df"]}{demo ? ' · demo' : ''}</Text></span>
     </div>
     <p className={styles.planName}>{esim.planName || en["m_3a3dd9174aa2"]}<Text>{demo ? ' · example plan' : ''}</Text></p>
@@ -80,7 +82,7 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
     <Text>{esim.rechargeable === true && <div className={styles.actions}><button className={`${styles.button} ${styles.secondary}`} type="button" onClick={() => setTopUpOpen(!topUpOpen)} aria-expanded={topUpOpen}><Plus size={15} /><Text>{en["m_91d42a8b742a"]}</Text></button></div>}</Text>
     <Text>{topUpOpen && <p className={styles.notice} role="status"><Text>{en["m_019dbc85609d"]}</Text><Text>{demo ? 'example ' : ''}</Text><Text>{en["m_c339198bce37"]}</Text></p>}</Text>
     {topUpOpen && esim.topups?.map(p => <p className={styles.muted} key={p.id}>{p.title} · €<Text>{p.price.toFixed(2)}</Text></p>)}
-    <details className={styles.install}>
+    <details className={styles.install} open={installationOpen || undefined}>
       <summary><Text>{en["m_658efcda8b52"]}</Text><ChevronDown size={16} /></summary>
       <Text>{installFields.length ? <><p className={styles.muted}><Text>{demo ? en["m_ca379a057819"] : en["m_eadcb311f47a"]}</Text></p><Text>{installFields.map(([label, value]) => <div className={styles.copyRow} key={label}><div><span><Text>{label}</Text></span><code>{value}</code></div><Localized as="button" aria-label={`Copy ${demo ? 'sample ' : ''}${label}`} type="button" onClick={() => copy(value, label)}><Copy size={16} /></Localized></div>)}</Text></> : <p className={styles.muted}><Text>{en["m_fe4e9e062220"]}</Text></p>}</Text>
       <Text>{esim.instructions?.map((step,i) => <p className={styles.muted} key={i}><Text>{step}</Text></p>)}</Text>

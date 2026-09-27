@@ -1,7 +1,7 @@
 import { requireAccount } from '../../lib/auth/session';
-import { loadCustomerEsims, loadCustomerOrders, usagePresentation } from '../../components/account/customerData';
+import { loadCustomerEsims, loadCustomerOrders } from '../../components/account/customerData';
 import DashboardOverview from '../../components/account/DashboardOverview';
-import EsimCard from '../../components/account/EsimCard';
+import { accountProfile } from '../../lib/account/presentation.mjs';
 
 export default async function AccountPage() {
   const { client, user } = await requireAccount('/account');
@@ -9,5 +9,5 @@ export default async function AccountPage() {
     loadCustomerEsims(client, user.id),
     loadCustomerOrders(client, user.id)
   ]);
-  return <DashboardOverview esims={esims.records} orders={orders.records} esimsUnavailable={esims.unavailable} ordersUnavailable={orders.unavailable} esimCards={esims.records.slice(0, 2).map(esim => <EsimCard key={esim.id} esim={esim} usage={usagePresentation(esim)} />)} />;
+  return <DashboardOverview esims={esims.records} orders={orders.records} esimsUnavailable={esims.unavailable} ordersUnavailable={orders.unavailable} profile={accountProfile(user)} asOf={new Date().toISOString()}/>;
 }

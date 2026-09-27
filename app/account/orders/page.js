@@ -7,11 +7,12 @@ import OrderList from '../../../components/account/OrderList';
 
 export const metadata = { title: 'My orders · MORROWGO' };
 
-export default async function CustomerOrdersPage() {
+export default async function CustomerOrdersPage({ searchParams }) {
   const { client, user } = await requireAccount('/account/orders');
   const orders = await loadCustomerOrders(client, user.id);
+  const query = typeof searchParams?.q === 'string' ? searchParams.q.trim().slice(0,100) : '';
   return <>
     <AccountHeading title={en["m_acff71ba12bf"]}><Text>{en["m_3c701e688031"]}</Text></AccountHeading>
-    <Text>{orders.unavailable ? <DataUnavailable label={en["m_965840381640"]} /> : orders.records.length ? <OrderList orders={orders.records} /> : <EmptyOrders />}</Text>
+    <Text>{orders.unavailable ? <DataUnavailable label={en["m_965840381640"]} /> : orders.records.length ? <OrderList orders={orders.records} query={query}/> : <EmptyOrders />}</Text>
   </>;
 }

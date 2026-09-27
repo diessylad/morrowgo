@@ -1,24 +1,21 @@
-import { Text } from './../i18n/Provider';
-import en from './../../locales/en.json';
-import { CookieSettingsLink } from '../privacy/CookieConsent';
 import Link from 'next/link';
-import Header from '../customer/Header';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { Text, Message } from '../i18n/Provider';
+import { CookieSettingsLink } from '../privacy/CookieConsent';
 import LogoutButton from '../auth/LogoutButton';
 import AccountNavigation from './AccountNavigation';
+import AccountControls from './AccountControls';
+import { accountProfile } from '../../lib/account/presentation.mjs';
+import brand from '../customer/customer.module.css';
 import styles from './account.module.css';
-
-export default function AccountShell({ children, demo = false }) {
-  return <div className={styles.page}>
-    <Header authenticated={!demo}/>
-    <Text>{!demo && <div className={styles.logout}><LogoutButton/></div>}</Text>
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}><p className={styles.sidebarLabel}><Text>{en["m_371b0c0d62e4"]}</Text></p><AccountNavigation demo={demo} /><p className={styles.sidebarNote}><Text>{en["m_d7b48a1a9bb8"]}</Text><br /><Text>{en["m_45cba5c61e8d"]}</Text></p></aside>
-      <main className={styles.content}>
-        <Text>{demo ? <div className={styles.demoBanner}><strong><Text>{en["m_af9f7af1d5c4"]}</Text></strong><Text>{en["m_6edff944672d"]}</Text></div> : <div className={styles.prelaunch}><Text>{en["m_368e46b562e7"]}</Text></div>}</Text>
-        <Text>{children}</Text>
-        <footer className={styles.footer}><Text>{en["m_303107e2dd8f"]}</Text><CookieSettingsLink/></footer>
-      </main>
-    </div>
-  </div>;
+import s from './dashboard.module.css';
+export default function AccountShell({ children, demo = false, profile = accountProfile() }) {
+  return <div className={styles.page}><div className={styles.layout}>
+    <aside className={styles.sidebar}><Link href="/" className={`${brand.brand} ${s.brand}`} aria-label="MORROWGO"><span className={brand.mark} aria-hidden="true"><i/><i/><i/><i/></span>MORROWGO</Link><AccountNavigation demo={demo}/>
+      <Link href="/destinations" className={s.promo}><span><Text>Explore the world connected.</Text></span><span className={s.promoArrow}><ArrowRight size={16}/></span><small><Text>Global eSIM for modern travelers</Text></small></Link>
+    </aside>
+    <main className={styles.content} id="account-content"><div className={s.topbar}><div className={s.greeting}><h1>{profile.firstName ? <Message message="Hi, {name}!" values={{name:profile.firstName}}/> : <Text>Welcome back.</Text>}</h1><p><Text>Manage your eSIMs, check your usage, and stay connected worldwide.</Text></p></div><AccountControls profile={profile}>{!demo && <LogoutButton/>}</AccountControls></div>
+      {demo && <p className={s.previewNote}>Local preview · sample data only</p>}{children}
+      <footer className={s.footer}>{!demo && <span><Text>MORROWGO is preparing for launch. Real eSIM delivery is currently disabled.</Text></span>}<CookieSettingsLink/></footer>
+    </main></div></div>;
 }

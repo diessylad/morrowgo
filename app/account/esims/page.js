@@ -8,11 +8,11 @@ import styles from '../../../components/account/account.module.css';
 
 export const metadata = { title: 'My eSIMs · MORROWGO' };
 
-export default async function CustomerEsimsPage() {
+export default async function CustomerEsimsPage({ searchParams }) {
   const { client, user } = await requireAccount('/account/esims');
   const esims = await loadCustomerEsims(client, user.id);
   return <>
     <AccountHeading title={en["m_d7b48a1a9bb8"]}><Text>{en["m_e69035b029cc"]}</Text></AccountHeading>
-    {esims.unavailable ? <DataUnavailable label="eSIMs" /> : esims.records.length ? <div className={styles.grid}>{esims.records.map(esim => <EsimCard key={esim.id} esim={esim} usage={usagePresentation(esim)} />)}</div> : <EmptyEsims />}
+    {esims.unavailable ? <DataUnavailable label="eSIMs" /> : esims.records.length ? <div className={styles.grid}>{esims.records.map(esim => <EsimCard key={esim.id} esim={esim} usage={usagePresentation(esim)} installationOpen={searchParams?.install === esim.id} topUpInitiallyOpen={searchParams?.topup === esim.id} asOf={new Date().toISOString()} />)}</div> : <EmptyEsims />}
   </>;
 }
