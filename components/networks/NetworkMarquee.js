@@ -23,6 +23,5 @@ export default function NetworkMarquee() {
         </ul>)}
       </div>
     </div>
-    <p>Network availability varies by destination and plan.</p>
   </section>;
 }
