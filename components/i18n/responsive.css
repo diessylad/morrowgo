@@ -1,0 +1,6 @@
+/* Only localized text constraints; English composition is unchanged. */
+html:not([lang=en]) [data-liquid-header] header nav a{white-space:normal}
+html:not([lang=en]) [data-liquid-header] header>button{white-space:normal}
+@media(min-width:768px) and (max-width:1200px){html:not([lang=en]) [data-liquid-header] header{gap:12px}html:not([lang=en]) [data-liquid-header] nav{gap:12px}}
+
+@media(max-width:767px){[data-desktop-language]{display:none}}

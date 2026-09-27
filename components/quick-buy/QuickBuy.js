@@ -1,4 +1,6 @@
 'use client';
+import { Text, Localized, Message, useLanguage } from './../i18n/Provider';
+import en from './../../locales/en.json';
 
 import { useEffect, useId, useRef, useState } from 'react';
 import PurchaseBar from '../purchase/PurchaseBar';
@@ -10,10 +12,10 @@ import PlanCategory from '../destination/PlanCategory';
 import { selectPlans } from './selectPlans.mjs';
 
 function allowance(plan) {
-  if (plan.unlimited) return 'Unlimited';
+  if (plan.unlimited) return en["m_b8bef37b7153"];
   if (plan.dataMB && Number(plan.dataMB) < 1024) return `${plan.dataMB} MB`;
   if (plan.dataGB) return `${Number(Number(plan.dataGB).toFixed(2))} GB`;
-  return plan.dataMB ? `${plan.dataMB} MB` : 'Data plan';
+  return plan.dataMB ? `${plan.dataMB} MB` : en["m_fa28de1bbbe3"];
 }
 function price(plan) {
   return new Intl.NumberFormat('en-IE', { style: 'currency', currency: plan.currency || 'EUR' }).format(Number(plan.price));
@@ -22,6 +24,7 @@ function price(plan) {
 // Mount with a country { code, name, flag }; unmount onClose. No catalogue or
 // payment state is duplicated: checkout revalidates the chosen package ID.
 export default function QuickBuy({ country, onClose }) {
+  const { t } = useLanguage();
   const [selectedId, setSelectedId] = useState(null);
   const dialog = useRef(null);
   const titleId = useId();
@@ -91,15 +94,15 @@ export default function QuickBuy({ country, onClose }) {
     onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <div className={s.panel}>
       <header className={s.heading}>
-        <span className={s.flag} aria-hidden="true">{flag}</span>
-        <div><p>{name}</p><h2 id={titleId}>eSIM plans for {name}</h2></div>
-        <button className={s.close} onClick={onClose} aria-label="Close Quick Buy" autoFocus><X size={21}/></button>
+        <span className={s.flag} aria-hidden="true"><Text>{flag}</Text></span>
+        <div><p><Text>{name}</Text></p><h2 id={titleId}><Message message={en["plans.countryTitle"]} values={{country:t(name)}}/></h2></div>
+        <Localized as="button" className={s.close} onClick={onClose} aria-label={en["m_6ec585226cb2"]} autoFocus><X size={21}/></Localized>
       </header>
       <div className={s.content} aria-busy={status === 'loading'}>
-        {status === 'loading' && <p className={s.message} role="status">Loading available plans…</p>}
-        {status === 'error' && <div className={s.message}><p role="alert">Could not load eSIM plans. Please try again.</p><button className={s.retry} onClick={() => setAttempt(value => value + 1)}>Try again</button></div>}
-        {status === 'ready' && <PlanCategory value={category} onChange={setCategory}/>}
-        {status === 'ready' && !plans.length && <p className={s.message} role="status">No {category === 'unlimited' ? 'unlimited' : 'fixed-data'} plans are currently available for this destination.</p>}
+        <Text>{status === 'loading' && <p className={s.message} role="status"><Text>{en["m_d138fa8f7ff9"]}</Text></p>}</Text>
+        <Text>{status === 'error' && <div className={s.message}><p role="alert"><Text>{en["m_cef7c74413fc"]}</Text></p><button className={s.retry} onClick={() => setAttempt(value => value + 1)}><Text>{en["m_042c862e4467"]}</Text></button></div>}</Text>
+        <Text>{status === 'ready' && <PlanCategory value={category} onChange={setCategory}/>}</Text>
+        <Text>{status === 'ready' && !plans.length && <p className={s.message} role="status"><Text>{en["m_85cdebe11045"]}</Text><Text>{category === en["m_e1a6f0b6f73a"] ? en["m_e1a6f0b6f73a"] : en["m_45300a3b9412"]}</Text><Text>{en["m_00d769d8f7d5"]}</Text></p>}</Text>
         {status === 'ready' && plans.length > 0 && <div className={s.cardList}>
           {plans.map(plan => <PlanCard key={plan.id} plan={plan}
             recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)}
@@ -107,7 +110,7 @@ export default function QuickBuy({ country, onClose }) {
 
         </div>}
       </div>
-      {status === 'ready' && selectedPlan ? <PurchaseBar embedded key={iso} plan={selectedPlan} country={name} formatData={allowance} onBuy={buy} detailsHref={`/destination/${encodeURIComponent(iso)}`}/> : <footer className={s.actions}><a className={s.details} href={`/destination/${encodeURIComponent(iso)}`}>View details</a></footer>}
+      <Text>{status === 'ready' && selectedPlan ? <PurchaseBar embedded key={iso} plan={selectedPlan} country={name} formatData={allowance} onBuy={buy} detailsHref={`/destination/${encodeURIComponent(iso)}`}/> : <footer className={s.actions}><a className={s.details} href={`/destination/${encodeURIComponent(iso)}`}><Text>{en["m_badd385121c5"]}</Text></a></footer>}</Text>
 
     </div>
   </dialog>;

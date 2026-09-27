@@ -1,4 +1,6 @@
 'use client';
+import { Text } from './../../components/i18n/Provider';
+import en from './../../locales/en.json';
 
 import Header from '../../components/customer/Header';
 import s from '../../components/customer/customer.module.css';
@@ -63,7 +65,7 @@ export default function CheckoutPage() {
 
     if (!country || !selectedPlan) {
       setError(
-        'Invalid eSIM plan.'
+        en["m_c11baed9394f"]
       );
 
       setLoading(false);
@@ -95,7 +97,7 @@ export default function CheckoutPage() {
           )
         ) {
           throw new Error(
-            'Could not load plan'
+            en["m_5c169519af01"]
           );
         }
 
@@ -107,14 +109,14 @@ export default function CheckoutPage() {
 
         if (!selected) {
           throw new Error(
-            'Plan not found'
+            en["m_08a032b50378"]
           );
         }
 
         setPlan(selected);
       } catch {
         setError(
-          'Selected eSIM plan could not be loaded.'
+          en["m_31254dca653c"]
         );
       } finally {
         setLoading(false);
@@ -126,7 +128,7 @@ export default function CheckoutPage() {
 
   function formatData(item) {
     if (item.unlimited) {
-      return 'Unlimited';
+      return en["m_b8bef37b7153"];
     }
 
     if (item.dataGB) {
@@ -137,7 +139,7 @@ export default function CheckoutPage() {
       return `${item.dataMB} MB`;
     }
 
-    return 'Data plan';
+    return en["m_fa28de1bbbe3"];
   }
 
   async function continueToPayment() {
@@ -179,7 +181,7 @@ export default function CheckoutPage() {
         throw new Error(
           data?.stripeError ||
           data?.error ||
-          'Could not start payment'
+          en["m_9dcd1d7581bc"]
         );
       }
 
@@ -188,12 +190,12 @@ export default function CheckoutPage() {
     } catch (paymentError) {
       setError(
         paymentError?.message ||
-        'Could not start payment.'
+        en["m_342e001c48bd"]
       );
 
       setPaymentLoading(false);
     }
   }
 
-  return <div className={s.page}><Header/><main className={s.wrap}><span className={s.label}>YOUR CONNECTION / CHECKOUT</span><h1 className={s.title}>{plan?.country || 'Your plan'}</h1><p className={s.intro}>One plan. One clear total.</p>{cancelled && <p className={s.notice}>Checkout was cancelled. You can review your plan and try again.</p>}{loading && <p role="status">Loading your plan…</p>}{error && <p role="alert">{error}</p>}{plan && <section className={s.card} style={{maxWidth:560}}><span className={s.label}>SANDBOX / TEST PURCHASE</span><h2>{formatData(plan)}</h2><p>{plan.duration} days · {plan.country}</p><p>{plan.operator}<br/>{plan.networks?.join(' / ')}</p><p>€{Number(plan.price).toFixed(2)} total</p><label style={{display:'flex',alignItems:'flex-start',gap:12,fontSize:14,lineHeight:1.7,margin:'20px 0'}}><input type="checkbox" checked={compatible} onChange={e=>setCompatible(e.target.checked)} style={{marginTop:5}}/>I have checked that my phone supports eSIM and is carrier-unlocked.</label><Link href="/compatibility" style={{color:'inherit',fontSize:13}}>Device compatibility ↗</Link><p>Sandbox eSIMs are for testing and cannot be installed. Payment is confirmed only by Stripe.</p><button className={s.button} onClick={continueToPayment} disabled={paymentLoading || !compatible}>{paymentLoading?'Opening Stripe…':`Continue — €${Number(plan.price).toFixed(2)}`}</button></section>}</main></div>;
+  return <div className={s.page}><Header/><main className={s.wrap}><span className={s.label}><Text>{en["m_84315e853c24"]}</Text></span><h1 className={s.title}><Text>{plan?.country || en["m_b96ddaab20ff"]}</Text></h1><p className={s.intro}><Text>{en["m_7b95ac1b9268"]}</Text></p><Text>{cancelled && <p className={s.notice}><Text>{en["m_fc047e947793"]}</Text></p>}{loading && <p role="status"><Text>{en["m_8382938cd1cd"]}</Text></p>}{error && <p role="alert"><Text>{error}</Text></p>}</Text>{plan && <section className={s.card} style={{maxWidth:560}}><span className={s.label}><Text>{en["m_8b5bd1d3e985"]}</Text></span><h2><Text>{formatData(plan)}</Text></h2><p><Text>{plan.duration}</Text><Text>{en["m_6deff958bc5e"]}</Text><Text>{plan.country}</Text></p><p>{plan.operator}<br/>{plan.networks?.join(' / ')}</p><p>€<Text>{Number(plan.price).toFixed(2)}</Text><Text>{en["m_9ac1f4b1eb52"]}</Text></p><label style={{display:'flex',alignItems:'flex-start',gap:12,fontSize:14,lineHeight:1.7,margin:'20px 0'}}><input type="checkbox" checked={compatible} onChange={e=>setCompatible(e.target.checked)} style={{marginTop:5}}/><Text>{en["m_5e24d317fbba"]}</Text></label><Link href="/compatibility" style={{color:'inherit',fontSize:13}}><Text>{en["m_6c5503aa1111"]}</Text></Link><p><Text>{en["m_140631c26af0"]}</Text></p><button className={s.button} onClick={continueToPayment} disabled={paymentLoading || !compatible}><Text>{paymentLoading?en["m_8ed3c2197f2d"]:`Continue — €${Number(plan.price).toFixed(2)}`}</Text></button></section>}</main></div>;
 }

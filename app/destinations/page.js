@@ -1,4 +1,6 @@
 'use client';
+import { Text, Localized, useLanguage } from './../../components/i18n/Provider';
+import en from './../../locales/en.json';
 
 import {
   useEffect,
@@ -12,6 +14,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+import LanguageSelect from '../../components/i18n/LanguageSelect';
 import Header from '../../components/shared/Header';
 import mobile from '../../components/shared/mobile.module.css';
 
@@ -50,6 +53,7 @@ function getCountryName(
 }
 
 export default function DestinationsPage() {
+  const { t, language } = useLanguage();
   const router = useRouter();
 
   const [countries, setCountries] =
@@ -96,7 +100,7 @@ export default function DestinationsPage() {
           )
         ) {
           throw new Error(
-            'Could not load destinations'
+            en["m_83007793b783"]
           );
         }
 
@@ -127,7 +131,7 @@ export default function DestinationsPage() {
         setCountries(prepared);
       } catch {
         setError(
-          'Could not load destinations.'
+          en["m_3cf01618d8bb"]
         );
       } finally {
         setLoading(false);
@@ -150,7 +154,7 @@ export default function DestinationsPage() {
 
       return countries.filter(
         (country) =>
-          country.name
+          t(country.name)
             .toLowerCase()
             .includes(search) ||
 
@@ -164,6 +168,7 @@ export default function DestinationsPage() {
       );
     }, [
       countries,
+      language,
       query
     ]);
 
@@ -183,7 +188,7 @@ export default function DestinationsPage() {
           margin: '0 auto'
         }}
       >
-        <button className={mobile.back}
+        <div data-desktop-language style={{float:"right"}}><LanguageSelect/></div><button className={mobile.back}
           onClick={() =>
             router.push('/')
           }
@@ -201,9 +206,7 @@ export default function DestinationsPage() {
             cursor: 'pointer'
           }}
         >
-          <ArrowLeft size={17} />
-          Back
-        </button>
+          <ArrowLeft size={17} /><Text>{en["m_b52b36b7269f"]}</Text></button>
 
         <div className={mobile.intro}
           style={{
@@ -217,9 +220,7 @@ export default function DestinationsPage() {
               color: '#888',
               marginBottom: '12px'
             }}
-          >
-            MORROWGO eSIM
-          </div>
+          ><Text>{en["m_d8874723025c"]}</Text></div>
 
           <h1
             style={{
@@ -228,9 +229,7 @@ export default function DestinationsPage() {
               fontWeight: '500',
               margin: 0
             }}
-          >
-            Destinations
-          </h1>
+          ><Text>{en["m_0fc66bc4363c"]}</Text></h1>
 
           <p
             style={{
@@ -238,11 +237,7 @@ export default function DestinationsPage() {
               fontSize: '16px',
               marginTop: '12px'
             }}
-          >
-            Choose your destination
-            and find the best eSIM
-            plan.
-          </p>
+          ><Text>{en["m_0664178124a8"]}</Text></p>
         </div>
 
         <div className={mobile.search}
@@ -264,15 +259,15 @@ export default function DestinationsPage() {
             color="#888"
           />
 
-          <input
+          <Localized as="input"
             value={query}
             onChange={(event) =>
               setQuery(
                 event.target.value
               )
             }
-            placeholder="Search country"
-            aria-label="Search country"
+            placeholder={en["m_4238725c85c1"]}
+            aria-label={en["m_4238725c85c1"]}
             style={{
               flex: 1,
               background:
@@ -285,7 +280,7 @@ export default function DestinationsPage() {
           />
         </div>
 
-        {!loading &&
+        <Text>{!loading &&
           !error && (
             <div
               style={{
@@ -294,36 +289,32 @@ export default function DestinationsPage() {
                 fontSize: '14px'
               }}
             >
-              {
+              <Text>{
                 filteredCountries.length
-              }{' '}
-              destinations
-            </div>
-          )}
+              }{' '}</Text><Text>{en["m_773a3b986de1"]}</Text></div>
+          )}</Text>
 
-        {loading && (
+        <Text>{loading && (
+          <p
+            style={{
+              marginTop: '40px',
+              color: '#999'
+            }}
+          ><Text>{en["m_9fadc57493cd"]}</Text></p>
+        )}</Text>
+
+        <Text>{error && (
           <p
             style={{
               marginTop: '40px',
               color: '#999'
             }}
           >
-            Loading destinations...
+            <Text>{error}</Text>
           </p>
-        )}
+        )}</Text>
 
-        {error && (
-          <p
-            style={{
-              marginTop: '40px',
-              color: '#999'
-            }}
-          >
-            {error}
-          </p>
-        )}
-
-        {!loading &&
+        <Text>{!loading &&
           !error && (
             <div className={mobile.countries}
               style={{
@@ -334,7 +325,7 @@ export default function DestinationsPage() {
                 gap: '12px'
               }}
             >
-              {filteredCountries.map(
+              <Text>{filteredCountries.map(
                 (country) => (
                   <button className={mobile.country}
                     key={
@@ -382,9 +373,9 @@ export default function DestinationsPage() {
                             '26px'
                         }}
                       >
-                        {getFlag(
+                        <Text>{getFlag(
                           country.iso
-                        )}
+                        )}</Text>
                       </span>
 
                       <div>
@@ -396,9 +387,9 @@ export default function DestinationsPage() {
                               '600'
                           }}
                         >
-                          {
-                            country.name
-                          }
+                          <Text>{
+                            t(country.name)
+                          }</Text>
                         </div>
 
                         <div
@@ -411,9 +402,9 @@ export default function DestinationsPage() {
                               '12px'
                           }}
                         >
-                          {
+                          <Text>{
                             `From €${country.fromPrice.toFixed(2)}`
-                          }
+                          }</Text>
                         </div>
                       </div>
                     </div>
@@ -423,9 +414,9 @@ export default function DestinationsPage() {
                     />
                   </button>
                 )
-              )}
+              )}</Text>
             </div>
-          )}
+          )}</Text>
       </div>
     </main></>
   );

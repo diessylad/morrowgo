@@ -30,3 +30,7 @@
 @media(max-width:767px){.artworkViewport{display:none}.planInfo>span,.buy>span{color:#60615c}.card{border-color:#deded8}}
 .mobileArtwork{display:none}
 @media(max-width:767px){.mobileArtwork{display:block;width:calc(100% + 40px);max-width:none;height:auto;margin:16px -20px 22px;border:0;border-radius:0;box-shadow:none}}
+
+/* Allow translated labels to fit without changing English cards. */
+:global(html:not([lang=en])) .buy button{white-space:normal;max-width:100%;gap:8px;padding-inline:12px;overflow-wrap:anywhere}
+:global(html:not([lang=en])) .planInfo h2{overflow-wrap:anywhere}

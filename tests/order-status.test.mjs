@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
-const { orderPresentation } = await import(moduleUrl(await readFile(new URL('../lib/orderPresentation.js', import.meta.url), 'utf8')));
+const dictionary = JSON.parse(await readFile(new URL('../locales/en.json', import.meta.url), 'utf8'));
+const presentationSource = (await readFile(new URL('../lib/orderPresentation.js', import.meta.url), 'utf8')).replace(/import en from [^;]+;/, `const en = ${JSON.stringify(dictionary)};`);
+const { orderPresentation } = await import(moduleUrl(presentationSource));
 const { GET } = await import(moduleUrl(await readFile(new URL('../app/api/orders/status/route.js', import.meta.url), 'utf8')));
 
 test('missing order keeps the payment check in progress', () => {

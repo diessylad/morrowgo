@@ -1,4 +1,6 @@
 'use client';
+import { Text } from './../i18n/Provider';
+import en from './../../locales/en.json';
 
 import { useEffect, useId, useRef } from 'react';
 import styles from './heroNetwork.module.css';
@@ -41,9 +43,9 @@ export default function HeroNetwork() {
         <path d="M186 173 C294 390 596 455 741 190"/>
       </g>
       <g className={styles.nodes} fill="#627d6b">
-        {[[186,173],[414,149],[741,190]].map(([x,y],i)=><g key={x}><circle cx={x} cy={y} r="2.6"/><circle className={styles.pulse} style={{animationDelay:`${i * 1.3}s`}} cx={x} cy={y} r="6" fill="none" stroke="currentColor" strokeWidth=".7"/></g>)}
+        <Text>{[[186,173],[414,149],[741,190]].map(([x,y],i)=><g key={x}><circle cx={x} cy={y} r="2.6"/><circle className={styles.pulse} style={{animationDelay:`${i * 1.3}s`}} cx={x} cy={y} r="6" fill="none" stroke="currentColor" strokeWidth=".7"/></g>)}</Text>
       </g>
-      <g className={styles.labels} fill="#65716a" fontSize="9" fontFamily="Arial, sans-serif"><text x="151" y="195">New York</text><text x="425" y="143">London</text><text x="754" y="188">Tokyo</text></g>
+      <g className={styles.labels} fill="#65716a" fontSize="9" fontFamily="Arial, sans-serif"><text x="151" y="195"><Text>{en["m_3dddf7feb16b"]}</Text></text><text x="425" y="143"><Text>{en["m_4c57f0c88d98"]}</Text></text><text x="754" y="188"><Text>{en["m_963dd210cc93"]}</Text></text></g>
       <g className={styles.circuit} stroke="#658171" strokeWidth=".8" transform="translate(770 440) rotate(-12)"><path d="M0 9Q0 0 9 0H29L41 12V43Q41 50 34 50H8Q0 50 0 42Z M0 17H15V33H0 M41 17H26V33H41 M15 0V12H26V0 M15 50V39H26V50 M15 25H26"/></g>
     </svg>
   </div>;

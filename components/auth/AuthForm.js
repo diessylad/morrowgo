@@ -1,4 +1,7 @@
 'use client';
+import { Text, Localized, AuthInput } from './../i18n/Provider';
+import en from './../../locales/en.json';
+import { CookieSettingsLink } from '../privacy/CookieConsent';
 
 import Link from 'next/link';
 import { useEffect, useId, useState } from 'react';
@@ -21,8 +24,8 @@ function SocialOptions({ configured, message }) {
     catch { /* Storage is optional; authentication does not depend on it. */ }
   }, [message]);
   return <div className={styles.social}>
-    {['apple', 'google'].map(provider => <ProviderOption key={provider} provider={provider} configured={configured} callbackError={failedProvider === provider ? 'Sign-in was cancelled or could not be completed. Please try again.' : ''} />)}
-    {message === 'oauth-failed' && !['apple', 'google'].includes(failedProvider) && <p className={styles.inlineError} role="alert">Sign-in could not be completed. Please try again.</p>}
+    <Text>{['apple', 'google'].map(provider => <ProviderOption key={provider} provider={provider} configured={configured} callbackError={failedProvider === provider ? en["m_1b388e6dd1bb"] : ''} />)}</Text>
+    <Text>{message === 'oauth-failed' && !['apple', 'google'].includes(failedProvider) && <p className={styles.inlineError} role="alert"><Text>{en["m_880569a7b5f8"]}</Text></p>}</Text>
   </div>;
 }
 
@@ -36,39 +39,39 @@ function ProviderOption({ provider, configured, callbackError }) {
     try { sessionStorage.setItem('morrowgo-auth-provider', provider); } catch { /* Optional UI hint only. */ }
   }}>
     <SocialButton provider={provider} disabled={!configured} errorId={error ? id : undefined} />
-    {error && <p id={id} className={styles.inlineError} role="alert">{error}</p>}
+    <Text>{error && <p id={id} className={styles.inlineError} role="alert"><Text>{error}</Text></p>}</Text>
   </form>;
 }
 
 function SocialButton({ provider, disabled, errorId }) {
   const { pending } = useFormStatus();
   return <button type="submit" name="provider" value={provider} className={`${styles.socialButton} ${provider === 'apple' ? styles.appleButton : ''}`} disabled={disabled || pending} aria-describedby={errorId} aria-busy={pending}>
-    <ProviderIcon provider={provider}/><span>{pending ? 'Please wait…' : `Continue with ${provider === 'apple' ? 'Apple' : 'Google'}`}</span>
+    <ProviderIcon provider={provider}/><span><Text>{pending ? en["m_5afeca73bef6"] : `Continue with ${provider === 'apple' ? 'Apple' : 'Google'}`}</Text></span>
   </button>;
 }
 
 function ResendConfirmation({ configured }) {
   const [state, action] = useFormState(resendConfirmationAction, {});
-  return <details className={styles.resend}><summary>Resend confirmation email</summary>
+  return <details className={styles.resend}><summary><Text>{en["m_0807f4650e74"]}</Text></summary>
     <form action={action} className={styles.form}>
-      <label>Email address<input name="email" type="email" autoComplete="email" maxLength={254} required disabled={!configured} /></label>
-      {state.error && <p className={styles.error} role="alert">{state.error}</p>}
-      {state.success && <p className={styles.notice} role="status">{state.success}</p>}
-      <Submit label="Send confirmation link" disabled={!configured} />
+      <label><Text>{en["m_c94d3175a656"]}</Text><AuthInput name="email" type="email" autoComplete="email" maxLength={254} required disabled={!configured} /></label>
+      <Text>{state.error && <p className={styles.error} role="alert"><Text>{state.error}</Text></p>}</Text>
+      <Text>{state.success && <p className={styles.notice} role="status"><Text>{state.success}</Text></p>}</Text>
+      <Submit label={en["m_796ce9f7adc5"]} disabled={!configured} />
     </form>
   </details>;
 }
 
 const content = {
-  login: { title: 'Welcome back.', description: 'Your travel connections, all in one place.', button: 'Sign in', action: loginAction },
-  register: { title: 'Make yourself at home.', description: 'Create your MORROWGO account for your next journey.', button: 'Create account', action: registerAction },
-  forgot: { title: 'Let’s get you back in.', description: 'Enter your email and we’ll send a password reset link.', button: 'Send reset link', action: forgotPasswordAction },
-  reset: { title: 'A fresh start.', description: 'Choose a new password for your MORROWGO account.', button: 'Save new password', action: resetPasswordAction }
+  login: { title: en["m_4308f5ef22c9"], description: en["m_318664d58b10"], button: en["m_ada2e9e96fa9"], action: loginAction },
+  register: { title: en["m_3ea2e21a30d8"], description: en["m_b3884184cea4"], button: en["m_aaf374479756"], action: registerAction },
+  forgot: { title: en["m_53cefc8fd5bd"], description: en["m_939c8b43bbc5"], button: en["m_b8ec554332fc"], action: forgotPasswordAction },
+  reset: { title: en["m_91fe01b7de7b"], description: en["m_327f53ea871c"], button: en["m_2a76cbea1f46"], action: resetPasswordAction }
 };
 
 function Submit({ label, disabled }) {
   const { pending } = useFormStatus();
-  return <button className={styles.submit} disabled={disabled || pending}>{pending ? 'Please wait…' : label}<span aria-hidden="true">↗</span></button>;
+  return <button className={styles.submit} disabled={disabled || pending}><Text>{pending ? en["m_5afeca73bef6"] : label}</Text><span aria-hidden="true">↗</span></button>;
 }
 
 export default function AuthForm({ mode, configured, next = '/account', tokenHash = '', message = '', emailInitiallyOpen = false }) {
@@ -84,35 +87,35 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
     <main className={styles.page}>
     <div className={styles.content}>
 
-      <section className={styles.card} aria-labelledby="auth-heading"><p className={styles.eyebrow}>YOUR NEXT CONNECTION</p><h2 id="auth-heading">{info.title}</h2><p className={styles.description}>{info.description}</p>
-        {!configured && <p className={styles.notice} role="status">Account access is being prepared. You can explore plans and use guest checkout while we finish setup.</p>}
-        {message === 'password-updated' && <p className={styles.notice} role="status">Your password has been updated. Sign in with your new password.</p>}
-        {message === 'verified' && <p className={styles.notice} role="status">Email confirmed. You can now sign in.</p>}
-        {message === 'link-invalid' && <p className={styles.notice} role="alert">This link has expired, was already used, or could not be verified. If you already confirmed your email, sign in. Otherwise, resend your confirmation below. For password recovery, request a new reset link.</p>}
-        {message === 'email-change-pending' && <p className={styles.notice} role="status">Check both your old and new inboxes to finish confirming your email change, then sign in.</p>}
-        {choosesMethod && <><SocialOptions configured={configured} message={message} />
-          <div className={styles.divider}><span>or</span></div>
-          <button type="button" className={styles.socialButton} aria-expanded={emailOpen} aria-controls={emailRegionId} onClick={() => setEmailOpen(open => !open)}><ProviderIcon provider="email"/><span>Continue with Email</span></button>
-        </>}
+      <section className={styles.card} aria-labelledby="auth-heading"><p className={styles.eyebrow}><Text>{en["m_a3399006beae"]}</Text></p><h2 id="auth-heading"><Text>{info.title}</Text></h2><p className={styles.description}><Text>{info.description}</Text></p>
+        <Text>{!configured && <p className={styles.notice} role="status"><Text>{en["m_a448b17d7689"]}</Text></p>}</Text>
+        <Text>{message === 'password-updated' && <p className={styles.notice} role="status"><Text>{en["m_873031daedd0"]}</Text></p>}</Text>
+        <Text>{message === 'verified' && <p className={styles.notice} role="status"><Text>{en["m_c83fef6d7600"]}</Text></p>}</Text>
+        <Text>{message === 'link-invalid' && <p className={styles.notice} role="alert"><Text>{en["m_496a35e3ae61"]}</Text></p>}</Text>
+        <Text>{message === 'email-change-pending' && <p className={styles.notice} role="status"><Text>{en["m_95d657505b4d"]}</Text></p>}</Text>
+        <Text>{choosesMethod && <><SocialOptions configured={configured} message={message} />
+          <div className={styles.divider}><span><Text>{en["m_1758356db217"]}</Text></span></div>
+          <button type="button" className={styles.socialButton} aria-expanded={emailOpen} aria-controls={emailRegionId} onClick={() => setEmailOpen(open => !open)}><ProviderIcon provider="email"/><span><Text>{en["m_88001457548e"]}</Text></span></button>
+        </>}</Text>
         <div id={emailRegionId} className={choosesMethod ? styles.emailReveal : undefined} data-open={emailOpen} aria-hidden={!emailOpen} inert={!emailOpen ? '' : undefined}><div className={styles.emailRevealInner}>
-        {mode === 'reset' && !tokenHash && <p className={styles.notice}>Open the reset link from your email to continue.</p>}
+        <Text>{mode === 'reset' && !tokenHash && <p className={styles.notice}><Text>{en["m_af24ce9cc497"]}</Text></p>}</Text>
         <form action={action} className={styles.form}>
           <input type="hidden" name="next" value={next} />
-          {mode === 'reset' && <input type="hidden" name="token_hash" value={tokenHash} />}
-          {needsEmail && <label>Email address<input name="email" type="email" autoComplete="email" maxLength={254} placeholder="you@example.com" required disabled={!configured} /></label>}
-          {needsPassword && <label>{mode === 'reset' ? 'New password' : 'Password'}<input name="password" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={mode === 'login' ? 1 : 12} maxLength={72} required disabled={!configured} />{mode !== 'login' && <small>At least 12 characters. Use a unique password.</small>}</label>}
-          {mode === 'reset' && <label>Confirm new password<input name="confirmPassword" type="password" autoComplete="new-password" minLength={12} maxLength={72} required disabled={!configured} /></label>}
-          {mode === 'login' && <Link href="/forgot-password" className={styles.forgot}>Forgot password?</Link>}
-          {state.error && <p className={styles.error} role="alert">{state.error}</p>}
-          {state.success && <p className={styles.notice} role="status">{state.success}</p>}
+          <Text>{mode === 'reset' && <input type="hidden" name="token_hash" value={tokenHash} />}</Text>
+          <Text>{needsEmail && <label><Text>{en["m_c94d3175a656"]}</Text><AuthInput name="email" type="email" autoComplete="email" maxLength={254} placeholder="you@example.com" required disabled={!configured} /></label>}</Text>
+          <Text>{needsPassword && <label><Text>{mode === 'reset' ? en["m_d850ee188c7c"] : en["m_8be3c943b160"]}</Text><AuthInput name="password" type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} minLength={mode === 'login' ? 1 : 12} maxLength={72} required disabled={!configured} /><Text>{mode !== 'login' && <small><Text>{en["m_7fce2cf23794"]}</Text></small>}</Text></label>}</Text>
+          <Text>{mode === 'reset' && <label><Text>{en["m_f85039fd8e49"]}</Text><AuthInput name="confirmPassword" type="password" autoComplete="new-password" minLength={12} maxLength={72} required disabled={!configured} /></label>}</Text>
+          <Text>{mode === 'login' && <Link href="/forgot-password" className={styles.forgot}><Text>{en["m_4c29f7f03358"]}</Text></Link>}</Text>
+          <Text>{state.error && <p className={styles.error} role="alert"><Text>{state.error}</Text></p>}</Text>
+          <Text>{state.success && <p className={styles.notice} role="status"><Text>{state.success}</Text></p>}</Text>
           <Submit label={info.button} disabled={!configured || (mode === 'reset' && !tokenHash)} />
         </form>
         </div></div>
-        <p className={styles.switch}>{mode === 'login' ? <>New to MORROWGO? <Link href={emailOpen ? `/register?method=email&next=${encodeURIComponent(next)}` : '/register'}>Create an account</Link></> : mode === 'register' ? <>Already have an account? <Link href={emailOpen ? `/login?method=email&next=${encodeURIComponent(next)}` : '/login'}>Sign in</Link></> : <Link href={mode === 'reset' ? '/forgot-password' : '/login'}>{mode === 'reset' ? 'Request a new reset link' : 'Back to sign in'}</Link>}</p>
-        {choosesMethod && emailOpen && <ResendConfirmation configured={configured} />}
-        {mode === 'register' && <p className={styles.fine}>We’ll ask you to confirm your email before you access your account.</p>}
+        <p className={styles.switch}><Text>{mode === 'login' ? <><Text>{en["m_8e6d90e912f1"]}</Text><Link href={emailOpen ? `/register?method=email&next=${encodeURIComponent(next)}` : '/register'}><Text>{en["m_3f4f547d7364"]}</Text></Link></> : mode === 'register' ? <><Text>{en["m_e41e4c6deeb8"]}</Text><Link href={emailOpen ? `/login?method=email&next=${encodeURIComponent(next)}` : '/login'}><Text>{en["m_ada2e9e96fa9"]}</Text></Link></> : <Link href={mode === 'reset' ? '/forgot-password' : '/login'}><Text>{mode === 'reset' ? en["m_4857497af317"] : en["m_4da821676b2f"]}</Text></Link>}</Text></p>
+        <Text>{choosesMethod && emailOpen && <ResendConfirmation configured={configured} />}</Text>
+        <Text>{mode === 'register' && <p className={styles.fine}><Text>{en["m_d79729666dff"]}</Text></p>}</Text>
       </section>
     </div>
-    <footer className={styles.footer}><span>Real eSIM delivery is currently disabled during pre-launch.</span><Link href="/destinations">Explore destinations ↗</Link></footer>
+    <footer className={styles.footer}><span><Text>{en["m_4cb2809feed6"]}</Text></span><Link href="/destinations"><Text>{en["m_bebf472688d7"]}</Text></Link><CookieSettingsLink/></footer>
   </main></div>;
 }

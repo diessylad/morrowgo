@@ -4,7 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 
 const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
-const actionSource = await readFile(new URL('../lib/auth/actions.js', import.meta.url), 'utf8');
+const dictionary = JSON.parse(await readFile(new URL('../locales/en.json', import.meta.url), 'utf8'));
+const actionSource = (await readFile(new URL('../lib/auth/actions.js', import.meta.url), 'utf8')).replace(/import en from [^;]+;/, `const en = ${JSON.stringify(dictionary)};`);
 const sessionSource = await readFile(new URL('../lib/auth/session.js', import.meta.url), 'utf8');
 const configUrl = moduleUrl(await readFile(new URL('../lib/auth/config.mjs', import.meta.url), 'utf8'));
 const redirectUrl = moduleUrl(`export function redirect(location) { const error = new Error('TEST_REDIRECT'); error.location = location; throw error; }`);
