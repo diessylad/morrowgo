@@ -11,6 +11,7 @@ import motion from '../shared/motion.module.css';
 import MotionHeading from '../shared/MotionHeading';
 import HeroWaves from './HeroWaves';
 import QuickBuy from '../quick-buy/QuickBuy';
+import NetworkMarquee from '../networks/NetworkMarquee';
 
 const countries = [
   { name: 'Japan', flag: '🇯🇵', code: 'JP', region: 'Asia', city: 'Tokyo', zone: '35.67° N / 139.65° E' },
@@ -98,6 +99,7 @@ export default function Experience({ authenticated = false }) {
       </section>
       <section className={s.finalCta}><span data-motion-reveal className={s.index}>READY WHEN YOU ARE</span><MotionHeading>Go further.<br/>Stay connected.</MotionHeading><button className={s.navCta} onClick={goSearch}>Find your eSIM <Arrow/></button><div className={s.trust}>{[[Globe2, '200+ countries'], [ShieldCheck, 'Secure payment'], [BatteryMedium, 'No physical SIM'], [Headphones, 'Support']].map(([Icon, text]) => <span key={text}><Icon size={18}/>{text}</span>)}</div></section>
     </main>
+    <NetworkMarquee/>
     <footer className={s.footer}><a href="/" className={s.wordmark}><Mark/>MORROWGO</a><span>More places. Brighter tomorrows.</span><span>© 2026 MORROWGO</span></footer>
 
     {quickBuyCountry && <QuickBuy key={quickBuyCountry.code} country={quickBuyCountry} onClose={() => setQuickBuyCountry(null)}/>}
