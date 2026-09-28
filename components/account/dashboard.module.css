@@ -18,3 +18,7 @@
 @media(prefers-reduced-transparency:reduce){.tableCard,.currentPlan,.smallCard,.stat,.search,.language,.notifications summary,.profileMenu summary{background:#f8f9f5;backdrop-filter:none;-webkit-backdrop-filter:none}}
 
 .greeting p,.footer{color:#454545}
+
+/* Decorative sidebar artwork; preserves the existing promo dimensions. */
+.promo::before{content:"";position:absolute;inset:0;pointer-events:none;background:url('/images/account-monkey.jpg') center 60%/auto 78% no-repeat;mix-blend-mode:multiply;opacity:.38;mask-image:linear-gradient(to bottom,transparent 24%,#000 46%,#000 72%,transparent 91%);-webkit-mask-image:linear-gradient(to bottom,transparent 24%,#000 46%,#000 72%,transparent 91%)}
+.promo>span,.promo>small{position:relative;z-index:1}
