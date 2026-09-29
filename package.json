@@ -28,5 +28,6 @@
   },
   "devDependencies": {
     "tailwindcss": "3.4.17"
-  }
+  },
+  "packageManager": "pnpm@10.34.6"
 }
