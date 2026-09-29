@@ -2,6 +2,7 @@ import '../components/i18n/responsive.css';
 import LanguageProvider from '../components/i18n/Provider';
 import CookieConsent from '../components/privacy/CookieConsent';
 import './globals.css';
+import '../components/design-system/tokens.css';
 
 export const metadata = {
   title: 'MORROWGO — Travel eSIM',

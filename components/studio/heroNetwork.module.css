@@ -7,5 +7,5 @@
 .circuit{opacity:.16}
 .pulse{transform-box:fill-box;transform-origin:center;animation:networkPulse 5s ease-in-out infinite}
 @keyframes networkPulse{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:.75;transform:scale(1.25)}}
-@media(max-width:767px){.layer svg{left:-27%;top:0;width:145%}.map{opacity:.09}.routes{opacity:.18}.labels{font-size:12px}.circuit{opacity:.12}}
+@media(max-width:767px){.layer svg{left:-27%;top:0;width:145%}.map{opacity:.09}.routes{opacity:.18}.labels{font-size:var(--text-xs)}.circuit{opacity:.12}}
 @media(prefers-reduced-motion:reduce){.layer{transform:none!important}.pulse{animation:none}}

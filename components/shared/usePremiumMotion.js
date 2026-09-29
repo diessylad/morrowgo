@@ -10,13 +10,14 @@ export default function usePremiumMotion(root) {
     const scope = root.current;
     if (!scope) return;
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const compact = window.matchMedia('(max-width: 767px)');
     let dispose = () => {};
 
     function setup() {
       dispose();
       if (preference.matches || !window.IntersectionObserver || !Element.prototype.animate) return;
       const animations = new Set();
-      const targets = [...scope.querySelectorAll('h1, h2, h3, p, [data-motion-reveal]')]
+      const targets = [...scope.querySelectorAll('[data-motion-reveal]')]
         .filter(el => !el.closest('article, form, [aria-live], [role="status"], [role="alert"]'));
       const reveal = new IntersectionObserver(entries => {
         let stagger = 0;
@@ -98,11 +99,11 @@ export default function usePremiumMotion(root) {
       const visuals = [...scope.querySelectorAll('[data-motion-visual]')];
       const layers = visuals.map(el => {
         const profile = profiles[el.dataset.motionVisual] || profiles.app;
-        const mobile = window.innerWidth < 768;
-        const factor = mobile ? 0.55 : 1;
+        const mobile = compact.matches;
+        const factor = mobile ? 0 : 0.35;
         const hero = el.closest('[data-motion-scene]');
         const anchor = hero || el.closest('section, main') || scope;
-        const initialScale = el.dataset.motionVisual === 'app' ? 0.96 : 1;
+        const initialScale = 1;
         const animation = el.animate([
           { transform: `translate3d(0,0,0) scale(${initialScale}) rotate(0deg)` },
           { transform: `translate3d(${profile.x * factor}px,${profile.y * factor}px,0) scale(${1 + (profile.scale - 1) * factor}) rotate(${profile.rotate * factor}deg)` }
@@ -173,6 +174,7 @@ export default function usePremiumMotion(root) {
     }
     setup();
     preference.addEventListener('change', setup);
-    return () => { dispose(); preference.removeEventListener('change', setup); };
+    compact.addEventListener('change', setup);
+    return () => { dispose(); preference.removeEventListener('change', setup); compact.removeEventListener('change', setup); };
   }, [root]);
 }
