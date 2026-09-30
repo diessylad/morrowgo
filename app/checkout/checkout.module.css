@@ -1,0 +1,27 @@
+/* Checkout uses the existing MORROWGO palette, without changing shared pages. */
+.content > span,
+.content > p,
+.content section > span,
+.content section p {
+  color: var(--color-muted);
+}
+.content section {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+.content input { accent-color: var(--color-ink); }
+.content :is(a, button, input):focus-visible {
+  outline-color: var(--color-ink);
+}
+.heading {
+  display: flex;
+  align-items: center;
+  gap: .25em;
+}
+.flag {
+  flex-shrink: 0;
+  font-size: .65em;
+  line-height: 1;
+  letter-spacing: normal;
+}
+.heading > :last-child { min-width: 0; overflow-wrap: anywhere; }
