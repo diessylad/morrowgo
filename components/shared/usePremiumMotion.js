@@ -112,6 +112,17 @@ export default function usePremiumMotion(root) {
         animation.currentTime = 0;
         return { el, anchor, hero: Boolean(hero), animation, current: 0 };
       });
+      // Layout geometry changes on resize/content changes, not on every scroll frame.
+      const geometry = new Map();
+      function measureAnchors() {
+        [...new Set(layers.map(layer => layer.anchor))].forEach(anchor => {
+          const rect = anchor.getBoundingClientRect();
+          geometry.set(anchor, { top: rect.top + window.scrollY, height: rect.height });
+        });
+      }
+      measureAnchors();
+      const geometryObserver = new ResizeObserver(measureAnchors);
+      [...new Set(layers.map(layer => layer.anchor))].forEach(anchor => geometryObserver.observe(anchor));
       const active = new Set();
       let frame = 0;
       let previousTime = 0;
@@ -125,12 +136,12 @@ export default function usePremiumMotion(root) {
         const height = window.innerHeight;
         // Read all geometry first, then write compositor animation times.
         const positions = [...active].map(layer => {
-          const rect = layer.anchor.getBoundingClientRect();
+          const rect = geometry.get(layer.anchor);
           const progress = layer.el.dataset.motionVisual === 'suitcase'
-            ? Math.max(0, Math.min(1, window.scrollY / Math.max(rect.bottom + window.scrollY - height, 1)))
+            ? Math.max(0, Math.min(1, window.scrollY / Math.max(rect.top + rect.height - height, 1)))
             : layer.hero
-            ? Math.max(0, Math.min(1, window.scrollY / Math.max(rect.top + window.scrollY + rect.height, 1)))
-            : Math.max(0, Math.min(1, (height - rect.top) / Math.max(height + rect.height, 1)));
+            ? Math.max(0, Math.min(1, window.scrollY / Math.max(rect.top + rect.height, 1)))
+            : Math.max(0, Math.min(1, (height - rect.top + window.scrollY) / Math.max(height + rect.height, 1)));
           return [layer, progress];
         });
         if (header) header.dataset.scrolled = String(window.scrollY > 40);
@@ -157,7 +168,8 @@ export default function usePremiumMotion(root) {
       }, { rootMargin: '100px 0px' });
       [...new Set(layers.map(layer => layer.anchor))].forEach(anchor => visible.observe(anchor));
       window.addEventListener('scroll', schedule, { passive: true });
-      window.addEventListener('resize', schedule, { passive: true });
+      const resizeMotion = () => { measureAnchors(); schedule(); };
+      window.addEventListener('resize', resizeMotion, { passive: true });
       dispose = () => {
         if (header) delete header.dataset.scrolled;
         additions.disconnect();
@@ -168,7 +180,8 @@ export default function usePremiumMotion(root) {
         animations.forEach(animation => animation.cancel());
         cancelAnimationFrame(frame);
         window.removeEventListener('scroll', schedule);
-        window.removeEventListener('resize', schedule);
+        window.removeEventListener('resize', resizeMotion);
+        geometryObserver.disconnect();
         layers.forEach(layer => layer.animation.cancel());
       };
     }

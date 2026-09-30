@@ -187,6 +187,7 @@ export function mountWaves(canvas, initial = {}, onError = () => {}) {
   let state = resolveState(initial);
   let gl, program, buffer, shaders = [], uniforms = {};
   let frame = 0, last = 0, time = 0, visible = true, destroyed = false, lost = false;
+  let width = 1, height = 1, lastDraw = 0;
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function release() {
@@ -222,15 +223,17 @@ export function mountWaves(canvas, initial = {}, onError = () => {}) {
     }
     onError('');
   }
-  function draw() {
-    if (destroyed || lost || !program) return;
+  function measure() {
     const box = canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rawWidth = Math.max(1, Math.round(box.width * dpr));
     const rawHeight = Math.max(1, Math.round(box.height * dpr));
     const pixelScale = Math.min(1, Math.sqrt(2_000_000 / (rawWidth * rawHeight)));
-    const width = Math.max(1, Math.round(rawWidth * pixelScale));
-    const height = Math.max(1, Math.round(rawHeight * pixelScale));
+    width = Math.max(1, Math.round(rawWidth * pixelScale));
+    height = Math.max(1, Math.round(rawHeight * pixelScale));
+  }
+  function draw() {
+    if (destroyed || lost || !program) return;
     if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
     gl.viewport(0, 0, width, height); gl.useProgram(program);
     const colors = colourControls.map(({ key }) => rgb(state[key]));
@@ -248,7 +251,10 @@ export function mountWaves(canvas, initial = {}, onError = () => {}) {
   function tick(now) {
     frame = 0;
     if (last) time += Math.min((now - last) / 1000, 0.1) * state.speed;
-    last = now; draw(); schedule();
+    last = now;
+    // Slow atmospheric motion does not need a full GPU draw on every display refresh.
+    if (now - lastDraw >= 1000 / 30 - 1) { lastDraw = now; draw(); }
+    schedule();
   }
   function schedule() {
     if (!frame && !destroyed && !lost && program && visible && !document.hidden && state.animate && Math.abs(state.speed) > 0.0001 && !motion.matches) {
@@ -258,7 +264,7 @@ export function mountWaves(canvas, initial = {}, onError = () => {}) {
   function refresh() {
     cancelAnimationFrame(frame); frame = 0; last = 0;
     if (motion.matches) time = 0;
-    draw(); schedule();
+    measure(); lastDraw = 0; draw(); schedule();
   }
   function contextLost(event) {
     event.preventDefault(); lost = true; cancelAnimationFrame(frame); frame = 0;
