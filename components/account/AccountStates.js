@@ -1,6 +1,6 @@
 import { Text, Message } from './../i18n/Provider';
 import en from './../../locales/en.json';
-import Link from 'next/link';
+import Link from '../shared/ReturnAwareLink';
 import { ArrowUpRight, CloudOff, Smartphone, ReceiptText } from 'lucide-react';
 import styles from './account.module.css';
 

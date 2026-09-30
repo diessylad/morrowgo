@@ -1,6 +1,7 @@
 'use client';
 import { Text, Localized } from './../i18n/Provider';
 import en from './../../locales/en.json';
+import ReturnAwareLink from './ReturnAwareLink';
 import LanguageSelect from '../i18n/LanguageSelect';
 
 import { useEffect, useRef, useState } from 'react';
@@ -34,7 +35,7 @@ export default function Header({ authenticated, home = false, transparent = fals
       <Localized as="a" className={s.wordmark} href="/" aria-label={en["m_43350ea9c5ee"]}><span className={s.mark} aria-hidden="true"><i/><i/><i/><i/></span><Text>{en["m_eef9e6b1a9f1"]}</Text></Localized>
       <Localized as="nav" aria-label={en["m_efd197f3fce4"]}><a href={`${prefix}#destinations`}><Text>{en["m_0fc66bc4363c"]}</Text></a><a href={`${prefix}#how`}><Text>{en["m_1dd6a17cb403"]}</Text></a><a href={`${prefix}#product`}><Text>{en["m_04535aee2489"]}</Text></a></Localized>
       <a className={s.accountLink} href={signedIn ? '/account' : '/login'}><Text>{signedIn ? en["m_619098172f46"] : en["m_ada2e9e96fa9"]}</Text></a><button className={s.navCta} onClick={onSearch || (()=>{window.location.href='/#destinations';})}><Text>{en["m_f469df981f57"]}</Text><ArrowRight size={19}/></button>
-      <LanguageSelect/><details className={mobile.menu}><Localized as="summary" aria-label={en["m_0f53b30706b1"]}><Menu size={23}/></Localized><div><a href="/destinations"><Text>{en["m_0fc66bc4363c"]}</Text></a><a href="/#how"><Text>{en["m_1dd6a17cb403"]}</Text></a><a href="/#product"><Text>{en["m_04535aee2489"]}</Text></a><a href="/compatibility"><Text>{en["m_b23ea372f302"]}</Text></a><a href="/help"><Text>{en["m_cb01db0194f1"]}</Text></a><a href={signedIn ? '/account' : '/login'}><Text>{signedIn ? en["m_619098172f46"] : en["m_ada2e9e96fa9"]}</Text></a></div></details>
+      <LanguageSelect/><details className={mobile.menu}><Localized as="summary" aria-label={en["m_0f53b30706b1"]}><Menu size={23}/></Localized><div><ReturnAwareLink href="/destinations"><Text>{en["m_0fc66bc4363c"]}</Text></ReturnAwareLink><a href="/#how"><Text>{en["m_1dd6a17cb403"]}</Text></a><a href="/#product"><Text>{en["m_04535aee2489"]}</Text></a><a href="/compatibility"><Text>{en["m_b23ea372f302"]}</Text></a><a href="/help"><Text>{en["m_cb01db0194f1"]}</Text></a><a href={signedIn ? '/account' : '/login'}><Text>{signedIn ? en["m_619098172f46"] : en["m_ada2e9e96fa9"]}</Text></a></div></details>
     </header>
   </div></div>;
 }

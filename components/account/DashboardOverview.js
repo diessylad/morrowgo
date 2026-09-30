@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '../shared/ReturnAwareLink';
 import { ChevronRight, Smartphone, Globe2, ShoppingBag, ChartPie, UserRound, Headphones, CreditCard, Radio, Signal } from 'lucide-react';
 import { Text, Message, useLanguage } from '../i18n/Provider';
 import { dashboardSummary, accountProfile, countryFlag, countryName, daysRemaining, aggregateRemaining, esimStatus } from '../../lib/account/presentation.mjs';

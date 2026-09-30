@@ -20,6 +20,7 @@ import DestinationLoading from '../../components/loading/DestinationLoading';
 import mobile from '../../components/shared/mobile.module.css';
 import HeroWaves from '../../components/studio/HeroWaves';
 import styles from './destinations.module.css';
+import { safeReturnPath } from '../../lib/navigation/returnPath.mjs';
 
 import { useRouter } from 'next/navigation';
 
@@ -184,12 +185,12 @@ export default function DestinationsPage() {
     if (region === 'Oceania') return 'AS AU CK FJ PF GU KI MH FM NR NC NZ NU NF MP PW PG PN WS SB TK TO TV VU WF'.split(' ').includes(country.iso);
     return country.region === region;
   });
-  return <><div className={mobile.only}><Header/></div>
+  return <><div className={`${mobile.only} ${styles.mobileHeader}`}><Header/></div>
     <main className={styles.page}>
       <div className={styles.atmosphere} aria-hidden="true"><HeroWaves atmosphere={false}/><img className={styles.globe} src="/brand/destinations-globe.jpg" alt="" width="1536" height="1024"/></div>
       <svg className={styles.routes} viewBox="0 0 1600 450" fill="none" aria-hidden="true"><path d="M-40 150C200 140 240 380 610 220S1340-20 1230 160 1420 240 1660 390"/><path d="M0 220C190 480 410 90 730 320"/><circle cx="610" cy="220" r="3"/><circle cx="1225" cy="170" r="3"/></svg>
       <div className={styles.wrap}>
-        <div className={styles.top}><button className={styles.back} onClick={()=>router.push('/')}><ArrowLeft size={18}/><Text>{en["m_b52b36b7269f"]}</Text></button><div className={styles.language}><LanguageSelect/></div></div>
+        <div className={styles.top}><button className={styles.back} onClick={()=>router.push(safeReturnPath(new URLSearchParams(window.location.search).get('returnTo')))}><ArrowLeft size={18}/><Text>{en["m_b52b36b7269f"]}</Text></button><div className={styles.language}><LanguageSelect/></div></div>
         <section className={styles.hero} aria-labelledby="destinations-title">
           <div><div className={styles.eyebrow}>01 / <Text>EXPLORE</Text><strong>MORROWGO eSIM</strong></div><h1 id="destinations-title"><Text>{en["m_0fc66bc4363c"]}</Text></h1><p><Text>{en["m_0664178124a8"]}</Text></p></div>
           <p className={styles.aside}><Text>A small world.</Text><br/><Text>A lot to discover.</Text></p>

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '../shared/ReturnAwareLink';
 import { ArrowRight } from 'lucide-react';
 import { Text, Message } from '../i18n/Provider';
 import { CookieSettingsLink } from '../privacy/CookieConsent';

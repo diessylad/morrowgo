@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '../shared/ReturnAwareLink';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { LayoutDashboard, Smartphone, ReceiptText, Globe2, Headphones, CreditCard, Settings, Menu } from 'lucide-react';
