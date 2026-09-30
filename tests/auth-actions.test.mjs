@@ -136,7 +136,7 @@ test('registration uses Supabase signup and directs the customer to verify email
   assert.match(result.success, /confirmation link/i);
   assert.deepEqual(f.calls.map(call => call.name), ['signUp']);
   const destination = new URL(f.calls[0].args[0].options.emailRedirectTo);
-  assert.equal(destination.pathname, '/auth/callback');
+  assert.equal(destination.pathname, '/auth/confirm');
   assert.equal(f.calls[0].args[0].email, verifiedUser.email);
 });
 
@@ -213,7 +213,7 @@ for (const provider of ['google', 'apple']) {
   test(`${provider} uses SSR PKCE callback and redirects through Supabase for new/returning users`, async t => {
     const f = await fixture(t);
     await redirected(f.actions.oauthAction({}, form({ provider })), 'https://project.supabase.co/auth/v1/authorize');
-    assert.deepEqual(f.calls, [{ name: 'signInWithOAuth', args: [{ provider, options: { redirectTo: 'https://www.morrowgo.com/auth/callback', skipBrowserRedirect: true } }] }]);
+    assert.deepEqual(f.calls, [{ name: 'signInWithOAuth', args: [{ provider, options: { redirectTo: 'https://www.morrowgo.com/auth/callback?next=%2Faccount', skipBrowserRedirect: true } }] }]);
   });
 }
 test('unsupported or disabled OAuth provider cannot initiate a redirect', async t => {
@@ -232,7 +232,7 @@ test('resend validates the email and uses the production confirmation callback',
   assert.ok((await f.actions.resendConfirmationAction({}, form({ email: 'invalid' }))).error);
   assert.equal(f.calls.length, 0);
   assert.ok((await f.actions.resendConfirmationAction({}, form({ email: verifiedUser.email }))).success);
-  assert.deepEqual(f.calls, [{ name: 'resend', args: [{ type: 'signup', email: verifiedUser.email, options: { emailRedirectTo: 'https://www.morrowgo.com/auth/callback' } }] }]);
+  assert.deepEqual(f.calls, [{ name: 'resend', args: [{ type: 'signup', email: verifiedUser.email, options: { emailRedirectTo: 'https://www.morrowgo.com/auth/confirm?next=%2Faccount' } }] }]);
 });
 test('resend does not disclose already-confirmed or missing accounts', async t => {
   const a = await fixture(t);

@@ -16,6 +16,7 @@ export async function GET(request) {
       }
     } catch { /* Do not expose authentication errors or tokens. */ }
   }
+  if (path.startsWith('/login?')) path += `&next=${encodeURIComponent(safeAccountPath(url.searchParams.get('next')))}`;
   const response = NextResponse.redirect(new URL(path, siteOrigin()));
   response.headers.set('Cache-Control', 'private, no-store');
   response.headers.set('Referrer-Policy', 'no-referrer');

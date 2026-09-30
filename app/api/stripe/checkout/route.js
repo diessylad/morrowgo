@@ -19,6 +19,8 @@ function formatData(plan) {
 }
 
 export async function POST(request) {
+  const account = await getVerifiedAccount();
+  if (!account.user) return Response.json({ ok: false, error: 'authentication_required' }, { status: 401, headers: { 'Cache-Control': 'private, no-store' } });
   const stripeSecretKey =
     process.env.STRIPE_SECRET_KEY;
 
@@ -66,7 +68,6 @@ export async function POST(request) {
 
     // Only Supabase's server-verified session can bind an account to payment.
     // Browser-supplied user_id, customer IDs and metadata are intentionally ignored.
-    const account = await getVerifiedAccount();
     if (account.error && account.error.name !== 'AuthSessionMissingError') {
       throw new Error('Account verification unavailable');
     }

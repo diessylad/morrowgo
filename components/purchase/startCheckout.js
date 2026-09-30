@@ -4,6 +4,11 @@ export async function startCheckout(iso, plan) {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ iso, plan: plan.id }),
   });
+  if (response.status === 401) {
+    const next = `/checkout?${new URLSearchParams({ iso, plan: plan.id })}`;
+    window.location.assign(`/login?next=${encodeURIComponent(next)}`);
+    return;
+  }
   const data = await response.json();
   if (!response.ok || !data.ok || !data.url) throw new Error('Checkout unavailable');
   const url = new URL(data.url);

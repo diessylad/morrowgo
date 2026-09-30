@@ -16,7 +16,7 @@ function ProviderIcon({ provider }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>;
 }
 
-function SocialOptions({ configured, message }) {
+function SocialOptions({ configured, message, next }) {
   const [failedProvider, setFailedProvider] = useState('');
   useEffect(() => {
     if (message !== 'oauth-failed') return;
@@ -24,12 +24,12 @@ function SocialOptions({ configured, message }) {
     catch { /* Storage is optional; authentication does not depend on it. */ }
   }, [message]);
   return <div className={styles.social}>
-    <Text>{['apple', 'google'].map(provider => <ProviderOption key={provider} provider={provider} configured={configured} callbackError={failedProvider === provider ? en["m_1b388e6dd1bb"] : ''} />)}</Text>
+    <Text>{['apple', 'google'].map(provider => <ProviderOption key={provider} provider={provider} next={next} configured={configured} callbackError={failedProvider === provider ? en["m_1b388e6dd1bb"] : ''} />)}</Text>
     <Text>{message === 'oauth-failed' && !['apple', 'google'].includes(failedProvider) && <p className={styles.inlineError} role="alert"><Text>{en["m_880569a7b5f8"]}</Text></p>}</Text>
   </div>;
 }
 
-function ProviderOption({ provider, configured, callbackError }) {
+function ProviderOption({ provider, configured, callbackError, next }) {
   const [state, action] = useFormState(oauthAction, {});
   const id = useId();
   const [attempted, setAttempted] = useState(false);
@@ -38,6 +38,7 @@ function ProviderOption({ provider, configured, callbackError }) {
     setAttempted(true);
     try { sessionStorage.setItem('morrowgo-auth-provider', provider); } catch { /* Optional UI hint only. */ }
   }}>
+    <input type="hidden" name="next" value={next} />
     <SocialButton provider={provider} disabled={!configured} errorId={error ? id : undefined} />
     <Text>{error && <p id={id} className={styles.inlineError} role="alert"><Text>{error}</Text></p>}</Text>
   </form>;
@@ -50,10 +51,11 @@ function SocialButton({ provider, disabled, errorId }) {
   </button>;
 }
 
-function ResendConfirmation({ configured }) {
+function ResendConfirmation({ configured, next }) {
   const [state, action] = useFormState(resendConfirmationAction, {});
   return <details className={styles.resend}><summary><Text>{en["m_0807f4650e74"]}</Text></summary>
     <form action={action} className={styles.form}>
+      <input type="hidden" name="next" value={next} />
       <label><Text>{en["m_c94d3175a656"]}</Text><AuthInput name="email" type="email" autoComplete="email" maxLength={254} required disabled={!configured} /></label>
       <Text>{state.error && <p className={styles.error} role="alert"><Text>{state.error}</Text></p>}</Text>
       <Text>{state.success && <p className={styles.notice} role="status"><Text>{state.success}</Text></p>}</Text>
@@ -93,7 +95,7 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
         <Text>{message === 'verified' && <p className={styles.notice} role="status"><Text>{en["m_c83fef6d7600"]}</Text></p>}</Text>
         <Text>{message === 'link-invalid' && <p className={styles.notice} role="alert"><Text>{en["m_496a35e3ae61"]}</Text></p>}</Text>
         <Text>{message === 'email-change-pending' && <p className={styles.notice} role="status"><Text>{en["m_95d657505b4d"]}</Text></p>}</Text>
-        <Text>{choosesMethod && <><SocialOptions configured={configured} message={message} />
+        <Text>{choosesMethod && <><SocialOptions configured={configured} message={message} next={next} />
           <div className={styles.divider}><span><Text>{en["m_1758356db217"]}</Text></span></div>
           <button type="button" className={styles.socialButton} aria-expanded={emailOpen} aria-controls={emailRegionId} onClick={() => setEmailOpen(open => !open)}><ProviderIcon provider="email"/><span><Text>{en["m_88001457548e"]}</Text></span></button>
         </>}</Text>
@@ -111,8 +113,8 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
           <Submit label={info.button} disabled={!configured || (mode === 'reset' && !tokenHash)} />
         </form>
         </div></div>
-        <p className={styles.switch}><Text>{mode === 'login' ? <><Text>{en["m_8e6d90e912f1"]}</Text><Link href={emailOpen ? `/register?method=email&next=${encodeURIComponent(next)}` : '/register'}><Text>{en["m_3f4f547d7364"]}</Text></Link></> : mode === 'register' ? <><Text>{en["m_e41e4c6deeb8"]}</Text><Link href={emailOpen ? `/login?method=email&next=${encodeURIComponent(next)}` : '/login'}><Text>{en["m_ada2e9e96fa9"]}</Text></Link></> : <Link href={mode === 'reset' ? '/forgot-password' : '/login'}><Text>{mode === 'reset' ? en["m_4857497af317"] : en["m_4da821676b2f"]}</Text></Link>}</Text></p>
-        <Text>{choosesMethod && emailOpen && <ResendConfirmation configured={configured} />}</Text>
+        <p className={styles.switch}><Text>{mode === 'login' ? <><Text>{en["m_8e6d90e912f1"]}</Text><Link href={emailOpen ? `/register?method=email&next=${encodeURIComponent(next)}` : `/register?next=${encodeURIComponent(next)}`}><Text>{en["m_3f4f547d7364"]}</Text></Link></> : mode === 'register' ? <><Text>{en["m_e41e4c6deeb8"]}</Text><Link href={emailOpen ? `/login?method=email&next=${encodeURIComponent(next)}` : `/login?next=${encodeURIComponent(next)}`}><Text>{en["m_ada2e9e96fa9"]}</Text></Link></> : <Link href={mode === 'reset' ? '/forgot-password' : '/login'}><Text>{mode === 'reset' ? en["m_4857497af317"] : en["m_4da821676b2f"]}</Text></Link>}</Text></p>
+        <Text>{choosesMethod && emailOpen && <ResendConfirmation configured={configured} next={next} />}</Text>
         <Text>{mode === 'register' && <p className={styles.fine}><Text>{en["m_d79729666dff"]}</Text></p>}</Text>
       </section>
     </div>

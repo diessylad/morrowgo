@@ -28,6 +28,13 @@ export async function GET(request) {
       } catch { /* Fail closed with a generic message. */ }
     }
   }
+  if (!token_hash && url.searchParams.get('code')) {
+    const callback = new URL('/auth/callback', siteOrigin());
+    callback.searchParams.set('code', url.searchParams.get('code'));
+    callback.searchParams.set('next', safeAccountPath(url.searchParams.get('next')));
+    path = callback.pathname + callback.search;
+  }
+  if (path.startsWith('/login?')) path += `&next=${encodeURIComponent(safeAccountPath(url.searchParams.get('next')))}`;
   const response = NextResponse.redirect(new URL(path, siteOrigin()));
   response.headers.set('Cache-Control', 'private, no-store');
   response.headers.set('Referrer-Policy', 'no-referrer');

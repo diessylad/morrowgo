@@ -6,7 +6,14 @@ const moduleUrl = source => 'data:text/javascript;base64,' + Buffer.from(source)
 const dictionary = JSON.parse(await readFile(new URL('../locales/en.json', import.meta.url), 'utf8'));
 const presentationSource = (await readFile(new URL('../lib/orderPresentation.js', import.meta.url), 'utf8')).replace(/import en from [^;]+;/, `const en = ${JSON.stringify(dictionary)};`);
 const { orderPresentation } = await import(moduleUrl(presentationSource));
-const { GET } = await import(moduleUrl(await readFile(new URL('../app/api/orders/status/route.js', import.meta.url), 'utf8')));
+const authStub = moduleUrl(`
+export async function verifiedApiAccount() {
+ if (globalThis.__statusAccount) return globalThis.__statusAccount;
+ const query = {select(){return this}, eq(){return this}, async maybeSingle(){return {data:null,error:null}}};
+ return {user:{id:'owner'},client:{from(){return query}}};
+}`);
+const routeSource = (await readFile(new URL('../app/api/orders/status/route.js', import.meta.url), 'utf8')).replace("'../../../../lib/account/api'",JSON.stringify(authStub));
+const { GET } = await import(moduleUrl(routeSource));
 
 test('missing order keeps the payment check in progress', () => {
   const result = orderPresentation(null);
@@ -114,6 +121,7 @@ function fixture(t, options = {}) {
 
   const calls = [];
   const session = { id: 'cs_test_example', payment_status: 'paid', livemode: false, amount_total: 500, currency: 'usd', ...options.session };
+  session.metadata = {morrowgo_user_id:'owner', ...session.metadata};
   globalThis.fetch = async (url, init = {}) => {
     calls.push({ url: String(url), init });
     if (String(url).startsWith('https://api.stripe.com/v1/checkout/sessions/')) {
@@ -360,3 +368,6 @@ test('missing server configuration returns a generic error without external requ
   assert.deepEqual(data, { ok: false, error: 'Could not load order' });
   assert.equal(f.calls.length, 0);
 });
+
+ test('foreign session is denied before Redis/installation access',async t=>{const f=fixture(t,{session:{metadata:{morrowgo_user_id:'another-owner'}}});const {response}=await f.get();assert.equal(response.status,404);assert.equal(f.calls.length,1);});
+ test('logged-out status access performs no provider requests',async t=>{const f=fixture(t);globalThis.__statusAccount={response:Response.json({error:'authentication_required'},{status:401})};t.after(()=>delete globalThis.__statusAccount);const {response}=await f.get();assert.equal(response.status,401);assert.equal(f.calls.length,0);});

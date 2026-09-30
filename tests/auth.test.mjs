@@ -37,3 +37,9 @@ test('production redirects are canonical even with a stale local or attacker-con
     assert.equal(siteOrigin({ NODE_ENV: 'development', VERCEL_ENV: 'production', NEXT_PUBLIC_SITE_URL: origin }), 'https://www.morrowgo.com');
   }
 });
+
+test('purchase and installation targets survive auth without accepting external redirects',()=>{
+ const next='/checkout?iso=JP&plan=moshi-7days-1gb';assert.equal(safeAccountPath(next),next);
+ const id='11111111-1111-4111-8111-111111111111';assert.equal(safeAccountPath('/account/esims?install='+id),'/account/esims?install='+id);
+ for(const bad of ['/checkout?iso=JP&plan=https://evil.test','//evil.test/checkout?iso=JP&plan=a','/checkout?iso=ZZZ&plan=a','/checkout?iso=JP','/login?next=/checkout'])assert.equal(safeAccountPath(bad),'/account');
+});

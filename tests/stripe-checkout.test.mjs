@@ -10,7 +10,7 @@ const privateValue = 'sk_test_private_fixture';
 function fixture(t, options = {}) {
   const originalFetch = globalThis.fetch;
   const originalAccount = globalThis.__checkoutAccount;
-  globalThis.__checkoutAccount = options.account || { configured: false, user: null, error: null };
+  globalThis.__checkoutAccount = options.account || { configured: true, user: {id:'11111111-1111-4111-8111-111111111111'}, error: null };
   const originalMode = process.env.AIRALO_MODE;
   process.env.AIRALO_MODE = 'sandbox';
   t.after(() => {if(originalMode === undefined) delete process.env.AIRALO_MODE; else process.env.AIRALO_MODE=originalMode;});
@@ -61,8 +61,7 @@ test('cancel URL returns to the selected country and plan with canceled=true', a
   const params = f.stripeParams();
   const cancel = new URL(params.get('cancel_url'));
   assert.equal(cancel.origin, 'https://morrowgo.test');
-  assert.equal(cancel.pathname, '/checkout');
-  assert.equal(cancel.searchParams.get('iso'), 'DE');
+  assert.equal(cancel.pathname, '/destination/DE');
   assert.equal(cancel.searchParams.get('plan'), planId);
   assert.equal(cancel.searchParams.get('canceled'), 'true');
   assert.equal(cancel.hash, '');
@@ -141,8 +140,8 @@ for (const account of [
   test('guest cannot assign a paid order to a supplied user ID: ' + JSON.stringify(account), async t => {
     const f = fixture(t, { account });
     const { response } = await f.send({ iso: 'DE', plan: 'plan-example', user_id: userB, metadata: { morrowgo_user_id: userB } });
-    assert.equal(response.status, 200);
-    assert.equal(f.stripeParams().get('metadata[morrowgo_user_id]'), null);
+    assert.equal(response.status, 401);
+    assert.equal(f.calls.length, 0);
   });
 }
 
@@ -154,8 +153,8 @@ for (const account of [
   test('failed identity verification cannot silently charge an authenticated customer as guest: ' + JSON.stringify(account), async t => {
     const f = fixture(t, { account });
     const { response, data } = await f.send();
-    assert.equal(response.status, 500);
-    assert.deepEqual(data, { ok: false, error: 'Could not create checkout' });
+    assert.equal(response.status, account.user ? 500 : 401);
+    assert.deepEqual(data, { ok: false, error: account.user ? 'Could not create checkout' : 'authentication_required' });
     assert.equal(f.calls.length, 0);
   });
 }

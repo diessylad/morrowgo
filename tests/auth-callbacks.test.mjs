@@ -68,14 +68,14 @@ for (const token of [null, '', 'too-short', 'https://outside.example/token', 'no
   test(`invalid confirmation token ${JSON.stringify(token)} fails without authentication calls`, async t => {
     const f = await fixture(t);
     const destination = await f.request('confirm', { type: 'recovery', token_hash: token });
-    assert.equal(destination, `${configuredOrigin}/login?message=link-invalid`);
+    assert.equal(destination, `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
     assert.deepEqual(f.calls, []);
   });
 }
 
 test('unsupported confirmation type cannot verify a valid-looking token', async t => {
   const f = await fixture(t);
-  assert.equal(await f.request('confirm', { type: 'arbitrary', token_hash: tokenHash }), `${configuredOrigin}/login?message=link-invalid`);
+  assert.equal(await f.request('confirm', { type: 'arbitrary', token_hash: tokenHash }), `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
   assert.deepEqual(f.calls, []);
 });
 
@@ -96,14 +96,14 @@ for (const next of ['https://outside.example/steal', '//outside.example', '/acco
 test('failed signup OTP redirects generically without exposing the backend error or token', async t => {
   const f = await fixture(t, { verifyOtp: { error: { message: 'test-private-auth-detail' } } });
   const destination = await f.request('confirm', { type: 'signup', token_hash: tokenHash });
-  assert.equal(destination, `${configuredOrigin}/login?message=link-invalid`);
+  assert.equal(destination, `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
   assert.equal(destination.includes(tokenHash), false);
   assert.equal(destination.includes('test-private-auth-detail'), false);
 });
 
 test('confirmation without configured authentication cannot authorize signup', async t => {
   const f = await fixture(t, { configured: false });
-  assert.equal(await f.request('confirm', { type: 'signup', token_hash: tokenHash }), `${configuredOrigin}/login?message=link-invalid`);
+  assert.equal(await f.request('confirm', { type: 'signup', token_hash: tokenHash }), `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
   assert.deepEqual(f.calls, []);
 });
 
@@ -122,7 +122,7 @@ for (const result of [{ error: { message: 'test-private-auth-detail' } }, new Er
   test(`PKCE callback fails closed on ${result instanceof Error ? 'a thrown error' : 'a rejected code'}`, async t => {
     const f = await fixture(t, { exchangeCodeForSession: result });
     const destination = await f.request('callback', { code: 'test-only-pkce-code', next: '/account' });
-    assert.equal(destination, `${configuredOrigin}/login?message=link-invalid`);
+    assert.equal(destination, `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
     assert.equal(destination.includes('test-only-pkce-code'), false);
     assert.equal(destination.includes('test-private-auth-detail'), false);
   });
@@ -131,14 +131,14 @@ for (const result of [{ error: { message: 'test-private-auth-detail' } }, new Er
 test('missing and oversized PKCE codes never reach the auth backend', async t => {
   const f = await fixture(t);
   for (const code of [null, '', 'x'.repeat(2048)]) {
-    assert.equal(await f.request('callback', { code }), `${configuredOrigin}/login?message=link-invalid`);
+    assert.equal(await f.request('callback', { code }), `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
   }
   assert.deepEqual(f.calls, []);
 });
 
 test('PKCE callback without configured authentication fails closed', async t => {
   const f = await fixture(t, { configured: false });
-  assert.equal(await f.request('callback', { code: 'test-only-pkce-code' }), `${configuredOrigin}/login?message=link-invalid`);
+  assert.equal(await f.request('callback', { code: 'test-only-pkce-code' }), `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
   assert.deepEqual(f.calls, []);
 });
 
@@ -149,20 +149,29 @@ test('invalid configured origin falls back to MORROWGO, never to the untrusted r
 
 test('OAuth rejection does not exchange an attached code or expose provider error details', async t => {
   const f = await fixture(t);
-  assert.equal(await f.request('callback', { error: 'access_denied', error_description: 'private-details', code: 'ignored' }), `${configuredOrigin}/login?message=oauth-failed`);
+  assert.equal(await f.request('callback', { error: 'access_denied', error_description: 'private-details', code: 'ignored' }), `${configuredOrigin}/login?message=oauth-failed&next=%2Faccount`);
   assert.deepEqual(f.calls, []);
 });
 test('a successful response without a session cannot authorize account access', async t => {
   const f = await fixture(t, { exchangeCodeForSession: { data: { session: null }, error: null }, verifyOtp: { data: { session: null }, error: null } });
-  assert.equal(await f.request('callback', { code: 'test-only' }), `${configuredOrigin}/login?message=link-invalid`);
-  assert.equal(await f.request('confirm', { type: 'signup', token_hash: tokenHash }), `${configuredOrigin}/login?message=link-invalid`);
+  assert.equal(await f.request('callback', { code: 'test-only' }), `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
+  assert.equal(await f.request('confirm', { type: 'signup', token_hash: tokenHash }), `${configuredOrigin}/login?message=link-invalid&next=%2Faccount`);
 });
 test('secure email change first confirmation gets a useful message, not a false account redirect', async t => {
   const f = await fixture(t, { verifyOtp: { data: { session: null }, error: null } });
-  assert.equal(await f.request('confirm', { type: 'email_change', token_hash: tokenHash }), `${configuredOrigin}/login?message=email-change-pending`);
+  assert.equal(await f.request('confirm', { type: 'email_change', token_hash: tokenHash }), `${configuredOrigin}/login?message=email-change-pending&next=%2Faccount`);
 });
 test('email token verification works without a PKCE verifier or previous browser session', async t => {
   const f = await fixture(t);
   assert.equal(await f.request('confirm', { type: 'email', token_hash: tokenHash }), `${configuredOrigin}/account`);
   assert.deepEqual(f.calls.map(c => c.name), ['verifyOtp']);
 });
+
+for (const route of ['callback', 'confirm']) {
+  test(`${route} preserves selected package after authentication`, async t => {
+    const f = await fixture(t);
+    const next = '/checkout?iso=JP&plan=moshi-5gb';
+    const params = route === 'callback' ? { code: 'test-only', next } : { type: 'signup', token_hash: tokenHash, next };
+    assert.equal(await f.request(route, params), `${configuredOrigin}${next}`);
+  });
+}

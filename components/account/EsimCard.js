@@ -6,6 +6,8 @@ import { countryFlag } from '../../lib/account/presentation.mjs';
 import { useEffect, useState } from 'react';
 import { ChevronDown, Copy, Globe2, Plus } from 'lucide-react';
 import styles from './account.module.css';
+import InstallationPanel from './InstallationPanel';
+import {motion,useReducedMotion} from 'motion/react';
 import {getUsageSummary} from '../../lib/esims/usage';
 
 const statusLabels = {
@@ -35,6 +37,7 @@ function destinationLabel(esim) {
 
 export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, demo = false, asOf, installationOpen = false, topUpInitiallyOpen = false }) {
   const { language } = useLanguage();
+  const reduced = useReducedMotion();
   const [esim,setEsim] = useState(initialEsim);
   const [loading,setLoading] = useState(false);
   const usage = esim === initialEsim ? initialUsage : getUsageSummary(esim);
@@ -58,7 +61,7 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
     catch { setNotice(en["m_7263bcf330df"]); }
   }
 
-  return <article className={styles.card} id={`esim-${esim.id}`}>
+  return <motion.article initial={{opacity:0,y:reduced?0:6}} animate={{opacity:1,y:0}} transition={{duration:reduced?0:.25}} className={styles.card} id={`esim-${esim.id}`}>
     <div className={styles.cardTop}>
       <div className={styles.destination}><span className={styles.destinationIcon}>{countryFlag(esim.destinationIso)}</span><h3><Text>{destinationLabel(esim)}</Text></h3></div>
       <span className={styles.badge} data-active={esim.status === 'active'}><Text>{statusLabels[esim.status] || en["m_f261ff7629df"]}{demo ? ' · demo' : ''}</Text></span>
@@ -82,11 +85,12 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
     <Text>{esim.rechargeable === true && <div className={styles.actions}><button className={`${styles.button} ${styles.secondary}`} type="button" onClick={() => setTopUpOpen(!topUpOpen)} aria-expanded={topUpOpen}><Plus size={15} /><Text>{en["m_91d42a8b742a"]}</Text></button></div>}</Text>
     <Text>{topUpOpen && <p className={styles.notice} role="status"><Text>{en["m_019dbc85609d"]}</Text><Text>{demo ? 'example ' : ''}</Text><Text>{en["m_c339198bce37"]}</Text></p>}</Text>
     {topUpOpen && esim.topups?.map(p => <p className={styles.muted} key={p.id}>{p.title} · €<Text>{p.price.toFixed(2)}</Text></p>)}
+    {!demo && ['ready','active'].includes(esim.status) && <InstallationPanel esim={esim} name={destinationLabel(esim)} initiallyOpen={installationOpen} />}
     <details className={styles.install} open={installationOpen || undefined}>
       <summary><Text>{en["m_658efcda8b52"]}</Text><ChevronDown size={16} /></summary>
       <Text>{installFields.length ? <><p className={styles.muted}><Text>{demo ? en["m_ca379a057819"] : en["m_eadcb311f47a"]}</Text></p><Text>{installFields.map(([label, value]) => <div className={styles.copyRow} key={label}><div><span><Text>{label}</Text></span><code>{value}</code></div><Localized as="button" aria-label={`Copy ${demo ? 'sample ' : ''}${label}`} type="button" onClick={() => copy(value, label)}><Copy size={16} /></Localized></div>)}</Text></> : <p className={styles.muted}><Text>{en["m_fe4e9e062220"]}</Text></p>}</Text>
       <Text>{esim.instructions?.map((step,i) => <p className={styles.muted} key={i}><Text>{step}</Text></p>)}</Text>
       <p className={styles.notice} aria-live="polite" role="status"><Text>{notice}</Text></p>
     </details>
-  </article>;
+  </motion.article>;
 }

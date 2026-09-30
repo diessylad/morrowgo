@@ -19,7 +19,7 @@ export async function middleware(request) {
     });
     try { const {data,error} = await client.auth.getUser(); if(!error && data?.user?.email_confirmed_at) verifiedUser = data.user; } catch { /* Routes handle unavailable authentication safely. */ }
   }
-  if ((request.nextUrl.pathname === '/account' || request.nextUrl.pathname.startsWith('/account/')) && !verifiedUser) {
+  if (['/account', '/profile', '/dashboard', '/checkout'].some(path => request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')) && !verifiedUser) {
     const login = new URL('/login', request.url);
     login.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search);
     const redirected = NextResponse.redirect(login);
@@ -33,4 +33,4 @@ export async function middleware(request) {
   return response;
 }
 
-export const config = { matcher: ['/account/:path*', '/api/account/:path*', '/login', '/register', '/forgot-password', '/reset-password', '/auth/:path*'] };
+export const config = { matcher: ['/profile/:path*', '/dashboard/:path*', '/checkout/:path*', '/account/:path*', '/api/account/:path*', '/login', '/register', '/forgot-password', '/reset-password', '/auth/:path*'] };

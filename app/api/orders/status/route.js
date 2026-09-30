@@ -1,3 +1,4 @@
+import { verifiedApiAccount } from '../../../../lib/account/api';
 export const dynamic = 'force-dynamic';
 
 function json(data, options = {}) {
@@ -201,6 +202,8 @@ function getInstallation(order) {
 }
 
 export async function GET(request) {
+  const account = await verifiedApiAccount();
+  if (account.response) return account.response;
   try {
     const url =
       new URL(request.url);
@@ -234,7 +237,7 @@ export async function GET(request) {
         sessionId
       );
 
-    if (!stripeSession) {
+    if (!stripeSession || stripeSession.metadata?.morrowgo_user_id !== account.user.id) {
       return json(
         {
           ok: false,
@@ -370,9 +373,9 @@ export async function GET(request) {
         getInstallation(order);
     }
 
-    return json(
-      result
-    );
+    const owned = await account.client.from('customer_orders').select('id').eq('user_id', account.user.id).eq('id', order.customerOrderId || '00000000-0000-0000-0000-000000000000').maybeSingle();
+    if (!owned.error && owned.data?.id) result.accountOrderId = owned.data.id;
+    return json(result);
   } catch {
     return json(
       {

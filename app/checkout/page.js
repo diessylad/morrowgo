@@ -170,6 +170,10 @@ export default function CheckoutPage() {
           }
         );
 
+      if (response.status === 401) {
+        window.location.assign(`/login?next=${encodeURIComponent(`/checkout?${new URLSearchParams({iso, plan: planId})}`)}`);
+        return;
+      }
       const data =
         await response.json();
 
