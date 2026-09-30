@@ -19,3 +19,15 @@
 @media(max-width:767px){.globe{object-position:60% center;opacity:.55}}
 
 .mobileHeader.mobileHeader [data-liquid-header]{--header-paper:var(--color-page)}
+/* Blend the illustrated mobile hero into the resting header surface. */
+@media(max-width:767px){
+ .mobileHeader.mobileHeader [data-liquid-header][data-floating=false],
+ .mobileHeader.mobileHeader [data-liquid-header][data-floating=false]>header{
+  background:var(--color-page)!important;
+ }
+ .atmosphere{
+  mask-image:linear-gradient(to bottom,transparent 0,#000 100px,#000 65%,transparent);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 100px,#000 65%,transparent);
+ }
+ .routes{mask-image:linear-gradient(transparent,#000 100px);-webkit-mask-image:linear-gradient(transparent,#000 100px)}
+}
