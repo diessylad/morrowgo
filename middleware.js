@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { verifySessionLifetime, expireLocalSession } from './lib/auth/lifetime.mjs';
 import { getAuthConfig } from './lib/auth/config.mjs';
 
 export async function middleware(request) {
   let response = NextResponse.next({ request });
   const config = getAuthConfig();
   let verifiedUser = null;
+  let expired = false;
   if (config) {
     const client = createServerClient(config.url, config.key, {
       cookies: {
@@ -17,10 +19,14 @@ export async function middleware(request) {
         }
       }
     });
-    try { const {data,error} = await client.auth.getUser(); if(!error && data?.user?.email_confirmed_at) verifiedUser = data.user; } catch { /* Routes handle unavailable authentication safely. */ }
+    try { const {data,error} = await client.auth.getUser(); if(!error && data?.user?.email_confirmed_at) {
+      if (await verifySessionLifetime(client, data.user.id)) verifiedUser = data.user;
+      else { expired = true; await expireLocalSession(client); }
+    } } catch { /* Routes handle unavailable authentication safely. */ }
   }
   if (['/account', '/profile', '/dashboard', '/checkout'].some(path => request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')) && !verifiedUser) {
     const login = new URL('/login', request.url);
+    if (expired) login.searchParams.set('message', 'session-expired');
     login.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search);
     const redirected = NextResponse.redirect(login);
     response.cookies.getAll().forEach(cookie => redirected.cookies.set(cookie));

@@ -22,6 +22,7 @@ function form(values = {}) {
 async function fixture(t, overrides = {}, configured = true) {
   const calls = [];
   const defaults = {
+    getClaims: { data: { claims: { sub: verifiedUser.id, session_id: 'test-session', amr: [{method: 'password', timestamp: Math.floor(Date.now()/1000)}] } }, error: null },
     getUser: { data: { user: verifiedUser }, error: null },
     signInWithPassword: { data: { user: verifiedUser }, error: null },
     signUp: { data: { user: null, session: null }, error: null },
@@ -48,6 +49,7 @@ async function fixture(t, overrides = {}, configured = true) {
     .replace("'./providers'", JSON.stringify(moduleUrl(`export async function isOAuthProviderEnabled() { return ${overrides.providerEnabled !== false}; }`)))
     .replace("'./config.mjs'", JSON.stringify(configUrl))));
   const session = await import(moduleUrl(sessionSource
+    .replace("'./lifetime.mjs'", JSON.stringify(moduleUrl(await readFile(new URL('../lib/auth/lifetime.mjs', import.meta.url), 'utf8'))))
     .replace("import 'server-only';", '')
     .replace("'next/navigation'", JSON.stringify(redirectUrl))
     .replace("'../supabase/server'", JSON.stringify(serverUrl))
@@ -74,7 +76,7 @@ test('account authorization obtains the user from Supabase and returns only a ve
   const result = await f.session.requireAccount('/account/orders');
   assert.equal(result.user.id, verifiedUser.id);
   assert.equal(result.client, f.client);
-  assert.deepEqual(f.calls.map(call => call.name), ['getUser']);
+  assert.deepEqual(f.calls.map(call => call.name), ['getUser', 'getClaims']);
 });
 
 for (const [description, result] of [
@@ -254,4 +256,11 @@ test('a sign-out outage after password update still reports the completed reset 
   const f = await fixture(t, { signOut: new Error('offline') });
   await redirected(f.actions.resetPasswordAction({}, form({ password, confirmPassword: password, token_hash: tokenHash })), '/login?message=password-updated');
   assert.equal(f.cookiesCleared(), true);
+});
+
+test('expired verified user is signed out and returns safely to selected package',async t=>{
+ const f=await fixture(t,{getClaims:{data:{claims:{sub:verifiedUser.id,session_id:'old-session',amr:[{method:'password',timestamp:Math.floor(Date.now()/1000)-3600}]}}}});
+ await redirected(f.session.requireAccount('/checkout?iso=JP&plan=moshi-5gb'),'/login?message=session-expired&next=%2Fcheckout%3Fiso%3DJP%26plan%3Dmoshi-5gb');
+ assert.deepEqual(f.calls.map(c=>c.name),['getUser','getClaims','signOut']);
+ assert.deepEqual(f.calls[2].args,[{scope:'local'}]);
 });

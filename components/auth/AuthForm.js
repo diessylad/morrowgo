@@ -91,6 +91,7 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
 
       <section className={styles.card} aria-labelledby="auth-heading"><p className={styles.eyebrow}><Text>{en["m_a3399006beae"]}</Text></p><h2 id="auth-heading"><Text>{info.title}</Text></h2><p className={styles.description}><Text>{info.description}</Text></p>
         <Text>{!configured && <p className={styles.notice} role="status"><Text>{en["m_a448b17d7689"]}</Text></p>}</Text>
+        {message === 'session-expired' && <p className={styles.notice} role="status"><Text>Your session has expired. Please sign in again.</Text></p>}
         <Text>{message === 'password-updated' && <p className={styles.notice} role="status"><Text>{en["m_873031daedd0"]}</Text></p>}</Text>
         <Text>{message === 'verified' && <p className={styles.notice} role="status"><Text>{en["m_c83fef6d7600"]}</Text></p>}</Text>
         <Text>{message === 'link-invalid' && <p className={styles.notice} role="alert"><Text>{en["m_496a35e3ae61"]}</Text></p>}</Text>
