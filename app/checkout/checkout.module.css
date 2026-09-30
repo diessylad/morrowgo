@@ -25,3 +25,8 @@
   letter-spacing: normal;
 }
 .heading > :last-child { min-width: 0; overflow-wrap: anywhere; }
+
+/* Match the resting navbar to checkout; retain the existing floating glass. */
+.page.page [data-liquid-header] {
+  --header-paper: var(--color-page);
+}
