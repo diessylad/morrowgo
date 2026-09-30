@@ -5,10 +5,12 @@ import { resolveLanguage } from '../lib/i18n/config.mjs';
 import { translateText, formatDays } from '../lib/i18n/translate.mjs';
 import { readConsent, makeConsent, MAX_AGE } from '../lib/i18n/consent.mjs';
 const dictionaries = JSON.parse(readFileSync(new URL('../locales/dictionaries.json', import.meta.url)));
-test('saved choice wins, supported browser preferences then English', () => {
+test('explicit saved choice wins; first visits ignore browser language and use English', () => {
  assert.equal(resolveLanguage('ru',['de-DE']), 'ru');
- assert.equal(resolveLanguage('xx',['it-IT','fr-CA']), 'fr');
- assert.equal(resolveLanguage(null,['xx']), 'en');
+ assert.equal(resolveLanguage('xx',['it-IT','fr-CA']), 'en');
+ assert.equal(resolveLanguage(null,['ru-RU','ru']), 'en');
+ assert.equal(resolveLanguage(undefined,['de-DE']), 'en');
+ for (const language of ['en','de','es','ru','fr']) assert.equal(resolveLanguage(language,['ru-RU']), language);
 });
 test('every dictionary has the same translated entries and preserves unknown data', () => {
  const keys=Object.keys(dictionaries.en).sort();

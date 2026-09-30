@@ -1,16 +1,16 @@
 'use client';
 import { createContext, useContext, useEffect, useState, useRef, useMemo, forwardRef, Fragment } from 'react';
-import { resolveLanguage } from '../../lib/i18n/config.mjs';
+import { defaultLanguage, resolveLanguage } from '../../lib/i18n/config.mjs';
 import { translateText } from '../../lib/i18n/translate.mjs';
 import dictionaries from '../../locales/dictionaries.json';
-const Context = createContext({ language: 'en', setLanguage: () => {} });
+const Context = createContext({ language: defaultLanguage, setLanguage: () => {} });
 export default function LanguageProvider({ children }) {
-  const [language, update] = useState('en');
+  const [language, update] = useState(defaultLanguage);
   useEffect(() => {
     let saved;
     try { saved = localStorage.getItem('morrowgo-language'); } catch {}
-    update(resolveLanguage(saved, navigator.languages || [navigator.language]));
-    const changed = event => { if (event.key === 'morrowgo-language') update(resolveLanguage(event.newValue, navigator.languages)); };
+    update(resolveLanguage(saved));
+    const changed = event => { if (event.key === 'morrowgo-language') update(resolveLanguage(event.newValue)); };
     window.addEventListener('storage', changed);
     return () => window.removeEventListener('storage', changed);
   }, []);
