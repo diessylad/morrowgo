@@ -16,6 +16,7 @@ import {
 
 import LanguageSelect from '../../components/i18n/LanguageSelect';
 import Header from '../../components/shared/Header';
+import DestinationLoading from '../../components/loading/DestinationLoading';
 import mobile from '../../components/shared/mobile.module.css';
 
 import { useRouter } from 'next/navigation';
@@ -280,6 +281,7 @@ export default function DestinationsPage() {
           />
         </div>
 
+        <DestinationLoading loading={loading} error={error}>
         <Text>{!loading &&
           !error && (
             <div
@@ -293,15 +295,6 @@ export default function DestinationsPage() {
                 filteredCountries.length
               }{' '}</Text><Text>{en["m_773a3b986de1"]}</Text></div>
           )}</Text>
-
-        <Text>{loading && (
-          <p
-            style={{
-              marginTop: '40px',
-              color: '#999'
-            }}
-          ><Text>{en["m_9fadc57493cd"]}</Text></p>
-        )}</Text>
 
         <Text>{error && (
           <p
@@ -417,6 +410,7 @@ export default function DestinationsPage() {
               )}</Text>
             </div>
           )}</Text>
+        </DestinationLoading>
       </div>
     </main></>
   );

@@ -15,6 +15,7 @@ import MotionHeading from '../shared/MotionHeading';
 import HeroWaves from './HeroWaves';
 import QuickBuy from '../quick-buy/QuickBuy';
 import NetworkMarquee from '../networks/NetworkMarquee';
+import DestinationLoading from '../loading/DestinationLoading';
 
 const countries = [
   { name: en["m_fcf29f6cad32"], flag: '🇯🇵', code: 'JP', region: en["m_a173e725607d"], city: 'Tokyo', zone: '35.67° N / 139.65° E' },
@@ -82,11 +83,12 @@ export default function Experience({ authenticated = false }) {
       </section>
       <section id="destinations" className={s.section} data-reveal aria-labelledby="dest-title">
         <div className={s.sectionTitle}><span data-motion-reveal className={s.index}><Text>{en["m_77c987c49939"]}</Text></span><MotionHeading id="dest-title"><Text>{en["m_114667b0693a"]}</Text></MotionHeading><span className={s.secondary}><Text>{en["m_66819ed7d0da"]}</Text><br/><Text>{en["m_c62800750552"]}</Text></span></div>
-        <Localized as="div" className={s.filters} aria-label={en["m_b0dec7ce02ac"]}><Text>{[en["m_6a72085653e4"], en["m_576347ec826f"], en["m_a173e725607d"], en["m_5e5e8878adfd"]].map(r => <button key={r} aria-pressed={region === r} onClick={() => setRegion(r)}><Text>{r === en["m_6a72085653e4"] ? en["m_f7363a51c52a"] : r}</Text></button>)}</Text><span aria-live="polite"><Text>{filtered.length}</Text><Text>{en["m_95dd6273d716"]}</Text></span></Localized>
-        <a className={s.accountLink} href="/destinations"><Text>{en["m_efcb9da192e3"]}</Text></a><div className={s.destinationGrid}><Text>{filtered.map(c => <button key={c.code} className={s.destination} data-motion-card onClick={e => open(c, e)}>
+        <Localized as="div" className={s.filters} aria-label={en["m_b0dec7ce02ac"]}><Text>{[en["m_6a72085653e4"], en["m_576347ec826f"], en["m_a173e725607d"], en["m_5e5e8878adfd"]].map(r => <button key={r} aria-pressed={region === r} onClick={() => setRegion(r)}><Text>{r === en["m_6a72085653e4"] ? en["m_f7363a51c52a"] : r}</Text></button>)}</Text>{catalogueState === 'ready' && <span aria-live="polite"><Text>{filtered.length}</Text><Text>{en["m_95dd6273d716"]}</Text></span>}</Localized>
+        <a className={s.accountLink} href="/destinations"><Text>{en["m_efcb9da192e3"]}</Text></a><DestinationLoading loading={catalogueState === 'loading'} error={catalogueState === 'error'}><div className={s.destinationGrid}><Text>{filtered.map(c => <button key={c.code} className={s.destination} data-motion-card onClick={e => open(c, e)}>
           <span className={s.destMeta}><Text>{c.region}</Text><span><Text>{c.code}</Text></span></span><span className={s.flag} data-motion-card-art aria-hidden="true"><Text>{c.flag}</Text></span><span className={s.destName}><Text>{c.name}</Text></span><span className={s.destPrice}><Text>{en["m_6e9b4e1652f2"]}</Text><Text>{money(c.fromPrice)}</Text> <Arrow diagonal/></span>
         </button>)}</Text></div>
-        <Text>{!filtered.length && <div className={s.empty}><p><Text>{catalogueState === 'loading' ? en["m_7bce1810ff0a"] : catalogueState === 'error' ? en["m_1d0480bb6541"] : en["m_ce3be38426bb"]}</Text></p><button onClick={() => { setQuery(''); setRegion(en["m_6a72085653e4"]); }}><Text>{en["m_0d2dfad3e330"]}</Text><Arrow/></button></div>}</Text>
+        <Text>{!filtered.length && <div className={s.empty}><p><Text>{catalogueState === 'error' ? en["m_1d0480bb6541"] : en["m_ce3be38426bb"]}</Text></p><button onClick={() => { setQuery(''); setRegion(en["m_6a72085653e4"]); }}><Text>{en["m_0d2dfad3e330"]}</Text><Arrow/></button></div>}</Text>
+        </DestinationLoading>
       </section>
       <section id="how" className={`${s.section} ${s.how}`} data-reveal aria-labelledby="how-title"><div><span data-motion-reveal className={s.index}><Text>{en["m_23fc41fe75a6"]}</Text></span><MotionHeading id="how-title"><Text>{en["m_87f42baeb107"]}</Text><br/><Text>{en["m_95a9f96a1ee8"]}</Text></MotionHeading></div><div className={s.steps}><Text>{[[en["m_12a7bc47d455"], en["m_f429ca1e486b"]], [en["m_403d983022fc"], en["m_74a9a03fe632"]], [en["m_2cf20e861287"], en["m_6e00a621afe6"]]].map(([title, text], i) => <div key={title} data-motion-step><span>0<Text>{i + 1}</Text></span><h3><Text>{title}</Text></h3><p><Text>{text}</Text></p></div>)}</Text></div></section>
       <section id="product" className={`${s.product} ${s.referenceNative}`} data-reveal aria-labelledby="product-title">
