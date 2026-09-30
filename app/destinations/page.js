@@ -18,6 +18,8 @@ import LanguageSelect from '../../components/i18n/LanguageSelect';
 import Header from '../../components/shared/Header';
 import DestinationLoading from '../../components/loading/DestinationLoading';
 import mobile from '../../components/shared/mobile.module.css';
+import HeroWaves from '../../components/studio/HeroWaves';
+import styles from './destinations.module.css';
 
 import { useRouter } from 'next/navigation';
 
@@ -56,6 +58,7 @@ function getCountryName(
 export default function DestinationsPage() {
   const { t, language } = useLanguage();
   const router = useRouter();
+  const [region, setRegion] = useState('All destinations');
 
   const [countries, setCountries] =
     useState([]);
@@ -109,6 +112,7 @@ export default function DestinationsPage() {
           data.countries
             .map((item) => ({
               iso: item.iso,
+              region: item.region,
               fromPrice: item.fromPrice,
 
               name:
@@ -173,245 +177,29 @@ export default function DestinationsPage() {
       query
     ]);
 
-  return (
-    <><div className={mobile.only}><Header/></div><main className={`${mobile.page} ${mobile.destinations}`}
-      style={{
-        minHeight: '100vh',
-        background: '#080808',
-        color: '#f5f5f5',
-        padding:
-          '28px 18px 80px'
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '1100px',
-          margin: '0 auto'
-        }}
-      >
-        <div data-desktop-language style={{float:"right"}}><LanguageSelect/></div><button className={mobile.back}
-          onClick={() =>
-            router.push('/')
-          }
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            border:
-              '1px solid #333',
-            background: '#111',
-            color: '#fff',
-            borderRadius: '30px',
-            padding:
-              '10px 16px',
-            cursor: 'pointer'
-          }}
-        >
-          <ArrowLeft size={17} /><Text>{en["m_b52b36b7269f"]}</Text></button>
-
-        <div className={mobile.intro}
-          style={{
-            marginTop: '42px'
-          }}
-        >
-          <div
-            style={{
-              fontSize: '12px',
-              letterSpacing: '2px',
-              color: '#888',
-              marginBottom: '12px'
-            }}
-          ><Text>{en["m_d8874723025c"]}</Text></div>
-
-          <h1
-            style={{
-              fontSize:
-                'clamp(38px, 7vw, 68px)',
-              fontWeight: '500',
-              margin: 0
-            }}
-          ><Text>{en["m_0fc66bc4363c"]}</Text></h1>
-
-          <p
-            style={{
-              color: '#999',
-              fontSize: '16px',
-              marginTop: '12px'
-            }}
-          ><Text>{en["m_0664178124a8"]}</Text></p>
-        </div>
-
-        <div className={mobile.search}
-          style={{
-            marginTop: '30px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            border:
-              '1px solid #2d2d2d',
-            background: '#101010',
-            borderRadius: '50px',
-            padding: '0 18px',
-            height: '56px'
-          }}
-        >
-          <Search
-            size={20}
-            color="#888"
-          />
-
-          <Localized as="input"
-            value={query}
-            onChange={(event) =>
-              setQuery(
-                event.target.value
-              )
-            }
-            placeholder={en["m_4238725c85c1"]}
-            aria-label={en["m_4238725c85c1"]}
-            style={{
-              flex: 1,
-              background:
-                'transparent',
-              border: 0,
-              outline: 'none',
-              color: '#fff',
-              fontSize: '16px'
-            }}
-          />
-        </div>
-
+  const visibleCountries = filteredCountries.filter(country => {
+    if (region === 'All destinations') return true;
+    if (region === 'Popular') return ['JP','IT','US','TH','FR','ES'].includes(country.iso);
+    if (region === 'Africa') return 'DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU YT MA MZ NA NE NG RE RW SH ST SN SC SL SO ZA SS SD TZ TG TN UG EH ZM ZW'.split(' ').includes(country.iso);
+    if (region === 'Oceania') return 'AS AU CK FJ PF GU KI MH FM NR NC NZ NU NF MP PW PG PN WS SB TK TO TV VU WF'.split(' ').includes(country.iso);
+    return country.region === region;
+  });
+  return <><div className={mobile.only}><Header/></div>
+    <main className={styles.page}>
+      <div className={styles.atmosphere} aria-hidden="true"><HeroWaves atmosphere={false}/><img className={styles.globe} src="/brand/destinations-globe.jpg" alt="" width="1536" height="1024"/></div>
+      <svg className={styles.routes} viewBox="0 0 1600 450" fill="none" aria-hidden="true"><path d="M-40 150C200 140 240 380 610 220S1340-20 1230 160 1420 240 1660 390"/><path d="M0 220C190 480 410 90 730 320"/><circle cx="610" cy="220" r="3"/><circle cx="1225" cy="170" r="3"/></svg>
+      <div className={styles.wrap}>
+        <div className={styles.top}><button className={styles.back} onClick={()=>router.push('/')}><ArrowLeft size={18}/><Text>{en["m_b52b36b7269f"]}</Text></button><div className={styles.language}><LanguageSelect/></div></div>
+        <section className={styles.hero} aria-labelledby="destinations-title">
+          <div><div className={styles.eyebrow}>01 / <Text>EXPLORE</Text><strong>MORROWGO eSIM</strong></div><h1 id="destinations-title"><Text>{en["m_0fc66bc4363c"]}</Text></h1><p><Text>{en["m_0664178124a8"]}</Text></p></div>
+          <p className={styles.aside}><Text>A small world.</Text><br/><Text>A lot to discover.</Text></p>
+        </section>
+        <div className={styles.search}><Search size={23} aria-hidden="true"/><Localized as="input" value={query} onChange={event=>setQuery(event.target.value)} placeholder={en["m_4238725c85c1"]} aria-label={en["m_4238725c85c1"]}/></div>
+        <div className={styles.filterRow}><div className={styles.filters} aria-label="Filter destinations">{['All destinations','Europe','Asia','Americas','Africa','Oceania','Popular'].map(value=><button key={value} aria-pressed={region===value} onClick={()=>setRegion(value)}><Text>{value}</Text></button>)}</div>{!loading&&!error&&<span className={styles.count} aria-live="polite">{visibleCountries.length} <Text>{en["m_773a3b986de1"]}</Text></span>}</div>
         <DestinationLoading loading={loading} error={error}>
-        <Text>{!loading &&
-          !error && (
-            <div
-              style={{
-                marginTop: '18px',
-                color: '#777',
-                fontSize: '14px'
-              }}
-            >
-              <Text>{
-                filteredCountries.length
-              }{' '}</Text><Text>{en["m_773a3b986de1"]}</Text></div>
-          )}</Text>
-
-        <Text>{error && (
-          <p
-            style={{
-              marginTop: '40px',
-              color: '#999'
-            }}
-          >
-            <Text>{error}</Text>
-          </p>
-        )}</Text>
-
-        <Text>{!loading &&
-          !error && (
-            <div className={mobile.countries}
-              style={{
-                marginTop: '24px',
-                display: 'grid',
-                gridTemplateColumns:
-                  'repeat(auto-fit, minmax(230px, 1fr))',
-                gap: '12px'
-              }}
-            >
-              <Text>{filteredCountries.map(
-                (country) => (
-                  <button className={mobile.country}
-                    key={
-                      country.iso
-                    }
-                    onClick={() =>
-                      router.push(
-                        `/destination/${country.iso}`
-                      )
-                    }
-                    style={{
-                      border:
-                        '1px solid #292929',
-                      background:
-                        '#101010',
-                      color: '#fff',
-                      borderRadius:
-                        '18px',
-                      padding:
-                        '18px',
-                      display:
-                        'flex',
-                      alignItems:
-                        'center',
-                      justifyContent:
-                        'space-between',
-                      cursor:
-                        'pointer',
-                      textAlign:
-                        'left'
-                    }}
-                  >
-                    <div
-                      style={{
-                        display:
-                          'flex',
-                        alignItems:
-                          'center',
-                        gap: '14px'
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize:
-                            '26px'
-                        }}
-                      >
-                        <Text>{getFlag(
-                          country.iso
-                        )}</Text>
-                      </span>
-
-                      <div>
-                        <div
-                          style={{
-                            fontSize:
-                              '16px',
-                            fontWeight:
-                              '600'
-                          }}
-                        >
-                          <Text>{
-                            t(country.name)
-                          }</Text>
-                        </div>
-
-                        <div
-                          style={{
-                            marginTop:
-                              '3px',
-                            color:
-                              '#777',
-                            fontSize:
-                              '12px'
-                          }}
-                        >
-                          <Text>{
-                            `From €${country.fromPrice.toFixed(2)}`
-                          }</Text>
-                        </div>
-                      </div>
-                    </div>
-
-                    <ArrowRight
-                      size={17}
-                    />
-                  </button>
-                )
-              )}</Text>
-            </div>
-          )}</Text>
+          {!loading&&!error&&<div className={styles.grid}>{visibleCountries.map(country=><button className={styles.card} key={country.iso} onClick={()=>router.push(`/destination/${country.iso}`)}><span className={styles.flag} aria-hidden="true">{getFlag(country.iso)}</span><span className={styles.cardText}><strong><Text>{t(country.name)}</Text></strong><span><Text>{`From €${country.fromPrice.toFixed(2)}`}</Text></span></span><ArrowRight size={18} aria-hidden="true"/></button>)}</div>}
+          {!loading&&!error&&!visibleCountries.length&&<p className={styles.empty} role="status"><Text>No destinations found.</Text></p>}
         </DestinationLoading>
       </div>
-    </main></>
-  );
+    </main></>;
 }

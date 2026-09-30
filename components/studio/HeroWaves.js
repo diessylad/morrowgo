@@ -5,7 +5,7 @@ import { mountWaves } from './horizonWaves';
 import styles from './heroWaves.module.css';
 
 // Licensed HorizonX adaptation; see horizonWaves.js and docs/HORIZONX-WAVES-LICENSE.md.
-export default function HeroWaves() {
+export default function HeroWaves({ atmosphere = true }) {
   const canvas = useRef(null);
   useEffect(() => {
     const node = canvas.current;
@@ -20,5 +20,5 @@ export default function HeroWaves() {
     }
     return () => scene?.destroy();
   }, []);
-  return <div className={styles.background} aria-hidden="true"><canvas ref={canvas} className={styles.canvas}/><img className={styles.atmosphere} src="/brand/hero-travel-atmosphere.webp" alt="" width="1743" height="902" decoding="async"/></div>;
+  return <div className={styles.background} aria-hidden="true"><canvas ref={canvas} className={styles.canvas}/>{atmosphere && <img className={styles.atmosphere} src="/brand/hero-travel-atmosphere.webp" alt="" width="1743" height="902" decoding="async"/>}</div>;
 }
