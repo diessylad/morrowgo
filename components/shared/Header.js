@@ -10,7 +10,7 @@ import s from '../studio/studio.module.css';
 import mobile from './mobile.module.css';
 import glass from './liquidHeader.module.css';
 
-export default function Header({ authenticated, home = false, transparent = false, onSearch }) {
+export default function Header({ authenticated, home = false, transparent = false, pageSurface = false, onSearch }) {
   const surface = useRef(null);
   const slot = useRef(null);
   const [floating, setFloating] = useState(false);
@@ -30,7 +30,7 @@ export default function Header({ authenticated, home = false, transparent = fals
     return () => { active = false; };
   }, [authenticated]);
   const prefix = home ? '' : '/';
-  return <div ref={slot} className={glass.slot}><div ref={surface} data-liquid-header data-home={home} data-transparent={transparent} data-floating={floating} className={`${s.root} ${mobile.headerRoot} ${glass.surface}`}>
+  return <div ref={slot} className={glass.slot}><div ref={surface} data-liquid-header data-home={home} data-page-surface={pageSurface} data-transparent={transparent} data-floating={floating} className={`${s.root} ${mobile.headerRoot} ${glass.surface}`}>
     <header className={s.header}>
       <Localized as="a" className={s.wordmark} href="/" aria-label={en["m_43350ea9c5ee"]}><span className={s.mark} aria-hidden="true"><i/><i/><i/><i/></span><Text>{en["m_eef9e6b1a9f1"]}</Text></Localized>
       <Localized as="nav" aria-label={en["m_efd197f3fce4"]}><a href={`${prefix}#destinations`}><Text>{en["m_0fc66bc4363c"]}</Text></a><a href={`${prefix}#how`}><Text>{en["m_1dd6a17cb403"]}</Text></a><a href={`${prefix}#product`}><Text>{en["m_04535aee2489"]}</Text></a></Localized>

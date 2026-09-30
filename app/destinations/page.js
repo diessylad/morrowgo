@@ -185,7 +185,7 @@ export default function DestinationsPage() {
     if (region === 'Oceania') return 'AS AU CK FJ PF GU KI MH FM NR NC NZ NU NF MP PW PG PN WS SB TK TO TV VU WF'.split(' ').includes(country.iso);
     return country.region === region;
   });
-  return <><div className={`${mobile.only} ${styles.mobileHeader}`}><Header/></div>
+  return <><div className={`${mobile.only} ${styles.mobileHeader}`}><Header pageSurface/></div>
     <main className={styles.page}>
       <div className={styles.atmosphere} aria-hidden="true"><HeroWaves atmosphere={false}/><img className={styles.globe} src="/brand/destinations-globe.jpg" alt="" width="1536" height="1024"/></div>
       <svg className={styles.routes} viewBox="0 0 1600 450" fill="none" aria-hidden="true"><path d="M-40 150C200 140 240 380 610 220S1340-20 1230 160 1420 240 1660 390"/><path d="M0 220C190 480 410 90 730 320"/><circle cx="610" cy="220" r="3"/><circle cx="1225" cy="170" r="3"/></svg>
