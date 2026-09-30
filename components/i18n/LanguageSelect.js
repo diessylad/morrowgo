@@ -15,6 +15,8 @@ export default function LanguageSelect() {
   const menu = useRef(null);
   const items = useRef([]);
   const [position, setPosition] = useState(null);
+  const [hovered, setHovered] = useState(false);
+  const feedback = { duration: reduced ? 0 : .19, ease: [.16, 1, .3, 1] };
   const open = Boolean(position);
   function close(restore = false) {
     setPosition(null);
@@ -48,9 +50,9 @@ export default function LanguageSelect() {
     if (event.key === 'Tab') { close(); trigger.current?.focus(); }
   }
   return <div className={s.language}>
-    <button ref={trigger} type="button" className={s.trigger} aria-label={`Language: ${languageNames[language]}`} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => open ? close(true) : show()} onKeyDown={event => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); show(); } }}>
-      <span>{language.toUpperCase()}</span><ChevronDown size={12} aria-hidden="true"/>
-    </button>
+    <motion.button whileHover={reduced ? undefined : { y: -1.5, scale: 1.02 }} whileTap={reduced ? undefined : { y: 1, scale: .975 }} transition={feedback} onHoverStart={() => setHovered(true)} onHoverEnd={() => setHovered(false)} ref={trigger} type="button" className={s.trigger} aria-label={`Language: ${languageNames[language]}`} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? id : undefined} onClick={() => open ? close(true) : show()} onKeyDown={event => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); show(); } }}>
+      <span>{language.toUpperCase()}</span><motion.span style={{ display: 'inline-flex' }} aria-hidden="true" animate={{ rotate: open ? 180 : hovered && !reduced ? 3 : 0, y: hovered && !open && !reduced ? 1 : 0 }} transition={feedback}><ChevronDown size={12}/></motion.span>
+    </motion.button>
     {typeof document !== 'undefined' && createPortal(<AnimatePresence>{open && <motion.div ref={menu} id={id} role="menu" aria-label="Language" className={s.menu} style={position} initial={reduced ? false : { opacity: 0, y: -6, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: reduced ? 0 : -4, scale: reduced ? 1 : .98 }} transition={{ duration: reduced ? 0 : .16, ease: [.16, 1, .3, 1] }}>
       {languages.map((code, index) => <button key={code} ref={node => { items.current[index] = node; }} type="button" role="menuitemradio" aria-checked={language === code} tabIndex={-1} lang={code} className={s.item} onKeyDown={event => navigate(event, index)} onClick={() => { setLanguage(code); close(true); }}><span className={s.check}>{language === code && <Check size={15} aria-hidden="true"/>}</span><span>{languageNames[code]}</span><small>{code.toUpperCase()}</small></button>)}
     </motion.div>}</AnimatePresence>, document.body)}
