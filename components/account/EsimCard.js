@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { ChevronDown, Copy, Globe2, Plus } from 'lucide-react';
 import styles from './account.module.css';
 import InstallationPanel from './InstallationPanel';
+import { SandboxNote } from './ExperienceUI';
+import Link from 'next/link';
 import {motion,useReducedMotion} from 'motion/react';
 import {getUsageSummary} from '../../lib/esims/usage';
 
@@ -67,8 +69,9 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
       <span className={styles.badge} data-active={esim.status === 'active'}><Text>{statusLabels[esim.status] || en["m_f261ff7629df"]}{demo ? ' · demo' : ''}</Text></span>
     </div>
     <p className={styles.planName}>{esim.planName || en["m_3a3dd9174aa2"]}<Text>{demo ? ' · example plan' : ''}</Text></p>
-    <Text>{!demo && <button className={`${styles.button} ${styles.secondary}`} disabled={loading} onClick={refresh}><Text>{loading ? "Refreshing…" : en["m_845ebd1cd678"]}</Text></button>}</Text>
-    {(esim.sandbox || esim.planName?.endsWith(' · Sandbox')) && <p className={styles.notice}><Text>{en["m_d74e0d966574"]}</Text></p>}
+
+    {(esim.sandbox || esim.planName?.endsWith(' · Sandbox')) && <SandboxNote/>}
+    {['ready','active'].includes(esim.status) && <p className={styles.connectionHint}><Text>{esim.status==='ready'?'Ready to install · Open your QR code below to add this eSIM to your phone.':'Your connection is active. Check the latest reported data balance below.'}</Text></p>}
     <div className={styles.usage}>
       <Text>{usage.isUnlimited === true ? <p className={styles.remaining}><Text>{en["m_c62d56011e87"]}</Text></p> : usage.remainingLabel ? <p className={styles.remaining}><Text>{usage.remainingLabel}</Text><small><Text>{en["m_398658a601d9"]}</Text></small></p> : <p className={styles.usageUnknown}><Text>{en["m_b426c8c16ec9"]}</Text></p>}</Text>
       <div className={styles.usageLine}><span><Text>{usage.usedLabel ? `${usage.usedLabel} used` : en["m_266b93684b42"]}</Text></span><Text>{remainingPercent !== null && <span><Text>{Math.round(remainingPercent)}</Text><Text>{en["m_0ebfc6b7a05d"]}</Text></span>}</Text></div>
@@ -92,5 +95,6 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
       <Text>{esim.instructions?.map((step,i) => <p className={styles.muted} key={i}><Text>{step}</Text></p>)}</Text>
       <p className={styles.notice} aria-live="polite" role="status"><Text>{notice}</Text></p>
     </details>
+    {!demo && <div className={styles.managementActions}><button className={`${styles.button} ${styles.secondary}`} disabled={loading} onClick={refresh}><Text>{loading ? 'Refreshing…' : 'Refresh status'}</Text></button><Link href="/help#contact" className={styles.installHelp}><Text>Need help installing?</Text></Link></div>}
   </motion.article>;
 }
