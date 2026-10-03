@@ -6,7 +6,7 @@ import { dashboardSummary, accountProfile, countryFlag, countryName, daysRemaini
 import { getUsageSummary, formatDataBytes } from '../../lib/esims/usage';
 import OrderList from './OrderList';
 import s from './dashboard.module.css';
-const statusLabels = {active:'Active',ready:'Not started',expired:'Expired',depleted:'Used',pending:'Pending',processing:'Processing',suspended:'Suspended',cancelled:'Cancelled',failed:'Failed'};
+const statusLabels = {active:'Active',ready:'Ready to install',expired:'Expired',depleted:'Used',pending:'Pending',processing:'Processing',suspended:'Suspended',cancelled:'Cancelled',failed:'Failed'};
 export function StatusPill({status,asOf,esim}) {
  const state=esim?esimStatus(esim,asOf):status;
  return <span className={s.status} data-active={state==='active'}><i/><Text>{statusLabels[state]||'Status unavailable'}</Text></span>;
@@ -33,7 +33,8 @@ function CurrentPlan({esim,asOf,unavailable,hasEsims}) {
   <div className={s.planTop}><span className={s.flag} aria-hidden="true">{countryFlag(esim.destinationIso)}</span><div><strong>{countryName(esim,language)}</strong><small>{usage.initialLabel||esim.planName||'—'}{esim.validityDays!=null&&<> · <Message message="{days} days" values={{days:esim.validityDays}}/></>}</small></div>{esim.supports5G===true&&<span className={s.networkBadge}>5G</span>}</div>
   <div className={s.planBalance}><div className={s.ring} role={usage.remainingPercent!=null?'progressbar':undefined} aria-label={t('Data remaining')} aria-valuenow={usage.remainingPercent!=null?Math.round(usage.remainingPercent):undefined} aria-valuemin={0} aria-valuemax={100} style={{'--progress':`${usage.remainingPercent??0}%`}}><span><strong>{usage.remainingPercent!=null?`${Math.round(usage.remainingPercent)}%`:'—'}</strong><small><Text>remaining</Text></small></span></div><div><strong>{usage.isUnlimited?<Text>Unlimited</Text>:usage.remainingLabel||'—'}</strong><small>{usage.initialLabel?<Message message="of {data} remaining" values={{data:usage.initialLabel}}/>:<Text>Data remaining</Text>}</small><hr/><p>{days!=null?<Message message="{days} days left" values={{days}}/>:<Text>{esim.status==='ready'?'Not started':'Expiry not reported'}</Text>}</p></div></div>
   <div className={s.networkDetails}><div><Radio size={20}/><span><small><Text>Operator</Text></small><strong>{esim.networks?.join(' / ')||'—'}</strong></span></div><div><Signal size={20}/><span><small><Text>Network</Text></small><strong>{esim.supports5G===true?'5G':'—'}</strong></span></div></div>
-  <Link className={s.cta} href={`/account/esims#esim-${esim.id}`}><Text>Manage eSIM</Text><ChevronRight size={16}/></Link><p className={s.usageNote}><Text>{esim.usageUpdatedAt?'Latest reported usage':'Usage not yet reported'}</Text></p>
+  {esim.status==='ready' && <p className={s.installPrompt}><Text>{esim.sandbox?'View your test eSIM and installation details.':'Your next step: open the installation guide.'}</Text></p>}
+  <Link className={s.cta} href={esim.status==='ready'?`/account/esims?install=${encodeURIComponent(esim.id)}#esim-${esim.id}`:`/account/esims#esim-${esim.id}`}><Text>{esim.status==='ready'?'View installation details':'Manage eSIM'}</Text><ChevronRight size={16}/></Link><p className={s.usageNote}><Text>{esim.usageUpdatedAt?'Latest reported usage':'Usage not yet reported'}</Text></p>
  </div>:<DataState unavailable={unavailable} kind={hasEsims?"inactive":undefined}/>}</section>;
 }
 export default function DashboardOverview({esims,orders,profile=accountProfile(),asOf,esimsUnavailable=false,ordersUnavailable=false}) {

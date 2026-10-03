@@ -29,3 +29,12 @@
 .miniProgress>span{background:#272926}.ring{background:conic-gradient(#1c1e1b var(--progress),#ffffff91 0)}.stat,.tableCard,.currentPlan,.smallCard{animation:none}.fields input{border-radius:var(--radius-input);border-color:var(--color-border)}
 
 .greeting h1{line-height:var(--leading-heading);letter-spacing:var(--tracking-heading)}.sectionTitle h2{line-height:1.25;letter-spacing:var(--tracking-heading)}
+
+/* Readable secondary information and comfortable touch actions. */
+.footer,.usageNote{font-size:12px;line-height:1.5}.rowAction{min-width:44px;min-height:44px}.networkDetails strong,.networkDetails small{font-size:12px;line-height:1.5}
+
+/* A readable next step for an issued eSIM; existing dashboard geometry is retained. */
+.installPrompt{font-size:13px;line-height:1.6;color:var(--color-muted);margin:16px 0 12px}
+.cta,.rowAction,.sectionTitle>a{touch-action:manipulation}
+@media(pointer:coarse){.search input{font-size:16px}.rowAction{min-width:44px;min-height:44px}}
+@media(max-width:700px){.installPrompt{font-size:13px}.stat small{font-size:11px;line-height:1.5}.footer{font-size:11px}}

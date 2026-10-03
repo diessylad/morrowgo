@@ -374,3 +374,25 @@
 
 /* The licensed Waves canvas is confined to the existing hero stacking context. */
 .hero{position:relative;isolation:isolate}
+
+/* Country suggestions use the existing search geometry and catalogue. */
+.searchArea{position:relative;z-index:5;width:100%;max-width:100%}
+.suggestions{position:absolute;left:0;right:0;top:calc(100% + 8px);list-style:none;margin:0;padding:8px;background:var(--color-page);border:1px solid var(--color-border);border-radius:var(--radius-compact);box-shadow:0 12px 28px #0000000d;max-height:280px;overflow:auto}
+.suggestions button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 14px;border:0;border-radius:12px;background:transparent;color:var(--color-ink);font:inherit;text-align:left;cursor:pointer}
+.suggestions button>span:first-child{font-size:24px}.suggestions button>svg{margin-left:auto;flex-shrink:0}
+.suggestions button:hover,.suggestions button:focus-visible{background:var(--color-surface)}
+.suggestions button:focus-visible{outline:2px solid var(--color-ink);outline-offset:-2px}
+
+/* Purchase entry: the existing hero composition and palette remain intact. */
+.heroCopy .search button{display:inline-flex;align-items:center;justify-content:center;height:54px;border-radius:var(--radius-pill);width:auto;min-width:52px;padding-inline:18px;gap:10px;white-space:nowrap;touch-action:manipulation}
+.searchButtonLabel{font-size:var(--text-sm);font-weight:400}
+.quickDestinations{display:flex;align-items:center;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:var(--text-xs);color:var(--color-muted)}
+.quickDestinations button{display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0;border:0;background:transparent;color:var(--color-ink);touch-action:manipulation;transition:opacity 160ms var(--motion-ease)}
+.quickDestinations button:active{opacity:.6}
+.suggestionName{min-width:0;flex:1;overflow-wrap:anywhere}
+.suggestions button small{font-size:var(--text-xs);white-space:nowrap;color:var(--color-muted)}
+.suggestions button>svg{margin-left:0}
+.searchEmpty{padding:14px;font-size:var(--text-sm);color:var(--color-muted)}
+@media(hover:hover) and (pointer:fine){.quickDestinations button:hover{text-decoration:underline;text-underline-offset:4px}}
+@media(max-width:700px){.heroCopy .search input{font-size:16px;min-width:0}.heroCopy .search button{padding-inline:14px}.searchButtonLabel{font-size:12px}.quickDestinations{gap:2px 12px}.suggestions button{padding:10px;gap:8px}}
+@media(prefers-reduced-motion:reduce){.quickDestinations button{transition:none}}

@@ -7,7 +7,7 @@ import PurchaseBar from '../purchase/PurchaseBar';
 import { startCheckout } from '../purchase/startCheckout';
 import { X } from 'lucide-react';
 import s from './quickBuy.module.css';
-import PlanCard from '../destination/PlanCard';
+import QuickBuyPlan from './QuickBuyPlan';
 import PlanCategory from '../destination/PlanCategory';
 import { selectPlans } from './selectPlans.mjs';
 
@@ -84,7 +84,7 @@ export default function QuickBuy({ country, onClose }) {
   return <dialog ref={dialog} className={s.dialog} aria-labelledby={titleId}
     onKeyDown={event => {
       if (event.key !== 'Tab') return;
-      const controls = [...event.currentTarget.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), summary')];
+      const controls = [...event.currentTarget.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled):not([type="radio"]), input[type="radio"]:not(:disabled):checked, summary')];
       const first = controls[0];
       const last = controls[controls.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
@@ -95,22 +95,23 @@ export default function QuickBuy({ country, onClose }) {
     <div className={s.panel}>
       <header className={s.heading}>
         <span className={s.flag} aria-hidden="true"><Text>{flag}</Text></span>
-        <div><p><Text>{name}</Text></p><h2 id={titleId}><Message message={en["plans.countryTitle"]} values={{country:t(name)}}/></h2></div>
+        <div><p><Text>MORROWGO eSIM</Text></p><h2 id={titleId}><Text>{name}</Text></h2></div>
         <Localized as="button" className={s.close} onClick={onClose} aria-label={en["m_6ec585226cb2"]} autoFocus><X size={21}/></Localized>
       </header>
       <div className={s.content} aria-busy={status === 'loading'}>
         <Text>{status === 'loading' && <p className={s.message} role="status"><Text>{en["m_d138fa8f7ff9"]}</Text></p>}</Text>
         <Text>{status === 'error' && <div className={s.message}><p role="alert"><Text>{en["m_cef7c74413fc"]}</Text></p><button className={s.retry} onClick={() => setAttempt(value => value + 1)}><Text>{en["m_042c862e4467"]}</Text></button></div>}</Text>
+        <p className={s.pickHint}><Text>Choose your data plan.</Text></p>
         <Text>{status === 'ready' && <PlanCategory value={category} onChange={setCategory}/>}</Text>
         <Text>{status === 'ready' && !plans.length && <p className={s.message} role="status"><Text>{en["m_85cdebe11045"]}</Text><Text>{category === en["m_e1a6f0b6f73a"] ? en["m_e1a6f0b6f73a"] : en["m_45300a3b9412"]}</Text><Text>{en["m_00d769d8f7d5"]}</Text></p>}</Text>
-        {status === 'ready' && plans.length > 0 && <div className={s.cardList}>
-          {plans.map(plan => <PlanCard key={plan.id} plan={plan}
-            recommended={!plan.unlimited && (Number(plan.dataGB) === 5 || Number(plan.dataMB) === 5120)}
-            formatData={allowance} onBuy={buy} onSelect={plan => setSelectedId(plan.id)} selected={plan.id === selectedPlan?.id} showSpeedDetails/>)}
+        {status === 'ready' && plans.length > 0 && <fieldset className={s.cardList}>
+          <legend className={s.srOnly}><Text>Choose your data plan.</Text></legend>
+          {plans.map((plan,index) => <QuickBuyPlan key={plan.id} plan={plan} index={index} group={titleId}
+            formatData={allowance} onSelect={plan => setSelectedId(plan.id)} selected={plan.id === selectedPlan?.id}/>)}
+        </fieldset>}
 
-        </div>}
       </div>
-      <Text>{status === 'ready' && selectedPlan ? <PurchaseBar embedded key={iso} plan={selectedPlan} country={name} formatData={allowance} onBuy={buy} detailsHref={`/destination/${encodeURIComponent(iso)}`}/> : <footer className={s.actions}><a className={s.details} href={`/destination/${encodeURIComponent(iso)}`}><Text>{en["m_badd385121c5"]}</Text></a></footer>}</Text>
+      <Text>{status === 'ready' && selectedPlan ? <PurchaseBar embedded key={iso} plan={selectedPlan} country={name} formatData={allowance} onBuy={buy} detailsHref={`/destination/${encodeURIComponent(iso)}`} actionLabel="Continue"/> : <footer className={s.actions}><a className={s.details} href={`/destination/${encodeURIComponent(iso)}`}><Text>{en["m_badd385121c5"]}</Text></a></footer>}</Text>
 
     </div>
   </dialog>;

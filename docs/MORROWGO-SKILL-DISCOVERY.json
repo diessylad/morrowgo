@@ -1,0 +1,76 @@
+{
+  "skills": [
+    {
+      "name": "browser-testing-with-devtools",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/browser-testing-with-devtools/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "design-system-patterns",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/design-system-patterns/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "design-taste-frontend",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/design-taste-frontend/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "frontend-ui-engineering",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/frontend-ui-engineering/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "gpt-taste",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/gpt-taste/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "high-end-visual-design",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/high-end-visual-design/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "image-to-code",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/image-to-code/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "interaction-design",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/interaction-design/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "morrowgo-design",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/morrowgo-design/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "redesign-existing-projects",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/redesign-existing-projects/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "responsive-design",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/responsive-design/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/ui-ux-pro-max/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "visual-design-foundations",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/visual-design-foundations/SKILL.md",
+      "enabled": true
+    },
+    {
+      "name": "web-design-guidelines",
+      "path": "/Users/diessy/Documents/GitHub/morrowgo/.codex/skills/web-design-guidelines/SKILL.md",
+      "enabled": true
+    }
+  ],
+  "errors": [],
+  "rpc_error": null
+}

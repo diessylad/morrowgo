@@ -4,6 +4,8 @@ import en from './../../locales/en.json';
 import { CookieSettingsLink } from '../privacy/CookieConsent';
 
 import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion as motionUI, useReducedMotion } from 'motion/react';
+import { premiumTransition } from '../shared/MotionPrimitives';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRight, ArrowRight, Search, Globe2, Signal, Check, Plus, Minus, X, ShieldCheck, Smartphone, Headphones, ChevronLeft, Zap, Layers, MessageSquare, BatteryMedium } from 'lucide-react';
@@ -31,12 +33,14 @@ function Arrow({ diagonal = false }) { return diagonal ? <ArrowUpRight size={19}
 
 export default function Experience({ authenticated = false }) {
   const { t } = useLanguage();
+  const reduced = useReducedMotion();
   const router = useRouter();
   const [catalogue, setCatalogue] = useState([]);
   const [catalogueState, setCatalogueState] = useState('loading');
   useEffect(() => { let active = true; fetch('/api/catalogue/countries').then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(d => { if(active){setCatalogue(d.countries);setCatalogueState('ready');} }).catch(() => {if(active)setCatalogueState('error');}); return () => {active=false;}; }, []);
   const [quickBuyCountry, setQuickBuyCountry] = useState(null);
   const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const [region, setRegion] = useState(en["m_6a72085653e4"]);
   const scene = useRef(null);
   const root = useRef(null);
@@ -44,7 +48,7 @@ export default function Experience({ authenticated = false }) {
   const search = useRef(null);
   const matches = catalogue.filter(c => `${c.name} ${t(c.name)} ${c.region} ${t(c.region)} ${c.code}`.toLowerCase().includes(query.toLowerCase().trim()) && (region === en["m_6a72085653e4"] || c.region === region));
   const filtered = !query.trim() && region === en["m_6a72085653e4"] ? countries.map(c => catalogue.find(item => item.code === c.code)).filter(Boolean) : matches;
-  function open(c) { setQuickBuyCountry(c); }
+  function open(c) { setSearchOpen(false); setQuickBuyCountry(c); }
   function goSearch() { search.current.focus(); search.current.scrollIntoView({ behavior: 'auto', block: 'center' }); }
   return <div className={`${s.root} ${motion.root}`} ref={root}>
     <a href="#content" className={s.skip}><Text>{en["m_0a4470d64e9d"]}</Text></a>
@@ -56,13 +60,22 @@ export default function Experience({ authenticated = false }) {
           <div className={s.heroCopy}>
             <div data-motion-reveal data-motion-delay="200" className={s.networkLabel}><i className={s.dot}/><Text>{en["m_17a0c31f2ced"]}</Text></div>
             <MotionHeading data-motion-delay="350" as="h1" id="hero-title"><Text>{en["m_ae768f766f75"]}</Text><br/><Text>{en["m_c2f9b7b4897f"]}</Text><br/><span style={{color:'#888984'}}><Text>{en["m_0d20ee8c0672"]}</Text></span></MotionHeading>
-            <p data-motion-delay="650" className={s.heroDescription}><Text>{en["m_92a0d9f0f039"]}</Text><br/><Text>{en["m_8bfe8fb70d73"]}</Text></p>
+            <p data-motion-delay="650" className={s.heroDescription}><Text>{en["m_92a0d9f0f039"]}</Text><br/><Text>Choose your destination. Find your data plan.</Text></p>
             
+            <div className={s.searchArea} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setSearchOpen(false); }} onKeyDown={event => { if (event.key === "Escape") { setSearchOpen(false); search.current?.focus(); } }}>
             <form data-motion-enter="scaleReveal" data-motion-delay="800" className={s.search} onSubmit={e => { e.preventDefault(); if (filtered.length === 1) open(filtered[0], { currentTarget: search.current }); else document.getElementById(en["m_773a3b986de1"]).scrollIntoView(); }}>
               <Search size={22}/><label className={s.srOnly} htmlFor="destination-search"><Text>{en["m_4a587acda027"]}</Text></label>
-              <Localized as="input" ref={search} id="destination-search" placeholder={en["m_4a587acda027"]} value={query} onChange={e => { setQuery(e.target.value); setRegion(en["m_6a72085653e4"]); }}/>
-              <Localized as="button" aria-label={en["m_86cdde82421b"]}><Arrow/></Localized>
+              <Localized as="input" ref={search} id="destination-search" placeholder={en["m_4a587acda027"]} enterKeyHint="search" autoComplete="off" value={query} aria-controls={searchOpen && query.trim() ? "country-suggestions" : undefined} onFocus={() => setSearchOpen(true)} onChange={e => { setSearchOpen(true); setQuery(e.target.value); setRegion(en["m_6a72085653e4"]); }}/>
+              <motionUI.button type="submit" aria-label={t(en["m_86cdde82421b"])} whileTap={reduced ? undefined : {scale:.97}} transition={premiumTransition}><span className={s.searchButtonLabel}><Text>Find plans</Text></span><Arrow/></motionUI.button>
             </form>
+            <AnimatePresence initial={false}>
+            {searchOpen && query.trim() && catalogueState === 'ready' && <motionUI.ul key="suggestions" id="country-suggestions" className={s.suggestions} aria-label={t(en["m_86cdde82421b"])} initial={{opacity:0,y:reduced?0:-4}} animate={{opacity:1,y:0}} exit={{opacity:0}} transition={{...premiumTransition,duration:reduced?0:.18}}>
+              {matches.slice(0, 5).map(country => <li key={country.code}><button type="button" onClick={() => open(country)}><span aria-hidden="true">{country.flag}</span><span className={s.suggestionName}><Text>{country.name}</Text></span><small><Text>{`From ${money(country.fromPrice)}`}</Text></small><Arrow/></button></li>)}
+              {!matches.length && <li className={s.searchEmpty} role="status"><Text>No matching destination. Try another country.</Text></li>}
+            </motionUI.ul>}
+            </AnimatePresence>
+            <div className={s.quickDestinations} aria-label={t('Popular destinations')}><span><Text>Popular:</Text></span>{countries.slice(0,3).map(country => <button type="button" key={country.code} onClick={() => open(catalogue.find(item => item.code === country.code) || country)}><Text>{country.name}</Text><ArrowUpRight size={12} aria-hidden="true"/></button>)}</div>
+            </div>
             <div className={s.heroBenefits}><Text>{[[Zap, en["m_de9526786967"]], [Signal, en["m_6c11f7011123"]], [BatteryMedium, en["m_111e8a76aed3"]], [Globe2, en["m_bd382f1e76a8"]]].map(([Icon, text]) => <div key={text}><Icon size={21} strokeWidth={1.5}/><span><Text>{text}</Text></span></div>)}</Text></div>
           </div>
           <Localized as="div" className={s.heroScene} ref={scene} data-motion-scene aria-label={en["m_0121ccffb836"]}>

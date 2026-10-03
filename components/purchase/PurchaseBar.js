@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowRight, Smartphone, FileText, X } from 'lucide-react';
 import s from './purchaseBar.module.css';
 
-export default function PurchaseBar({ plan, country, formatData, onBuy, embedded = false, detailsHref }) {
+export default function PurchaseBar({ plan, country, formatData, onBuy, embedded = false, detailsHref, actionLabel }) {
   const { language } = useLanguage();
   const [confirmed, setConfirmed] = useState(false);
   const [panel, setPanel] = useState(null);
@@ -62,7 +62,7 @@ export default function PurchaseBar({ plan, country, formatData, onBuy, embedded
         </div>
         <div className={s.checkout}>
           <div className={s.total} aria-live="polite"><span><Text>{country}</Text> · <Text>{formatData(plan)}</Text> · <Text>{`${plan.duration} days`}</Text></span><div><Text>{en["m_00dda8b7e768"]}</Text><strong><Text>{amount}</Text></strong></div></div>
-          <button type="button" className={s.buy} disabled={!confirmed || pending} onClick={purchase}><Text>{pending ? en["m_5afeca73bef6"] : en["m_c38860a3ba58"]}</Text><ArrowRight size={19}/></button>
+          <button type="button" className={s.buy} disabled={!confirmed || pending} onClick={purchase}><Text>{pending ? en["m_5afeca73bef6"] : actionLabel || en["m_c38860a3ba58"]}</Text><ArrowRight size={19}/></button>
         </div>
       </div>
       <p className={s.testNotice}><Text>{en["m_23746f639088"]}</Text></p>

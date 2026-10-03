@@ -17,5 +17,5 @@ export function EmptyEsims() {
 }
 
 export function EmptyOrders() {
-  return <section className={styles.empty}><ReceiptText size={34} strokeWidth={1.3} /><h3><Text>{en["m_9f906408c960"]}</Text></h3><p><Text>{en["m_9b8e76ad00f4"]}</Text></p><Link href="/help#contact" className={styles.textLink}><Text>{en["m_984a59e9b026"]}</Text><ArrowUpRight size={15} /></Link></section>;
+  return <section className={styles.empty}><ReceiptText size={34} strokeWidth={1.3} /><h3><Text>{en["m_9f906408c960"]}</Text></h3><p><Text>{en["m_9b8e76ad00f4"]}</Text></p><div className={styles.actions}><Link className={styles.button} href="/destinations"><Text>{en["m_628851f6f56a"]}</Text><ArrowUpRight size={15}/></Link><Link href="/help#contact" className={styles.textLink}><Text>{en["m_984a59e9b026"]}</Text><ArrowUpRight size={15} /></Link></div></section>;
 }

@@ -32,3 +32,24 @@
 .dialog,.dialog::backdrop{animation-duration:var(--motion-enter)}
 
 .heading h2{font-size:var(--heading-panel);letter-spacing:var(--tracking-heading)}
+
+/* One choice per row, one primary purchase action. */
+.pickHint{margin:0 0 16px;color:var(--color-muted);font-size:var(--text-sm)}
+.cardList{border:0;padding:0;margin:18px 0 0;min-width:0;gap:10px}
+.srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.choice{display:flex;align-items:center;gap:16px;min-height:84px;padding:14px 20px;border:1px solid var(--color-border);border-radius:var(--radius-compact);background:var(--color-surface);cursor:pointer;transition:border-color 180ms var(--motion-ease),background 180ms var(--motion-ease)}
+.choiceSelected{border-color:#6c7868;background:rgba(245,247,242,.82)}
+.choice input{width:18px;height:18px;margin:0;accent-color:var(--color-ink);flex-shrink:0;cursor:pointer;touch-action:manipulation}
+.choiceBody{display:flex;flex-direction:column;flex:1;min-width:0;gap:3px}
+.choiceBody>strong{font-size:24px;font-weight:500;letter-spacing:-.6px;line-height:1.2}
+.choiceBody>span{font-size:var(--text-sm);color:var(--color-muted)}
+.choiceBody small{font-size:var(--text-xs);line-height:1.5;color:var(--color-muted);overflow-wrap:anywhere}
+.choicePrice{text-align:right;flex-shrink:0;display:flex;flex-direction:column;gap:4px}
+.choicePrice strong{font-size:22px;font-weight:500;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.choicePrice small{font-size:var(--text-xs);color:var(--color-muted)}
+.choice:focus-within{outline:2px solid var(--color-ink);outline-offset:3px}
+.choice:active{background:var(--color-page)}
+.dialog button{touch-action:manipulation}
+@media(hover:hover) and (pointer:fine){.choice:hover{border-color:#6c7868}}
+@media(max-width:767px){.pickHint{font-size:14px}.choice{padding:16px;gap:12px;min-height:88px}.choiceBody>strong{font-size:22px}.choicePrice strong{font-size:20px}.heading{padding-bottom:16px}}
+@media(prefers-reduced-motion:reduce){.choice{transition:none}}

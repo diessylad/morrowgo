@@ -1,0 +1,159 @@
+{
+  "date": "2026-10-03",
+  "sources": {
+    "taste": {
+      "repository": "Leonxlnx/taste-skill",
+      "commit": "ce26fc25c0e5e8cab638f883de62d9a86ee5e45b"
+    },
+    "addy": {
+      "repository": "addyosmani/agent-skills",
+      "commit": "a06bc63b3f8b829c14b0bbf53d99fefc39d58092"
+    },
+    "wshobson": {
+      "repository": "wshobson/agents",
+      "commit": "156b7a5e7a8b93642628a339ee4039c925b34c7f"
+    },
+    "uiux": {
+      "repository": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "commit": "09170eec67eefd46a7ae85de61b40c194020f997"
+    },
+    "vercel": {
+      "repository": "vercel-labs/agent-skills",
+      "commit": "063bee94c3f4df8453406c830b0a7df0f2860278"
+    },
+    "vercel-guidelines": {
+      "repository": "vercel-labs/web-interface-guidelines",
+      "commit": "e3d624baaf29dc1fc645aff3e38f03e564d2d6b1"
+    },
+    "anthropic": {
+      "repository": "anthropics/skills",
+      "commit": "8a1541c4a3ffa5a20a5a91de0dcf3f0bab1d1ef4"
+    },
+    "emil": {
+      "repository": "emilkowalski/skills",
+      "commit": "e8a175de22ae1e49370fc144c1f3bb9aeedf988d",
+      "license": "MIT",
+      "audit": "Selected markdown/reference files only; no scripts or package installers. Native/Swift/library-selection skills excluded. Repo-scoped adaptations preserve brand and motion/react."
+    }
+  },
+  "skills": [
+    {
+      "name": "design-taste-frontend",
+      "source": "taste",
+      "adapted": true,
+      "upstream_path": "skills/taste-skill/SKILL.md"
+    },
+    {
+      "name": "redesign-existing-projects",
+      "source": "taste",
+      "adapted": true,
+      "upstream_path": "skills/redesign-skill/SKILL.md"
+    },
+    {
+      "name": "high-end-visual-design",
+      "source": "taste",
+      "adapted": true,
+      "upstream_path": "skills/soft-skill/SKILL.md"
+    },
+    {
+      "name": "image-to-code",
+      "source": "taste",
+      "adapted": true,
+      "upstream_path": "skills/image-to-code-skill/SKILL.md"
+    },
+    {
+      "name": "gpt-taste",
+      "source": "taste",
+      "adapted": true,
+      "upstream_path": "skills/gpt-tasteskill/SKILL.md"
+    },
+    {
+      "name": "frontend-ui-engineering",
+      "source": "addy",
+      "adapted": true,
+      "upstream_path": "skills/frontend-ui-engineering/SKILL.md"
+    },
+    {
+      "name": "browser-testing-with-devtools",
+      "source": "addy",
+      "adapted": true,
+      "upstream_path": "skills/browser-testing-with-devtools/SKILL.md"
+    },
+    {
+      "name": "visual-design-foundations",
+      "source": "wshobson",
+      "adapted": true,
+      "upstream_path": "plugins/ui-design/skills/visual-design-foundations/SKILL.md"
+    },
+    {
+      "name": "design-system-patterns",
+      "source": "wshobson",
+      "adapted": true,
+      "upstream_path": "plugins/ui-design/skills/design-system-patterns/SKILL.md"
+    },
+    {
+      "name": "responsive-design",
+      "source": "wshobson",
+      "adapted": true,
+      "upstream_path": "plugins/ui-design/skills/responsive-design/SKILL.md"
+    },
+    {
+      "name": "interaction-design",
+      "source": "wshobson",
+      "adapted": true,
+      "upstream_path": "plugins/ui-design/skills/interaction-design/SKILL.md"
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "source": "uiux",
+      "adapted": true,
+      "upstream_path": "Official ui-ux-pro-max-cli@2.15.0 bundled Codex template, not audited repository HEAD"
+    },
+    {
+      "name": "web-design-guidelines",
+      "source": "vercel-guidelines",
+      "adapted": true,
+      "audited_entry_source": "vercel",
+      "reason": "Original skill repository lacks a license; authored adapter uses separately MIT-licensed pinned guidelines."
+    },
+    {
+      "name": "morrowgo-design",
+      "source": "local",
+      "adapted": false
+    },
+    {
+      "name": "emil-design-eng",
+      "source": "emil",
+      "adapted": true,
+      "upstream_path": "skills/emil-design-eng/SKILL.md"
+    },
+    {
+      "name": "review-animations",
+      "source": "emil",
+      "adapted": true,
+      "upstream_path": "skills/review-animations/SKILL.md"
+    },
+    {
+      "name": "mobile-native",
+      "source": "emil",
+      "adapted": true,
+      "upstream_path": "skills/mobile-native/SKILL.md"
+    }
+  ],
+  "uiux_cli": {
+    "package": "ui-ux-pro-max-cli",
+    "version": "2.15.0",
+    "gitHead": "a38d04c3d5c298c851dbe5e6ee1965ee3de42cb5",
+    "integrity": "sha512-D0J/C40xrzzi5si6ZLtRGbEE5v3QjL7d4wJNnasmP3yfDSrGiuqVCdwQiqCNnIkbqOuVoA/uonR2o1WKXh3urw==",
+    "installation": "npm exec --yes --ignore-scripts --package=ui-ux-pro-max-cli@2.15.0 -- uipro init --ai codex --offline",
+    "staged_then_selected": true
+  },
+  "verification": {
+    "discovery": "Codex app-server skills/list forceReload: 14 repo skills enabled, zero errors",
+    "frontmatter": "14 Ruby YAML parses passed; official quick_validate also run separately",
+    "search": "Local ux touch-target query passed",
+    "preexisting_files_changed": [],
+    "build": "Not run: prebuild writes generated CSS; setup changes no application code",
+    "lint_typecheck": "Not run: no app changes; no TypeScript config; lint can prompt configuration"
+  }
+}

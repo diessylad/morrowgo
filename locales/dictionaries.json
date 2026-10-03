@@ -900,7 +900,20 @@
     "Status": "Status",
     "Date": "Date",
     "Amount": "Amount",
-    "Search": "Search"
+    "Search": "Search",
+    "Choose your destination. Find your data plan.": "Choose your destination. Find your data plan.",
+    "Find plans": "Find plans",
+    "Popular:": "Popular:",
+    "No matching destination. Try another country.": "No matching destination. Try another country.",
+    "Choose your data plan.": "Choose your data plan.",
+    "Your test eSIM is ready.": "Your test eSIM is ready.",
+    "eSIM ready": "eSIM ready",
+    "Explore details": "Explore details",
+    "Next step": "Next step",
+    "Complete": "Complete",
+    "View installation details": "View installation details",
+    "View your test eSIM and installation details.": "View your test eSIM and installation details.",
+    "Your next step: open the installation guide.": "Your next step: open the installation guide."
   },
   "de": {
     "Destinations": "Reiseziele",
@@ -1803,7 +1816,20 @@
     "Status": "Status",
     "Date": "Datum",
     "Amount": "Betrag",
-    "Search": "Suchen"
+    "Search": "Suchen",
+    "Choose your destination. Find your data plan.": "Wähle dein Reiseziel. Finde deinen Datentarif.",
+    "Find plans": "Tarife finden",
+    "Popular:": "Beliebt:",
+    "No matching destination. Try another country.": "Kein passendes Reiseziel. Versuche ein anderes Land.",
+    "Choose your data plan.": "Wähle deinen Datentarif.",
+    "Your test eSIM is ready.": "Deine Test-eSIM ist bereit.",
+    "eSIM ready": "eSIM bereit",
+    "Explore details": "Details ansehen",
+    "Next step": "Nächster Schritt",
+    "Complete": "Abgeschlossen",
+    "View installation details": "Installationsdetails ansehen",
+    "View your test eSIM and installation details.": "Sieh deine Test-eSIM und Installationsdetails an.",
+    "Your next step: open the installation guide.": "Nächster Schritt: Öffne die Installationsanleitung."
   },
   "es": {
     "Destinations": "Destinos",
@@ -2706,7 +2732,20 @@
     "Status": "Estado",
     "Date": "Fecha",
     "Amount": "Importe",
-    "Search": "Buscar"
+    "Search": "Buscar",
+    "Choose your destination. Find your data plan.": "Elige tu destino. Encuentra tu plan de datos.",
+    "Find plans": "Ver planes",
+    "Popular:": "Populares:",
+    "No matching destination. Try another country.": "No hay destinos coincidentes. Prueba otro país.",
+    "Choose your data plan.": "Elige tu plan de datos.",
+    "Your test eSIM is ready.": "Tu eSIM de prueba está lista.",
+    "eSIM ready": "eSIM lista",
+    "Explore details": "Ver detalles",
+    "Next step": "Siguiente paso",
+    "Complete": "Completado",
+    "View installation details": "Ver detalles de instalación",
+    "View your test eSIM and installation details.": "Consulta tu eSIM de prueba y los detalles de instalación.",
+    "Your next step: open the installation guide.": "Siguiente paso: abre la guía de instalación."
   },
   "ru": {
     "Destinations": "Направления",
@@ -3609,7 +3648,20 @@
     "Status": "Статус",
     "Date": "Дата",
     "Amount": "Сумма",
-    "Search": "Поиск"
+    "Search": "Поиск",
+    "Choose your destination. Find your data plan.": "Выберите страну и тариф интернета.",
+    "Find plans": "Найти тариф",
+    "Popular:": "Популярные:",
+    "No matching destination. Try another country.": "Страна не найдена. Попробуйте другое название.",
+    "Choose your data plan.": "Выберите тариф интернета.",
+    "Your test eSIM is ready.": "Ваша тестовая eSIM готова.",
+    "eSIM ready": "eSIM готова",
+    "Explore details": "Посмотреть данные",
+    "Next step": "Следующий шаг",
+    "Complete": "Готово",
+    "View installation details": "Данные для установки",
+    "View your test eSIM and installation details.": "Посмотрите тестовую eSIM и данные для установки.",
+    "Your next step: open the installation guide.": "Следующий шаг — открыть инструкцию по установке."
   },
   "fr": {
     "Destinations": "Destinations",
@@ -4512,6 +4564,19 @@
     "Status": "Statut",
     "Date": "Date",
     "Amount": "Montant",
-    "Search": "Rechercher"
+    "Search": "Rechercher",
+    "Choose your destination. Find your data plan.": "Choisissez votre destination et votre forfait de données.",
+    "Find plans": "Voir les forfaits",
+    "Popular:": "Populaires :",
+    "No matching destination. Try another country.": "Aucune destination trouvée. Essayez un autre pays.",
+    "Choose your data plan.": "Choisissez votre forfait de données.",
+    "Your test eSIM is ready.": "Votre eSIM de test est prête.",
+    "eSIM ready": "eSIM prête",
+    "Explore details": "Voir les détails",
+    "Next step": "Prochaine étape",
+    "Complete": "Terminé",
+    "View installation details": "Voir les détails d’installation",
+    "View your test eSIM and installation details.": "Consultez votre eSIM de test et ses détails d’installation.",
+    "Your next step: open the installation guide.": "Prochaine étape : ouvrez le guide d’installation."
   }
 }

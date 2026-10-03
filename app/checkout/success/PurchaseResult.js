@@ -6,6 +6,7 @@ import Header from '../../../components/customer/Header';
 import { Text, useLanguage } from '../../../components/i18n/Provider';
 import { countryFlag, countryName } from '../../../lib/account/presentation.mjs';
 import s from './success.module.css';
+import ConnectionSteps from '../../../components/account/ConnectionSteps';
 import dynamic from 'next/dynamic';
 const PurchaseConfetti=dynamic(()=>import('../../../components/ui/PurchaseConfetti'),{ssr:false});
 
@@ -16,7 +17,7 @@ export default function PurchaseResult({order,view,total,error,checking,paused,s
   const sandbox=order?.testMode===true;
   const country=order?.iso ? countryName({destinationIso:order.iso},language) : null;
   const installHref=installable?`/account/esims?install=${order.accountOrderId}#esim-${order.accountOrderId}`:'/account/esims';
-  const title=error?'Let’s check your order.':ready?'Your eSIM is ready.':attention?'Your order needs a little help.':paid?'Payment confirmed.':'Checking your payment.';
+  const title=error?'Let’s check your order.':ready?(sandbox?'Your test eSIM is ready.':'Your eSIM is ready.'):attention?'Your order needs a little help.':paid?'Payment confirmed.':'Checking your payment.';
   const description=error?error:ready?(sandbox?'Your test order is complete. You can view your eSIM and explore the installation details in your account.':'Your next connection is ready. Open your eSIM to find the QR code and step-by-step installation instructions.'):attention?'Your payment is confirmed, but your eSIM needs attention. Please contact us before placing another order.':paid?'We’re preparing your eSIM. Its installation details will appear in your account when it’s ready.':'We’re checking your order. Please keep this page open for the latest update.';
   const fields=Object.entries(order?.installation||{}).filter(([key,value])=>['smdpAddress','activationCode','matchingId'].includes(key)&&value);
   return <div className={s.page}><PurchaseConfetti active={ready&&paid&&!error} celebrationKey={order?.accountOrderId||sessionId}/><Header pageSurface/><main className={s.wrap}>
@@ -24,6 +25,11 @@ export default function PurchaseResult({order,view,total,error,checking,paused,s
     <motion.div className={s.result} initial={reduced?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{duration:.3}}>
       <section className={s.mainCard} aria-labelledby="purchase-title">
         <div className={s.heading} aria-live="polite"><span className={s.icon} data-ready={ready&&!error}><Check size={26} aria-hidden="true" style={{display:paid&&!error?'block':'none'}}/>{(!paid||error)&&<Smartphone size={26} aria-hidden="true"/>}</span><span className={s.eyebrow}><Text>Your MORROWGO connection</Text></span><h1 id="purchase-title"><Text>{title}</Text></h1><p className={s.intro}><Text>{description}</Text></p></div>
+        {!error && !attention && <ConnectionSteps steps={[
+          {label:'Payment',state:paid?'complete':'current'},
+          {label:'eSIM ready',state:ready?'complete':paid?'current':'pending'},
+          {label:sandbox?'Explore details':'Installation',state:ready?'current':'pending'}
+        ]}/>}
         {sandbox&&<p className={s.sandbox}><span aria-hidden="true"/><Text>Sandbox mode · Test purchase only. This eSIM cannot be installed on a phone.</Text></p>}
         <div className={s.nextStep}>
           <div className={s.nextIcon}><Smartphone size={22} aria-hidden="true"/></div><div><h2><Text>{ready?'Your next step':attention?'We’re here to help':'What happens next?'}</Text></h2><p><Text>{ready?(sandbox?'View your test eSIM in My eSIMs.':'Open your eSIM and follow the installation guide.'):attention?'Contact support with your order reference.':'You can find your eSIM and its latest status in My eSIMs.'}</Text></p></div>
