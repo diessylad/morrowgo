@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowRight, Smartphone, FileText, X } from 'lucide-react';
 import s from './purchaseBar.module.css';
 
-export default function PurchaseBar({ plan, country, formatData, onBuy, embedded = false, detailsHref, actionLabel }) {
+export default function PurchaseBar({ plan, country, formatData, onBuy, embedded = false, detailsHref, actionLabel, compact = false }) {
   const { language } = useLanguage();
   const [confirmed, setConfirmed] = useState(false);
   const [panel, setPanel] = useState(null);
@@ -50,12 +50,12 @@ export default function PurchaseBar({ plan, country, formatData, onBuy, embedded
   const speed = plan.speed || plan.networkTypes?.join(' / ');
   return <>
     <Text>{!embedded && <div ref={spacer} className={s.spacer} aria-hidden="true" />}</Text>
-    <Localized as="section" ref={bar} className={`${s.bar} ${embedded ? s.embedded : ''}`} aria-label={en["m_565c6db33d4f"]}>
+    <Localized as="section" ref={bar} className={`${s.bar} ${embedded ? s.embedded : ''} ${compact ? s.compact : ''}`} aria-label={en["m_565c6db33d4f"]}>
       <div className={s.inner}>
         <div className={s.controls}>
           <div className={s.tools}>
             <button type="button" onClick={() => setPanel('details')}><FileText size={17}/><Text>{en["m_4fbca6f3b88e"]}</Text></button>
-            <button type="button" onClick={() => setPanel('device')}><Smartphone size={17}/><Text>{en["m_92cb69d7dd14"]}</Text></button>
+            {!compact && <button type="button" onClick={() => setPanel('device')}><Smartphone size={17}/><Text>{en["m_92cb69d7dd14"]}</Text></button>}
           <Text>{detailsHref && <a href={detailsHref}><Text>{en["m_5b5459086c1f"]}</Text></a>}</Text>
           </div>
           <label className={s.confirm}><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)}/><span><Text>{en["m_8d8ba3101eef"]}</Text></span></label>

@@ -53,3 +53,9 @@
 @media(hover:hover) and (pointer:fine){.choice:hover{border-color:#6c7868}}
 @media(max-width:767px){.pickHint{font-size:14px}.choice{padding:16px;gap:12px;min-height:88px}.choiceBody>strong{font-size:22px}.choicePrice strong{font-size:20px}.heading{padding-bottom:16px}}
 @media(prefers-reduced-motion:reduce){.choice{transition:none}}
+
+/* The purchase summary occupies its own flex row, never covers plans. */
+.purchaseReveal{flex-shrink:0;overflow:hidden;min-height:0}
+.browseTools{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:12px}
+.browseTools a{display:inline-flex;align-items:center;min-height:44px;color:var(--color-muted);font-size:var(--text-xs);text-underline-offset:4px}
+@media(max-height:760px){.heading{padding-top:16px;padding-bottom:12px}.content{padding-bottom:12px}.pickHint{margin-bottom:8px}.choice{min-height:72px;padding-block:10px}.cardList{margin-top:12px;gap:8px}}

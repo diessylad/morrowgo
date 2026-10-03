@@ -17,3 +17,15 @@
 .confirm input{accent-color:#181a17}.bar,.dialog{animation-duration:var(--motion-enter)}
 
 .dialog h2{font-size:var(--heading-panel);letter-spacing:var(--tracking-heading)}
+
+/* Opt-in compact treatment for the quick-purchase dialog only. */
+.compact{padding:12px 24px;border-radius:0;animation:none}
+.compact .inner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 20px;align-items:end}
+.compact .controls{display:flex;flex-direction:column;gap:8px}
+.compact .tools button{border:0;background:transparent;padding:0;min-height:32px;font-size:12px}
+.compact .confirm{margin:0;font-size:12px}
+.compact .checkout{gap:18px}
+.compact .total>span{display:none}
+.compact .total strong{font-size:23px}
+.compact .testNotice{font-size:10px;margin-top:6px}
+@media(max-width:600px){.compact{padding:12px 14px max(12px,env(safe-area-inset-bottom))}.compact .inner{grid-template-columns:1fr;gap:10px}.compact .checkout{justify-content:space-between}.compact .confirm{font-size:12px}.compact .tools button{min-height:44px}.compact .controls{gap:4px}}

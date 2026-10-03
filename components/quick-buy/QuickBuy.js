@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import PurchaseBar from '../purchase/PurchaseBar';
 import { startCheckout } from '../purchase/startCheckout';
 import { X } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import s from './quickBuy.module.css';
 import QuickBuyPlan from './QuickBuyPlan';
 import PlanCategory from '../destination/PlanCategory';
@@ -24,14 +25,14 @@ function price(plan) {
 // Mount with a country { code, name, flag }; unmount onClose. No catalogue or
 // payment state is duplicated: checkout revalidates the chosen package ID.
 export default function QuickBuy({ country, onClose }) {
-  const { t } = useLanguage();
+  const reduced = useReducedMotion();
   const [selectedId, setSelectedId] = useState(null);
   const dialog = useRef(null);
   const titleId = useId();
   const [packages, setPlans] = useState([]);
   const [category, setCategory] = useState('fixed');
   const plans = selectPlans(packages, category);
-  const selectedPlan = plans.find(plan => plan.id === selectedId) || plans[0];
+  const selectedPlan = plans.find(plan => plan.id === selectedId);
   const [status, setStatus] = useState('loading');
   const [attempt, setAttempt] = useState(0);
   const iso = String(country.code || country.iso || '').toUpperCase();
@@ -64,6 +65,7 @@ export default function QuickBuy({ country, onClose }) {
     const timeout = setTimeout(() => controller.abort(), 25000);
     setStatus('loading');
     setPlans([]);
+    setSelectedId(null);
     fetch(`/api/catalogue?country=${encodeURIComponent(iso)}`, { signal: controller.signal })
       .then(async response => {
         const data = await response.json();
@@ -84,7 +86,7 @@ export default function QuickBuy({ country, onClose }) {
   return <dialog ref={dialog} className={s.dialog} aria-labelledby={titleId}
     onKeyDown={event => {
       if (event.key !== 'Tab') return;
-      const controls = [...event.currentTarget.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled):not([type="radio"]), input[type="radio"]:not(:disabled):checked, summary')];
+      const controls = [...event.currentTarget.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled):not([type="radio"]), input[type="radio"]:not(:disabled), summary')];
       const first = controls[0];
       const last = controls[controls.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
@@ -102,16 +104,26 @@ export default function QuickBuy({ country, onClose }) {
         <Text>{status === 'loading' && <p className={s.message} role="status"><Text>{en["m_d138fa8f7ff9"]}</Text></p>}</Text>
         <Text>{status === 'error' && <div className={s.message}><p role="alert"><Text>{en["m_cef7c74413fc"]}</Text></p><button className={s.retry} onClick={() => setAttempt(value => value + 1)}><Text>{en["m_042c862e4467"]}</Text></button></div>}</Text>
         <p className={s.pickHint}><Text>Choose your data plan.</Text></p>
-        <Text>{status === 'ready' && <PlanCategory value={category} onChange={setCategory}/>}</Text>
+        <Text>{status === 'ready' && <PlanCategory value={category} onChange={value => { setCategory(value); setSelectedId(null); }}/>}</Text>
         <Text>{status === 'ready' && !plans.length && <p className={s.message} role="status"><Text>{en["m_85cdebe11045"]}</Text><Text>{category === en["m_e1a6f0b6f73a"] ? en["m_e1a6f0b6f73a"] : en["m_45300a3b9412"]}</Text><Text>{en["m_00d769d8f7d5"]}</Text></p>}</Text>
         {status === 'ready' && plans.length > 0 && <fieldset className={s.cardList}>
           <legend className={s.srOnly}><Text>Choose your data plan.</Text></legend>
           {plans.map((plan,index) => <QuickBuyPlan key={plan.id} plan={plan} index={index} group={titleId}
             formatData={allowance} onSelect={plan => setSelectedId(plan.id)} selected={plan.id === selectedPlan?.id}/>)}
         </fieldset>}
+        <div className={s.browseTools}>
+          <a href="/compatibility" target="_blank" rel="noreferrer"><Text>{en["m_92cb69d7dd14"]}</Text> ↗</a>
+          <a href={`/destination/${encodeURIComponent(iso)}`}><Text>{en["m_badd385121c5"]}</Text> ↗</a>
+        </div>
 
       </div>
-      <Text>{status === 'ready' && selectedPlan ? <PurchaseBar embedded key={iso} plan={selectedPlan} country={name} formatData={allowance} onBuy={buy} detailsHref={`/destination/${encodeURIComponent(iso)}`} actionLabel="Continue"/> : <footer className={s.actions}><a className={s.details} href={`/destination/${encodeURIComponent(iso)}`}><Text>{en["m_badd385121c5"]}</Text></a></footer>}</Text>
+      <AnimatePresence initial={false}>
+        {status === 'ready' && selectedPlan && <motion.div key="purchase" className={s.purchaseReveal}
+          initial={reduced ? false : {height:0,opacity:0}} animate={{height:'auto',opacity:1}} exit={{height:0,opacity:0}}
+          transition={{duration:reduced?0:.22,ease:[.22,1,.36,1]}}>
+          <PurchaseBar embedded compact key={iso} plan={selectedPlan} country={name} formatData={allowance} onBuy={buy} actionLabel="Continue"/>
+        </motion.div>}
+      </AnimatePresence>
 
     </div>
   </dialog>;
