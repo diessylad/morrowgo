@@ -15,7 +15,7 @@
 @media(prefers-reduced-motion:reduce){.dialog,.dialog::backdrop{animation:none}.dialog *{transition:none!important}}
 
 /* Reuse the approved destination cards without changing the homepage. */
-.dialog{width:min(800px,calc(100% - 48px))}
+.dialog{width:min(720px,calc(100% - 48px))}
 .cardList{display:grid;gap:10px}
 .networkDetails{font-size:var(--text-label);color:var(--color-muted);margin-top:6px}
 .networkDetails summary{cursor:pointer;min-height:44px;padding:12px 0}
