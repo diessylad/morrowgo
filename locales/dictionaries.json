@@ -913,7 +913,15 @@
     "Complete": "Complete",
     "View installation details": "View installation details",
     "View your test eSIM and installation details.": "View your test eSIM and installation details.",
-    "Your next step: open the installation guide.": "Your next step: open the installation guide."
+    "Your next step: open the installation guide.": "Your next step: open the installation guide.",
+    "The world": "The world",
+    "is yours.": "is yours.",
+    "Be yourself.": "Be yourself.",
+    "Hero slides": "Hero slides",
+    "Show connected travel": "Show connected travel",
+    "Show the world is yours": "Show the world is yours",
+    "Play hero slideshow": "Play hero slideshow",
+    "Pause hero slideshow": "Pause hero slideshow"
   },
   "de": {
     "Destinations": "Reiseziele",
@@ -1829,7 +1837,15 @@
     "Complete": "Abgeschlossen",
     "View installation details": "Installationsdetails ansehen",
     "View your test eSIM and installation details.": "Sieh deine Test-eSIM und Installationsdetails an.",
-    "Your next step: open the installation guide.": "Nächster Schritt: Öffne die Installationsanleitung."
+    "Your next step: open the installation guide.": "Nächster Schritt: Öffne die Installationsanleitung.",
+    "The world": "Die Welt",
+    "is yours.": "gehört dir.",
+    "Be yourself.": "Sei du selbst.",
+    "Hero slides": "Startseiten-Szenen",
+    "Show connected travel": "Verbunden reisen anzeigen",
+    "Show the world is yours": "Die Welt gehört dir anzeigen",
+    "Play hero slideshow": "Szenen abspielen",
+    "Pause hero slideshow": "Szenen pausieren"
   },
   "es": {
     "Destinations": "Destinos",
@@ -2745,7 +2761,15 @@
     "Complete": "Completado",
     "View installation details": "Ver detalles de instalación",
     "View your test eSIM and installation details.": "Consulta tu eSIM de prueba y los detalles de instalación.",
-    "Your next step: open the installation guide.": "Siguiente paso: abre la guía de instalación."
+    "Your next step: open the installation guide.": "Siguiente paso: abre la guía de instalación.",
+    "The world": "El mundo",
+    "is yours.": "es tuyo.",
+    "Be yourself.": "Sé tú mismo.",
+    "Hero slides": "Escenas de inicio",
+    "Show connected travel": "Mostrar viajes conectados",
+    "Show the world is yours": "Mostrar el mundo es tuyo",
+    "Play hero slideshow": "Reproducir escenas",
+    "Pause hero slideshow": "Pausar escenas"
   },
   "ru": {
     "Destinations": "Направления",
@@ -2820,8 +2844,8 @@
     "MORE": "БОЛЬШЕ",
     "FREEDOM": "СВОБОДЫ",
     "READY WHEN YOU ARE": "ГОТОВЫ, КОГДА ГОТОВЫ ВЫ",
-    "Go further.": "Открывайте больше.",
-    "Stay connected.": "Оставайтесь на связи.",
+    "Go further.": "Иди дальше.",
+    "Stay connected.": "Будь на связи.",
     "Secure payment": "Безопасная оплата",
     "Connected across leading mobile networks": "На связи через ведущие мобильные сети",
     "Supported mobile networks": "Поддерживаемые мобильные сети",
@@ -3661,7 +3685,15 @@
     "Complete": "Готово",
     "View installation details": "Данные для установки",
     "View your test eSIM and installation details.": "Посмотрите тестовую eSIM и данные для установки.",
-    "Your next step: open the installation guide.": "Следующий шаг — открыть инструкцию по установке."
+    "Your next step: open the installation guide.": "Следующий шаг — открыть инструкцию по установке.",
+    "The world": "Этот мир",
+    "is yours.": "твой.",
+    "Be yourself.": "Будь собой.",
+    "Hero slides": "Сцены главной",
+    "Show connected travel": "Показать связь в путешествии",
+    "Show the world is yours": "Показать «Этот мир твой»",
+    "Play hero slideshow": "Продолжить смену сцен",
+    "Pause hero slideshow": "Приостановить смену сцен"
   },
   "fr": {
     "Destinations": "Destinations",
@@ -4577,6 +4609,14 @@
     "Complete": "Terminé",
     "View installation details": "Voir les détails d’installation",
     "View your test eSIM and installation details.": "Consultez votre eSIM de test et ses détails d’installation.",
-    "Your next step: open the installation guide.": "Prochaine étape : ouvrez le guide d’installation."
+    "Your next step: open the installation guide.": "Prochaine étape : ouvrez le guide d’installation.",
+    "The world": "Le monde",
+    "is yours.": "est à vous.",
+    "Be yourself.": "Soyez vous-même.",
+    "Hero slides": "Scènes d’accueil",
+    "Show connected travel": "Afficher le voyage connecté",
+    "Show the world is yours": "Afficher le monde est à vous",
+    "Play hero slideshow": "Lire les scènes",
+    "Pause hero slideshow": "Mettre les scènes en pause"
   }
 }

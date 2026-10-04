@@ -1,0 +1,71 @@
+.scene {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: none;
+  /* Feather the composition before it reaches its clipping boundary. */
+  mask-image: radial-gradient(ellipse 66% 77% at 53% 45%, #000 58%, transparent 100%);
+}
+.monkey {
+  position: absolute;
+  width: 85%;
+  height: auto;
+  right: 10%;
+  top: 18%;
+  z-index: 2;
+  object-fit: contain;
+  mask-image: linear-gradient(#000 0%, #000 70%, transparent 99%);
+}
+.card {
+  position: absolute;
+  aspect-ratio: 1;
+  z-index: 3;
+  transform: rotate(var(--angle));
+}
+.card img { display: block; width: 100%; height: auto; }
+.card[data-depth=back] { z-index: 1; opacity: .5; filter: blur(2.8px); }
+.fog {
+  position: absolute;
+  width: 115%;
+  left: -9%;
+  bottom: -3%;
+  z-index: 4;
+  opacity: .48;
+  filter: blur(3px);
+  /* One proportionally scaled PNG. The elliptical mask removes every edge,
+     including the straight bottom edge in the supplied cloud asset. */
+  mask-image: radial-gradient(ellipse 49% 48% at 55% 48%, #000 25%, #0009 62%, transparent 100%);
+}
+.fog img { display: block; width: 100%; height: auto; }
+@media (max-width: 700px) {
+  .monkey { width: 88%; right: 0; top: 13%; }
+  .card { width: 25% !important; }
+  .card[data-depth=back] { display: none; }
+  .fog { width: 120%; left: -10%; bottom: 0; opacity: .5; }
+}
+
+.monkey { transform: translate3d(var(--px, 0px), var(--py, 0px), 0); transition: transform 1.2s cubic-bezier(.22,1,.36,1); }
+.cardParallax { transform: translate3d(calc(var(--px, 0px) * 1.5), calc(var(--py, 0px) * 1.5), 0); transition: transform 1.2s cubic-bezier(.22,1,.36,1); }
+.cardFloat { position: relative; animation: quietFloat var(--duration) ease-in-out var(--delay) infinite; }
+.esim { filter: saturate(.72); }
+.card[data-depth=back] .cardFloat { scale: .94; }
+.fogBack { z-index: 1; opacity: .12; animation: backMist 38s ease-in-out infinite; }
+.fogFront { animation: frontMist 49s ease-in-out infinite; }
+@keyframes quietFloat { 0%,100% { transform:translate3d(0,0,0) rotate(0deg); } 50% { transform:translate3d(var(--float-x),var(--float-y),0) rotate(1.5deg); } }
+@keyframes backMist { 0%,100% { transform:translate3d(-2px,0,0); } 50% { transform:translate3d(3px,1px,0); } }
+@keyframes frontMist { 0%,100% { transform:translate3d(2px,0,0); } 50% { transform:translate3d(-3px,-1px,0); } }
+@media (prefers-reduced-motion: reduce) { .scene * { animation:none!important; transition:none!important; } .monkey,.cardParallax { transform:none; } .pulse { display:none; } }
+
+@media (max-width:700px) { .card[data-extra=true] { display:none; } }
+
+/* Alpha-contour lighting follows the supplied PNG, never a rectangular card box. */
+.card[data-lit=true] .esim { filter:saturate(.72) drop-shadow(0 1px 2px #a7d7bd24); }
+.edgePulse { position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; opacity:0; animation:edgeActivation 13s linear infinite; }
+.edgeSweep { animation:edgeTravel 13s linear infinite; }
+@keyframes edgeActivation { 0%,68%,92%,100% { opacity:0; } 73%,85% { opacity:.4; } }
+@keyframes edgeTravel { 0%,68% { transform:translate3d(0,0,0); } 92%,100% { transform:translate3d(0,1500px,0); } }
+@media (prefers-reduced-motion:reduce) { .edgePulse { display:none; } }
+
+
+.cardFloat > .esim { position:relative; z-index:1; }

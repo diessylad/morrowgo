@@ -18,6 +18,7 @@ import HeroWaves from './HeroWaves';
 import QuickBuy from '../quick-buy/QuickBuy';
 import NetworkMarquee from '../networks/NetworkMarquee';
 import DestinationLoading from '../loading/DestinationLoading';
+import HeroEsimScene from './HeroEsimScene';
 
 const countries = [
   { name: en["m_fcf29f6cad32"], flag: '🇯🇵', code: 'JP', region: en["m_a173e725607d"], city: 'Tokyo', zone: '35.67° N / 139.65° E' },
@@ -55,7 +56,7 @@ export default function Experience({ authenticated = false }) {
     <Header authenticated={authenticated} home onSearch={goSearch}/>
     <main id="content">
       <section className={s.hero} aria-labelledby="hero-title">
-        <HeroWaves/>
+        <HeroWaves atmosphereSrc="/brand/hero-mountains-only.png" waves/>
         <div className={s.heroLayout}>
           <div className={s.heroCopy}>
             <div data-motion-reveal data-motion-delay="200" className={s.networkLabel}><i className={s.dot}/><Text>{en["m_17a0c31f2ced"]}</Text></div>
@@ -79,17 +80,8 @@ export default function Experience({ authenticated = false }) {
             <div className={s.heroBenefits}><Text>{[[Zap, en["m_de9526786967"]], [Signal, en["m_6c11f7011123"]], [BatteryMedium, en["m_111e8a76aed3"]], [Globe2, en["m_bd382f1e76a8"]]].map(([Icon, text]) => <div key={text}><Icon size={21} strokeWidth={1.5}/><span><Text>{text}</Text></span></div>)}</Text></div>
           </div>
           <Localized as="div" className={s.heroScene} ref={scene} data-motion-scene aria-label={en["m_0121ccffb836"]}>
-            <div className={s.apeArtwork} data-motion-visual="ape"><Image src="/brand/editorial-ape-right.png" alt="" width={1122} height={1402} sizes="(max-width: 360px) 170px, (max-width: 700px) 200px, 340px" priority/></div>
+            <HeroEsimScene/>
             <span className={s.sceneWords}><Text>{en["m_04c1b69737f5"]}</Text><br/><Text>{en["m_3cc3cf635b90"]}</Text><br/><Text>{en["m_b15ee3c4e6d8"]}</Text><br/><Text>{en["m_ae0ecf3287db"]}</Text><br/><Text>{en["m_073afc98bdd0"]}</Text><span/></span>
-            <button className={s.japanFloat} data-motion-visual="japan" onClick={e => open(countries[0], e)}>
-              <span className={s.destinationArt} aria-hidden="true"><svg viewBox="0 0 240 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="fuji-sky" x2="0" y2="1"><stop stopColor="#afbdc4"/><stop offset="1" stopColor="#e0e0d5"/></linearGradient><linearGradient id="fuji-rock" x2=".7" y2="1"><stop stopColor="#cbd0cd"/><stop offset="1" stopColor="#465968"/></linearGradient></defs><path fill="url(#fuji-sky)" d="M0 0h240v170H0z"/><path fill="#a7b5b9" d="M0 138 54 108 77 121 121 93 173 119 200 104 240 129v41H0z"/><path fill="url(#fuji-rock)" d="m18 158 95-117 17-5 13 8 88 114z"/><path fill="#d8dedc" d="m84 78 29-37 17-5 13 8 26 36-22-13 3 15-20-27-5 23-6-20-16 28 5-23z"/><path stroke="#8d9ea4" strokeWidth="2" fill="none" d="m119 68-39 69m52-78 24 85m-34-59-7 59m38-53 31 58"/><path fill="#233b42" d="m0 138 19 5 18-12 21 9 23-9 25 19 29-11 26 12 31-12 48-13v44H0z"/><g fill="#172b2d"><path d="m203 83-8 19h5l-12 22h8l-16 25h20v21h5v-21h20l-17-25h9l-12-22h5z"/><path d="m227 101-8 18h5l-13 25h11v26h5v-26h13l-11-25h6z"/><path d="m23 121-12 27h8v22h6v-22h10z"/></g></svg></span>
-              <span className={s.japanName}><Text>{en["m_9d8ac1d2972c"]}</Text><span>🇯🇵</span></span><span className={s.japanPrice}><Text>{catalogue.find(c => c.code === 'JP') ? `From ${money(catalogue.find(c => c.code === 'JP').fromPrice)}` : en["m_804787f92848"]}</Text> <Arrow/></span>
-            </button>
-            <div className={s.editorialFloat} data-motion-visual="travel"><span><Text>{en["m_22fb76e46f64"]}</Text><br/><Text>{en["m_cb7353567e5f"]}</Text><br/><Text>{en["m_61a0ae3b849d"]}</Text></span><div><Text>{en["m_bd6a5c16c6a2"]}</Text><Arrow diagonal/></div></div>
-            <Localized as="button" className={s.heroDeviceAsset} data-motion-visual="phone" onClick={e => open(countries[0], e)} aria-label={en["m_6785a84847b6"]}>
-              <Image src="/brand/hero-japan-phone.png" alt={t(en["m_14c5f68240e2"])} width={1086} height={1448} sizes="(max-width: 700px) 58vw, 390px" priority/>
-            </Localized>
-            <div className={s.connectionNote} data-motion-visual="tomorrow"><Message message={en["home.connectionNote"]} lines/><span/></div>
           </Localized>
         </div>
         <div className={s.demoNote}><Text>{en["m_d6043156b938"]}</Text></div>

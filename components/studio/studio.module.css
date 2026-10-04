@@ -396,3 +396,12 @@
 @media(hover:hover) and (pointer:fine){.quickDestinations button:hover{text-decoration:underline;text-underline-offset:4px}}
 @media(max-width:700px){.heroCopy .search input{font-size:16px;min-width:0}.heroCopy .search button{padding-inline:14px}.searchButtonLabel{font-size:12px}.quickDestinations{gap:2px 12px}.suggestions button{padding:10px;gap:8px}}
 @media(prefers-reduced-motion:reduce){.quickDestinations button{transition:none}}
+
+/* Restrained search feedback; preserve the approved dimensions and palette. */
+.hero .search { position:relative; }
+.hero .search:after { content:''; position:absolute; inset:-3px; border:1px solid #788b7a; border-radius:inherit; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+.hero .search:focus-within:after { opacity:.5; }
+.hero .search input:focus-visible { outline:none; }
+.hero .search button svg { transition:transform .25s var(--ease); }
+@media (hover:hover) { .hero .search button:hover svg { transform:translateX(3px); } }
+@media (prefers-reduced-motion:reduce) { .hero .search:after,.hero .search button svg { transition:none; } .hero .search button:hover svg { transform:none; } }
