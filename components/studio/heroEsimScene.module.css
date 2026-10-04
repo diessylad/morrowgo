@@ -69,3 +69,24 @@
 
 
 .cardFloat > .esim { position:relative; z-index:1; }
+
+/* Art-directed compact stage: three cards surround, never cover, the face. */
+@media(max-width:1023px) {
+  .scene { mask-image:radial-gradient(ellipse 78% 77% at 50% 45%,#000 55%,transparent 100%); }
+  .monkey { width:115%; max-width:none; right:-10%; top:13%; height:auto; }
+  .card { width:27%!important; }
+  .card[data-depth=back],.card[data-extra=true] { display:none; }
+  .card:nth-of-type(2) { left:7%!important; top:0%!important; }
+  .card:nth-of-type(4) { left:74%!important; top:5%!important; }
+  .card:nth-of-type(5) { left:0%!important; top:40%!important; }
+  .fog { width:140%; left:-20%; bottom:-2%; }
+  .fogBack { opacity:.12; }
+  .fogFront { opacity:.48; }
+}
+
+@media(max-width:1023px) {
+  .scene { mask-image:radial-gradient(ellipse 78% 77% at 50% 45%,#000 55%,transparent 100%),linear-gradient(#000 0%,#000 70%,transparent 100%); mask-composite:intersect; }
+}
+@media(min-width:701px) and (max-width:1023px) {
+  .monkey { width:84%; right:6%; top:10%; }
+}

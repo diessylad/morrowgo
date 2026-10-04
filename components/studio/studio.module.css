@@ -405,3 +405,41 @@
 .hero .search button svg { transition:transform .25s var(--ease); }
 @media (hover:hover) { .hero .search button:hover svg { transform:translateX(3px); } }
 @media (prefers-reduced-motion:reduce) { .hero .search:after,.hero .search button svg { transition:none; } .hero .search button:hover svg { transform:none; } }
+
+/* Dedicated phone / portrait-tablet composition. Desktop rules remain untouched. */
+@media(max-width:1023px) {
+  .hero { padding:24px max(20px,env(safe-area-inset-left)) 0; }
+  .heroLayout { display:flex; flex-direction:column; align-items:stretch; min-height:0; max-width:620px; margin:0 auto; }
+  .heroCopy { display:contents; }
+  .hero .networkLabel { align-self:flex-start; margin:0 0 20px; }
+  .hero h1 { font-size:clamp(52px,13.8vw,80px); line-height:.96; letter-spacing:-.055em; margin:0 0 24px; }
+  .hero h1 [data-motion-line] { opacity:1!important; transform:none!important; }
+  .heroDescription { font-size:16px; line-height:1.5; margin:0; }
+  .searchArea { width:100%; }
+  .hero .search { width:100%; min-height:64px; padding:6px 6px 6px 16px; gap:10px; margin-top:24px; }
+  .hero .search input { font-size:16px; width:0; min-width:0; }
+  .hero .search>svg { width:20px; flex-shrink:0; }
+  .hero .search button { width:auto; min-width:112px; min-height:50px; padding:0 15px; gap:10px; }
+  .searchButtonLabel { display:inline; font-size:14px; white-space:nowrap; }
+  .quickDestinations { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; font-size:12px; }
+  .quickDestinations button { min-height:44px; padding:0; }
+  .heroScene { order:1; width:100%; height:clamp(420px,110vw,520px); min-height:0; margin:12px 0 0; transform:none; }
+  .heroScene::after { display:none; }
+  .sceneWords { display:none; }
+  .heroBenefits { order:2; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); max-width:none; gap:22px 20px; margin:16px 0 28px; }
+  .heroBenefits>div { display:flex; align-items:center; gap:12px; min-height:44px; }
+  .heroBenefits svg { width:24px; height:24px; flex-shrink:0; }
+  .heroBenefits span { font-size:14px; line-height:1.4; max-width:130px; }
+  .hero .demoNote { max-width:620px; margin:12px auto 0; padding:16px 0; border-top:1px solid var(--line); font-size:10px; line-height:1.5; color:var(--muted); }
+}
+@media(max-width:360px) {
+  .hero { padding-left:16px; padding-right:16px; }
+  .hero .search { gap:7px; padding-left:12px; }
+  .hero .search button { min-width:104px; padding:0 12px; }
+  .heroBenefits { gap:16px 12px; }
+  .heroBenefits span { font-size:13px; }
+}
+
+@media(max-width:1023px) {
+  .hero .search,.hero .networkLabel,.hero .heroDescription { opacity:1!important; transform:none!important; }
+}

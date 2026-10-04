@@ -33,3 +33,22 @@
  .surface.surface[data-page-surface=true][data-floating=false],
  .surface.surface[data-page-surface=true][data-floating=false]>header{background:var(--color-page)!important}
 }
+
+/* Homepage mobile/tablet header stays in flow, including the iOS safe area. */
+@media(max-width:1023px) {
+  .slot:has(.surface[data-home=true]) { height:auto; }
+  .surface.surface[data-home=true],.surface.surface[data-home=true][data-floating=true] {
+    position:relative; left:auto; top:auto; transform:none; width:100%; max-width:none;
+    padding-top:env(safe-area-inset-top); border-radius:0;
+    background:var(--header-paper)!important; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none;
+  }
+  .surface.surface[data-home=true]>header,.surface.surface[data-home=true][data-floating=true]>header {
+    height:68px!important; padding-left:max(20px,env(safe-area-inset-left))!important;
+    padding-right:max(20px,env(safe-area-inset-right))!important; gap:12px;
+  }
+  .surface.surface[data-home=true] header>nav,.surface.surface[data-home=true] header>a:not(:first-child),.surface.surface[data-home=true] header>button { display:none!important; }
+  .surface.surface[data-home=true] header>details { display:block; position:relative; margin-left:auto; }
+  .surface.surface[data-home=true] header>details summary { display:grid; place-items:center; width:44px; height:44px; list-style:none; cursor:pointer; }
+  .surface.surface[data-home=true] header>details>div { position:absolute; right:0; top:48px; width:230px; padding:12px; background:var(--header-paper); border:1px solid var(--color-border); border-radius:12px; display:grid; z-index:60; }
+  .surface.surface[data-home=true] header>details a { padding:12px; font-size:15px; }
+}
