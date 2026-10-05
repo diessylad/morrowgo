@@ -1,14 +1,15 @@
 'use client';
 import { Text, Localized, AuthInput } from './../i18n/Provider';
 import en from './../../locales/en.json';
-import { CookieSettingsLink } from '../privacy/CookieConsent';
+import LanguageSelect from '../i18n/LanguageSelect';
+import { ArrowRight } from 'lucide-react';
 
 import Link from 'next/link';
 import { useEffect, useId, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { loginAction, registerAction, forgotPasswordAction, resetPasswordAction, oauthAction, resendConfirmationAction } from '../../lib/auth/actions';
 import styles from './auth.module.css';
-import Header from '../shared/Header';
+
 
 function ProviderIcon({ provider }) {
   if (provider === 'apple') return <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.05 12.54c.03 3.22 2.82 4.29 2.85 4.3-.02.08-.45 1.53-1.47 3.03-.89 1.29-1.81 2.58-3.26 2.61-1.42.03-1.88-.84-3.51-.84-1.63 0-2.14.81-3.49.87-1.4.05-2.46-1.4-3.36-2.68-1.83-2.64-3.23-7.46-1.35-10.72.93-1.62 2.59-2.65 4.39-2.68 1.37-.03 2.66.92 3.5.92.84 0 2.42-1.14 4.07-.97.69.03 2.64.28 3.9 2.12-.1.06-2.33 1.36-2.3 4.04ZM14.37 4.61c.75-.91 1.26-2.18 1.12-3.44-1.08.04-2.4.72-3.18 1.63-.7.8-1.31 2.09-1.15 3.32 1.2.09 2.44-.61 3.21-1.51Z"/></svg>;
@@ -47,7 +48,7 @@ function ProviderOption({ provider, configured, callbackError, next }) {
 function SocialButton({ provider, disabled, errorId }) {
   const { pending } = useFormStatus();
   return <button type="submit" name="provider" value={provider} className={`${styles.socialButton} ${provider === 'apple' ? styles.appleButton : ''}`} disabled={disabled || pending} aria-describedby={errorId} aria-busy={pending}>
-    <ProviderIcon provider={provider}/><span><Text>{pending ? en["m_5afeca73bef6"] : `Continue with ${provider === 'apple' ? 'Apple' : 'Google'}`}</Text></span>
+    <ProviderIcon provider={provider}/><span><Text>{pending ? en["m_5afeca73bef6"] : `Continue with ${provider === 'apple' ? 'Apple' : 'Google'}`}</Text></span><ArrowRight size={19} aria-hidden="true"/>
   </button>;
 }
 
@@ -85,11 +86,14 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
   const needsEmail = mode !== 'reset';
   const needsPassword = mode !== 'forgot';
   return <div className={styles.shell}>
-    <Header />
+    <aside className={styles.visual} aria-label="MORROWGO — Your world. Connected.">
+      <img src="/brand/morrowgo-auth-left-panel-small-esim.png" alt="" className={styles.visualImage} />
+    </aside>
     <main className={styles.page}>
+    <header className={styles.header}><Link href="/" className={styles.mobileBrand} aria-label="MORROWGO home"><span className={styles.brandMark} aria-hidden="true"><i/><i/><i/><i/></span>MORROWGO</Link><Link href="/"><span aria-hidden="true">←</span> <Text>Back to site</Text></Link><LanguageSelect /></header>
     <div className={styles.content}>
 
-      <section className={styles.card} aria-labelledby="auth-heading"><p className={styles.eyebrow}><Text>{en["m_a3399006beae"]}</Text></p><h2 id="auth-heading"><Text>{info.title}</Text></h2><p className={styles.description}><Text>{info.description}</Text></p>
+      <section className={styles.card} aria-labelledby="auth-heading"><p className={styles.eyebrow}><Text>{en["m_a3399006beae"]}</Text></p><h2 id="auth-heading"><Text>{info.title}</Text></h2><p className={styles.description}><Text>{mode === 'login' ? 'Your eSIMs. Your trips. One place.' : info.description}</Text></p>
         <Text>{!configured && <p className={styles.notice} role="status"><Text>{en["m_a448b17d7689"]}</Text></p>}</Text>
         {message === 'session-expired' && <p className={styles.notice} role="status"><Text>Your session has expired. Please sign in again.</Text></p>}
         <Text>{message === 'password-updated' && <p className={styles.notice} role="status"><Text>{en["m_873031daedd0"]}</Text></p>}</Text>
@@ -98,7 +102,7 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
         <Text>{message === 'email-change-pending' && <p className={styles.notice} role="status"><Text>{en["m_95d657505b4d"]}</Text></p>}</Text>
         <Text>{choosesMethod && <><SocialOptions configured={configured} message={message} next={next} />
           <div className={styles.divider}><span><Text>{en["m_1758356db217"]}</Text></span></div>
-          <button type="button" className={styles.socialButton} aria-expanded={emailOpen} aria-controls={emailRegionId} onClick={() => setEmailOpen(open => !open)}><ProviderIcon provider="email"/><span><Text>{en["m_88001457548e"]}</Text></span></button>
+          <button type="button" className={styles.socialButton} aria-expanded={emailOpen} aria-controls={emailRegionId} onClick={() => setEmailOpen(open => !open)}><ProviderIcon provider="email"/><span><Text>{en["m_88001457548e"]}</Text></span><ArrowRight size={19} aria-hidden="true"/></button>
         </>}</Text>
         <div id={emailRegionId} className={choosesMethod ? styles.emailReveal : undefined} data-open={emailOpen} aria-hidden={!emailOpen} inert={!emailOpen ? '' : undefined}><div className={styles.emailRevealInner}>
         <Text>{mode === 'reset' && !tokenHash && <p className={styles.notice}><Text>{en["m_af24ce9cc497"]}</Text></p>}</Text>
@@ -119,6 +123,6 @@ export default function AuthForm({ mode, configured, next = '/account', tokenHas
         <Text>{mode === 'register' && <p className={styles.fine}><Text>{en["m_d79729666dff"]}</Text></p>}</Text>
       </section>
     </div>
-    <footer className={styles.footer}><span><Text>{en["m_4cb2809feed6"]}</Text></span><Link href="/destinations"><Text>{en["m_bebf472688d7"]}</Text></Link><CookieSettingsLink/></footer>
+    <footer className={styles.footer}><span><Text>Terms</Text></span><span aria-hidden="true">·</span><span><Text>Privacy</Text></span></footer>
   </main></div>;
 }
