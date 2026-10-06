@@ -48,3 +48,6 @@
     transform: none;
   }
 }
+
+/* Keep the Safari exposed document surface aligned with the mobile page. */
+@media(max-width:700px){html,body{background:var(--color-page,#f5f5f1)}}

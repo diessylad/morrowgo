@@ -9,6 +9,8 @@ import { X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import s from './quickBuy.module.css';
 import QuickBuyPlan from './QuickBuyPlan';
+import SearchingOrb from '../loading/SearchingOrb';
+import loadingStyles from '../loading/searchingOrb.module.css';
 import PlanCategory from '../destination/PlanCategory';
 import { selectPlans } from './selectPlans.mjs';
 
@@ -101,7 +103,7 @@ export default function QuickBuy({ country, onClose }) {
         <Localized as="button" className={s.close} onClick={onClose} aria-label={en["m_6ec585226cb2"]} autoFocus><X size={21}/></Localized>
       </header>
       <div className={s.content} aria-busy={status === 'loading'}>
-        <Text>{status === 'loading' && <p className={s.message} role="status"><Text>{en["m_d138fa8f7ff9"]}</Text></p>}</Text>
+        {status === 'loading' && <div className={loadingStyles.loading} role="status"><SearchingOrb/><p><Text>{en["m_d138fa8f7ff9"]}</Text></p></div>}
         <Text>{status === 'error' && <div className={s.message}><p role="alert"><Text>{en["m_cef7c74413fc"]}</Text></p><button className={s.retry} onClick={() => setAttempt(value => value + 1)}><Text>{en["m_042c862e4467"]}</Text></button></div>}</Text>
         <p className={s.pickHint}><Text>Choose your data plan.</Text></p>
         <Text>{status === 'ready' && <PlanCategory value={category} onChange={value => { setCategory(value); setSelectedId(null); }}/>}</Text>
