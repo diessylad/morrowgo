@@ -8,6 +8,7 @@ import OrderList from './OrderList';
 import s from './dashboard.module.css';
 import MobileEsimRow from './MobileEsimRow';
 import mobile from './mobileEsim.module.css';
+import MobileDashboard from './MobileDashboard';
 const statusLabels = {active:'Active',ready:'Ready to install',expired:'Expired',depleted:'Used',pending:'Pending',processing:'Processing',suspended:'Suspended',cancelled:'Cancelled',failed:'Failed'};
 export function StatusPill({status,asOf,esim}) {
  const state=esim?esimStatus(esim,asOf):status;
@@ -45,7 +46,7 @@ export default function DashboardOverview({esims,orders,profile=accountProfile()
  const {activeCount,countries,focus}=dashboardSummary(esims,asOf);
  const total=aggregateRemaining(esims,asOf);
  const stats=[[Smartphone,'Active eSIMs',esimsUnavailable?'—':activeCount,'Currently active','/account/esims'],[Globe2,'Countries connected',esimsUnavailable?'—':countries,'total','/account/esims'],[ShoppingBag,'Past orders',ordersUnavailable?'—':orders.length,'in your account','/account/orders'],[ChartPie,'Data remaining',esimsUnavailable?'—':total.kind==='unlimited'?t('Unlimited'):formatDataBytes(total.bytes)||'—',total.kind==='unknown'?'Usage not yet reported':'across available eSIMs','/account/esims']];
- return <div className={s.dashboard} data-dashboard>
+ return <><MobileDashboard {...{esims,orders,profile,asOf,esimsUnavailable,ordersUnavailable}}/><div className={`${s.dashboard} ${s.desktopOverview}`} data-dashboard>
   <div className={s.stats}>{stats.map(([Icon,label,value,detail,href])=><Link href={href} className={s.stat} key={label}><span className={s.statIcon}><Icon size={24} strokeWidth={1.7}/></span><div><span className={s.statLabel}><Text>{label}</Text></span><div className={s.statValue}><strong>{value}</strong></div><small><Text>{detail}</Text></small></div><ChevronRight className={s.statArrow} size={17}/></Link>)}</div>
   <div className={s.mainGrid}>
    <section className={`${s.tableCard} ${s.esimsSection}`}><SectionHeading title="My eSIMs" href="/account/esims"/>{esimsUnavailable||!esims.length?<DataState unavailable={esimsUnavailable}/>:<EsimRows esims={esims.slice(0,4)} asOf={asOf}/>}</section>
@@ -57,5 +58,5 @@ export default function DashboardOverview({esims,orders,profile=accountProfile()
     <section className={s.smallCard}><div className={s.smallTitle}><Headphones size={19}/><h2><Text>Need Help?</Text></h2></div><Link className={s.smallBody} href="/help#contact"><p><Text>Get support, check guides or contact our team.</Text></p><ChevronRight size={18}/></Link></section>
    </div>
   </div>
- </div>;
+ </div></>;
 }

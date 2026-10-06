@@ -15,3 +15,9 @@ Desktop styling and production artwork are retained. Mobile uses a shared access
 ## Limits
 
 No real iPhone Safari/device session was available. Safe-area CSS and viewport-fit=cover are implemented; browser checks are viewport emulation, not proof on hardware. Authenticated UI was exercised with local sample data. OAuth, purchases and installation were not submitted, and user data was not changed. No deployment was performed.
+
+## Approved compact dashboard release
+
+Mobile-only dashboard now uses the existing featured-eSIM selection, real usage and existing installation/manage routes. The selected eSIM is excluded from the compact list of other connections. Orders and support use their existing routes; desktop overview is retained above 700px. No auth/payment/activation logic changed.
+
+Component fixtures checked ready/active/empty/unavailable states at 320, 375, 390, 393, 430, 768 and 1440px; no horizontal overflow. RU/DE menu and dashboard checked at 390px. Details expose actual operator/status. 18 relevant regression tests pass. Temporary local fixture removed before production build. Hardware iPhone Safari and authenticated live account actions were not tested.

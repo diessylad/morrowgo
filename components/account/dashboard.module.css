@@ -67,3 +67,5 @@
 }
 
 @media(max-width:1023px){.search input,.fields input{font-size:16px}}
+
+@media(max-width:700px){.desktopOverview{display:none}.topbar:has(~ [data-dashboard]){display:none}}

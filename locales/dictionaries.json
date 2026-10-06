@@ -1851,7 +1851,16 @@
     "Language": "Sprache",
     "Usage will appear after activation.": "Der Datenverbrauch erscheint nach der Aktivierung.",
     "No matching eSIMs.": "Keine passenden eSIMs.",
-    "Plan details": "Tarifdetails"
+    "Plan details": "Tarifdetails",
+    "Your connections": "Deine Verbindungen",
+    "Your eSIM": "Deine eSIM",
+    "Your eSIM is ready.": "Deine eSIM ist bereit.",
+    "Install it before your trip. Follow your plan’s activation instructions.": "Installiere sie vor deiner Reise. Befolge die Aktivierungsanleitung deines Tarifs.",
+    "Other eSIMs": "Weitere eSIMs",
+    "Find your next eSIM": "eSIM für deine nächste Reise",
+    "Need help connecting?": "Hilfe beim Verbinden?",
+    "Welcome back, {name}.": "Willkommen zurück, {name}.",
+    "{count} orders": "{count} Bestellungen"
   },
   "es": {
     "Destinations": "Destinos",
@@ -2110,7 +2119,7 @@
     "Travel eSIM": "eSIM de viaje",
     "Status unavailable": "Estado no disponible",
     "Date not available": "Fecha no disponible",
-    "Not reported": "No informado",
+    "Not reported": "Sin información",
     "Plan information pending": "Información del plan pendiente",
     "Refresh eSIM details": "Actualizar detalles de eSIM",
     "Unlimited data": "Datos ilimitados",
@@ -2781,7 +2790,16 @@
     "Language": "Idioma",
     "Usage will appear after activation.": "El consumo aparecerá después de la activación.",
     "No matching eSIMs.": "No hay eSIMs coincidentes.",
-    "Plan details": "Detalles del plan"
+    "Plan details": "Detalles del plan",
+    "Your connections": "Tus conexiones",
+    "Your eSIM": "Tu eSIM",
+    "Your eSIM is ready.": "Tu eSIM está lista.",
+    "Install it before your trip. Follow your plan’s activation instructions.": "Instálala antes de viajar. Sigue las instrucciones de activación de tu plan.",
+    "Other eSIMs": "Otras eSIMs",
+    "Find your next eSIM": "Encuentra tu próxima eSIM",
+    "Need help connecting?": "¿Necesitas ayuda para conectarte?",
+    "Welcome back, {name}.": "Te damos la bienvenida, {name}.",
+    "{count} orders": "{count} pedidos"
   },
   "ru": {
     "Destinations": "Направления",
@@ -3040,7 +3058,7 @@
     "Travel eSIM": "Туристическая eSIM",
     "Status unavailable": "Статус недоступен",
     "Date not available": "Дата недоступна",
-    "Not reported": "Нет данных",
+    "Not reported": "Не сообщается",
     "Plan information pending": "Ожидаем данные тарифа",
     "Refresh eSIM details": "Обновить данные eSIM",
     "Unlimited data": "Безлимитный интернет",
@@ -3711,7 +3729,16 @@
     "Language": "Язык",
     "Usage will appear after activation.": "Использование данных появится после активации.",
     "No matching eSIMs.": "Подходящих eSIM нет.",
-    "Plan details": "Детали тарифа"
+    "Plan details": "Детали тарифа",
+    "Your connections": "Мои подключения",
+    "Your eSIM": "Ваша eSIM",
+    "Your eSIM is ready.": "Ваша eSIM готова.",
+    "Install it before your trip. Follow your plan’s activation instructions.": "Установите её перед поездкой. Следуйте инструкции по активации тарифа.",
+    "Other eSIMs": "Другие eSIM",
+    "Find your next eSIM": "Найти eSIM для поездки",
+    "Need help connecting?": "Нужна помощь с подключением?",
+    "Welcome back, {name}.": "С возвращением, {name}.",
+    "{count} orders": "Заказов: {count}"
   },
   "fr": {
     "Destinations": "Destinations",
@@ -4641,6 +4668,15 @@
     "Language": "Langue",
     "Usage will appear after activation.": "La consommation apparaîtra après l’activation.",
     "No matching eSIMs.": "Aucune eSIM correspondante.",
-    "Plan details": "Détails du forfait"
+    "Plan details": "Détails du forfait",
+    "Your connections": "Vos connexions",
+    "Your eSIM": "Votre eSIM",
+    "Your eSIM is ready.": "Votre eSIM est prête.",
+    "Install it before your trip. Follow your plan’s activation instructions.": "Installez-la avant votre voyage. Suivez les instructions d’activation de votre forfait.",
+    "Other eSIMs": "Autres eSIMs",
+    "Find your next eSIM": "Trouver votre prochaine eSIM",
+    "Need help connecting?": "Besoin d’aide pour vous connecter ?",
+    "Welcome back, {name}.": "Bon retour, {name}.",
+    "{count} orders": "{count} commandes"
   }
 }
