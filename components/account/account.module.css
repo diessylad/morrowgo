@@ -35,3 +35,15 @@
 .connectionHint{font-size:14px;line-height:1.7;color:var(--color-muted,#666);margin:20px 0;padding:16px 0;border-bottom:1px solid var(--color-border)}
 .managementActions{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin-top:24px}.page .installHelp{font-size:13px;min-height:44px;display:inline-flex;align-items:center;text-decoration:underline;text-underline-offset:4px;color:var(--color-ink)}
 @media(max-width:600px){.managementActions{gap:12px}.managementActions>button{width:100%;min-height:46px}}
+
+/* Original liquid dashboard, with a black sidebar and darker moving backdrop. */
+.page:has([data-dashboard]) .sidebar{background:#111312;border-color:#343934;color:#f5f5f2;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.page:has([data-dashboard]) .sidebar>a:first-child{color:#f5f5f2!important}
+.page:has([data-dashboard]) .menu a{color:#c8ccc7}
+.page:has([data-dashboard]) .menu .active{background:#343a35;border-color:#596158;color:#fff;box-shadow:none}
+.page:has([data-dashboard]) .menu .active::after{display:none}
+.page:has([data-dashboard]) .sidebar>a[href^='/destinations']{background:#f0f0eb;color:#111!important;border-color:#ffffffa6}
+.page:has([data-dashboard]) .sidebar>a[href^='/destinations']>span:nth-child(2){background:#ffffff85;color:#111}
+.page:has([data-dashboard])>div[aria-hidden=true]>canvas{filter:brightness(.48)}
+.page:has([data-dashboard]) .sidebar :is(a,summary):focus-visible{outline-color:#f5f5f2}
+@media(hover:hover){.page:has([data-dashboard]) .menu a:not(.active):hover{background:#272d28;color:#fff}.page:has([data-dashboard]) .menu .active:hover{background:#3d463e;box-shadow:none}}
