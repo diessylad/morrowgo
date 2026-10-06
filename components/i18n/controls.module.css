@@ -8,3 +8,6 @@
 .item[aria-checked=true]{background:#f5f5f2}.item:focus-visible{outline:1px solid #666762;outline-offset:-2px;background:#f5f5f2}
 @media(hover:hover){.item:hover{background:#f5f5f2}.item:hover>span:nth-child(2){transform:translateX(2px)}}
 @media(prefers-reduced-motion:reduce){.item,.item>span:nth-child(2){transition:none}.item:hover>span:nth-child(2){transform:none}}
+
+/* Language choice must stay above the shared mobile navigation overlay. */
+@media(max-width:1023px){.menu{z-index:10010}}

@@ -6,6 +6,8 @@ import { countryFlag } from '../../lib/account/presentation.mjs';
 import { useEffect, useState } from 'react';
 import { ChevronDown, Copy, Globe2, Plus } from 'lucide-react';
 import styles from './account.module.css';
+import MobileEsimRow from './MobileEsimRow';
+import mobile from './mobileEsim.module.css';
 import InstallationPanel from './InstallationPanel';
 import { SandboxNote } from './ExperienceUI';
 import Link from 'next/link';
@@ -46,6 +48,7 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
   async function refresh(){setLoading(true);try{const r=await fetch(`/api/account/esims/${esim.id}/sandbox`);const d=await r.json();if(!r.ok)throw new Error();setEsim(d.esim);setNotice(en["m_44c3e0fe67a0"]);}catch{setNotice(en["m_e2206d8023af"]);}finally{setLoading(false);}}
   const [notice, setNotice] = useState('');
   const [topUpOpen, setTopUpOpen] = useState(topUpInitiallyOpen);
+  const [detailsOpen,setDetailsOpen]=useState(false);
   useEffect(() => { setTopUpOpen(topUpInitiallyOpen); }, [topUpInitiallyOpen]);
   const now = asOf ? Date.parse(asOf) : Date.now();
   const expiry = Date.parse(esim.expiresAt);
@@ -64,21 +67,23 @@ export default function EsimCard({ esim: initialEsim, usage: initialUsage = {}, 
   }
 
   return <motion.article initial={{opacity:0,y:reduced?0:6}} animate={{opacity:1,y:0}} transition={{duration:reduced?0:.25}} className={styles.card} id={`esim-${esim.id}`}>
-    <div className={styles.cardTop}>
+    <div className={mobile.inline}><MobileEsimRow esim={esim} asOf={asOf} inline/></div>
+    <div className={`${styles.cardTop} ${mobile.desktop}`}>
       <div className={styles.destination}><span className={styles.destinationIcon}>{countryFlag(esim.destinationIso)}</span><h3><Text>{destinationLabel(esim)}</Text></h3></div>
       <span className={styles.badge} data-active={esim.status === 'active'}><Text>{statusLabels[esim.status] || en["m_f261ff7629df"]}{demo ? ' · demo' : ''}</Text></span>
     </div>
-    <p className={styles.planName}>{esim.planName || en["m_3a3dd9174aa2"]}<Text>{demo ? ' · example plan' : ''}</Text></p>
+    <p className={`${styles.planName} ${mobile.desktop}`}>{esim.planName || en["m_3a3dd9174aa2"]}<Text>{demo ? ' · example plan' : ''}</Text></p>
 
     {(esim.sandbox || esim.planName?.endsWith(' · Sandbox')) && <SandboxNote/>}
     {['ready','active'].includes(esim.status) && <p className={styles.connectionHint}><Text>{esim.status==='ready'?'Ready to install · Open your QR code below to add this eSIM to your phone.':'Your connection is active. Check the latest reported data balance below.'}</Text></p>}
-    <div className={styles.usage}>
+    <div className={`${styles.usage} ${mobile.desktop}`}>
       <Text>{usage.isUnlimited === true ? <p className={styles.remaining}><Text>{en["m_c62d56011e87"]}</Text></p> : usage.remainingLabel ? <p className={styles.remaining}><Text>{usage.remainingLabel}</Text><small><Text>{en["m_398658a601d9"]}</Text></small></p> : <p className={styles.usageUnknown}><Text>{en["m_b426c8c16ec9"]}</Text></p>}</Text>
       <div className={styles.usageLine}><span><Text>{usage.usedLabel ? `${usage.usedLabel} used` : en["m_266b93684b42"]}</Text></span><Text>{remainingPercent !== null && <span><Text>{Math.round(remainingPercent)}</Text><Text>{en["m_0ebfc6b7a05d"]}</Text></span>}</Text></div>
       <Text>{remainingPercent !== null && <Localized as="div" className={styles.progress} role="progressbar" aria-label={`Data remaining for ${destinationLabel(esim)}`} aria-valuenow={Math.round(remainingPercent)} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${remainingPercent}%` }} /></Localized>}</Text>
       <p className={styles.muted}><Text>{updatedAt ? `${demo ? en["m_52ba18ffa024"] : en["m_3da47ee2383b"]} ${updatedAt}.` : en["m_34e4a23ee61f"]}{!demo && updatedAt ? ' Usage may have changed since this reading.' : ''}</Text></p>
     </div>
-    <dl className={styles.details}>
+    <button className={styles.mobileDetailsToggle} type="button" aria-expanded={detailsOpen} onClick={()=>setDetailsOpen(!detailsOpen)}><Text>Plan details</Text><ChevronDown size={16}/></button>
+    <dl className={styles.details} data-mobile-open={detailsOpen}>
       <div><dt><Text>{en["m_1a5d0735b430"]}</Text></dt><dd><Text>{usage.initialLabel || en["m_98e856820171"]}</Text></dd></div>
       <div><dt><Text>{en["m_dbc5c52e0738"]}</Text></dt><dd><Text>{days !== null ? <><Text>{days === 0 ? en["m_ce3b1e47ac7a"] : `${days} ${days === 1 ? en["m_a2620cbc10f5"] : en["m_5548ae4f34cb"]} remaining`}</Text><br /><span className={styles.muted}><Text>{expiryDate ? `Until ${expiryDate}` : ''}</Text></span></> : esim.validityDays ? `${esim.validityDays} days · start date not reported` : en["m_98e856820171"]}</Text></dd></div>
       <div><dt><Text>{en["m_53ebc572b4a4"]}</Text></dt><dd>{networkNames || <Text>{en["m_98e856820171"]}</Text>}</dd></div>

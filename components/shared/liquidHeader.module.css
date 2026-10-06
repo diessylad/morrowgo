@@ -52,3 +52,13 @@
   .surface.surface[data-home=true] header>details>div { position:absolute; right:0; top:48px; width:230px; padding:12px; background:var(--header-paper); border:1px solid var(--color-border); border-radius:12px; display:grid; z-index:60; }
   .surface.surface[data-home=true] header>details a { padding:12px; font-size:15px; }
 }
+
+/* Mobile web header: in-flow, safe-area aware, no desktop glass. */
+@media(max-width:1023px){
+.slot{height:auto!important}.surface.surface,.surface.surface[data-floating=true]{position:relative!important;left:auto!important;top:auto!important;transform:none!important;width:100%!important;max-width:none!important;border-radius:0!important;padding-top:env(safe-area-inset-top);background:var(--color-page)!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.surface.surface>header,.surface.surface[data-floating=true]>header{height:68px!important;padding:0 max(20px,env(safe-area-inset-right)) 0 max(20px,env(safe-area-inset-left))!important;background:var(--color-page)!important;border:0!important;gap:12px!important}
+.surface header>nav,.surface header>a:not(:first-child),.surface header>button:not([aria-expanded]),.surface header>div{display:none!important}
+.surface header>button[aria-expanded]{display:flex!important}.surface header>a:first-child{font-size:17px;letter-spacing:1.5px;min-width:0}
+}
+
+@media(max-width:1023px){.surface.surface[data-home] header>button[aria-expanded]{display:flex!important;color:var(--color-ink);background:transparent;width:44px;height:44px;min-width:44px;padding:10px;border:0;border-radius:0}.surface.surface header>button[aria-expanded]{display:flex!important;color:var(--color-ink)}}

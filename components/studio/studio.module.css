@@ -443,3 +443,5 @@
 @media(max-width:1023px) {
   .hero .search,.hero .networkLabel,.hero .heroDescription { opacity:1!important; transform:none!important; }
 }
+
+@media(max-width:700px){.hero .search{min-height:56px}.hero .search button{min-height:44px;min-width:108px;padding-inline:12px}.hero .search input{font-size:16px}.heroScene{height:clamp(420px,110vw,500px)}.heroCopy h1{overflow-wrap:normal}.root input,.root select{font-size:16px}.root :is(.section,.faq,.footer){max-width:100%}}

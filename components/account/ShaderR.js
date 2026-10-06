@@ -92,6 +92,9 @@ export default function ShaderR() {
     }
 
     const node = root.current;
+    const mobile = window.matchMedia('(max-width:700px)');
+    if (mobile.matches) return;
+
     const scene = attachShaderR(node.querySelector('canvas'),{"viewportWidth":1920,"viewportHeight":1080,"fixedFrame":true,"white":"#ffffff","dark":"#101010","orange":"#67635f","scale":0.6,"distortion":0,"grain":0.55,"contrast":1.5,"speed":0.25,"animate":"on"}, message => {
       node.dataset.renderer = message ? 'unavailable' : 'ready';
     });

@@ -63,3 +63,5 @@
 .footer{border:0}
 @media(max-width:767px){.header{flex-wrap:wrap;justify-content:space-between;gap:8px 16px;padding-bottom:8px}.header .mobileBrand{display:inline-flex!important;font-size:16px;font-weight:600;letter-spacing:1.8px;gap:9px;margin-right:auto}.header>a:not(.mobileBrand){order:3;width:100%;font-size:12px;min-height:32px}.content{padding-top:32px}}
 @media(prefers-reduced-motion:reduce){.socialButton>svg:last-child{transition:none}}
+
+@media(max-width:767px){.shell,.page{min-height:100dvh}.page{padding:0 max(20px,env(safe-area-inset-left)) env(safe-area-inset-bottom) max(20px,env(safe-area-inset-right))}.header{min-height:68px}.content{padding:28px 0 32px;margin:0 auto}.card h2{font-size:38px}.description{margin-bottom:24px}.page input{font-size:16px}.socialButton,.submit{min-height:52px}.footer{margin-top:auto}}

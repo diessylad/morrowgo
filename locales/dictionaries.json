@@ -1845,7 +1845,13 @@
     "Show connected travel": "Verbunden reisen anzeigen",
     "Show the world is yours": "Die Welt gehört dir anzeigen",
     "Play hero slideshow": "Szenen abspielen",
-    "Pause hero slideshow": "Szenen pausieren"
+    "Pause hero slideshow": "Szenen pausieren",
+    "Open menu": "Menü öffnen",
+    "Close menu": "Menü schließen",
+    "Language": "Sprache",
+    "Usage will appear after activation.": "Der Datenverbrauch erscheint nach der Aktivierung.",
+    "No matching eSIMs.": "Keine passenden eSIMs.",
+    "Plan details": "Tarifdetails"
   },
   "es": {
     "Destinations": "Destinos",
@@ -2769,7 +2775,13 @@
     "Show connected travel": "Mostrar viajes conectados",
     "Show the world is yours": "Mostrar el mundo es tuyo",
     "Play hero slideshow": "Reproducir escenas",
-    "Pause hero slideshow": "Pausar escenas"
+    "Pause hero slideshow": "Pausar escenas",
+    "Open menu": "Abrir menú",
+    "Close menu": "Cerrar menú",
+    "Language": "Idioma",
+    "Usage will appear after activation.": "El consumo aparecerá después de la activación.",
+    "No matching eSIMs.": "No hay eSIMs coincidentes.",
+    "Plan details": "Detalles del plan"
   },
   "ru": {
     "Destinations": "Направления",
@@ -3693,7 +3705,13 @@
     "Show connected travel": "Показать связь в путешествии",
     "Show the world is yours": "Показать «Этот мир твой»",
     "Play hero slideshow": "Продолжить смену сцен",
-    "Pause hero slideshow": "Приостановить смену сцен"
+    "Pause hero slideshow": "Приостановить смену сцен",
+    "Open menu": "Открыть меню",
+    "Close menu": "Закрыть меню",
+    "Language": "Язык",
+    "Usage will appear after activation.": "Использование данных появится после активации.",
+    "No matching eSIMs.": "Подходящих eSIM нет.",
+    "Plan details": "Детали тарифа"
   },
   "fr": {
     "Destinations": "Destinations",
@@ -4617,6 +4635,12 @@
     "Show connected travel": "Afficher le voyage connecté",
     "Show the world is yours": "Afficher le monde est à vous",
     "Play hero slideshow": "Lire les scènes",
-    "Pause hero slideshow": "Mettre les scènes en pause"
+    "Pause hero slideshow": "Mettre les scènes en pause",
+    "Open menu": "Ouvrir le menu",
+    "Close menu": "Fermer le menu",
+    "Language": "Langue",
+    "Usage will appear after activation.": "La consommation apparaîtra après l’activation.",
+    "No matching eSIMs.": "Aucune eSIM correspondante.",
+    "Plan details": "Détails du forfait"
   }
 }

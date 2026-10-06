@@ -4,6 +4,8 @@ import CookieConsent from '../components/privacy/CookieConsent';
 import './globals.css';
 import '../components/design-system/tokens.css';
 
+export const viewport = {width:'device-width',initialScale:1,viewportFit:'cover'};
+
 export const metadata = {
   title: 'MORROWGO — Travel eSIM',
   description: 'Affordable travel eSIMs. Stay connected wherever you go.'

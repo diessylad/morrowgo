@@ -6,6 +6,8 @@ import { dashboardSummary, accountProfile, countryFlag, countryName, daysRemaini
 import { getUsageSummary, formatDataBytes } from '../../lib/esims/usage';
 import OrderList from './OrderList';
 import s from './dashboard.module.css';
+import MobileEsimRow from './MobileEsimRow';
+import mobile from './mobileEsim.module.css';
 const statusLabels = {active:'Active',ready:'Ready to install',expired:'Expired',depleted:'Used',pending:'Pending',processing:'Processing',suspended:'Suspended',cancelled:'Cancelled',failed:'Failed'};
 export function StatusPill({status,asOf,esim}) {
  const state=esim?esimStatus(esim,asOf):status;
@@ -13,12 +15,12 @@ export function StatusPill({status,asOf,esim}) {
 }
 export function EsimRows({esims,asOf}) {
  const {language,t}=useLanguage();
- return <div className={s.tableWrap}><table className={s.esimTable}><thead><tr>{['Destination','Plan','Data remaining','Days left','Status'].map(label=><th scope="col" key={label}><Text>{label}</Text></th>)}<th><span className={s.srOnly}><Text>View eSIM</Text></span></th></tr></thead><tbody>{esims.map(e=>{const usage=getUsageSummary(e),days=daysRemaining(e,asOf);return <tr key={e.id}>
+ return <><div className={mobile.list}>{esims.map(e=><MobileEsimRow key={e.id} esim={e} asOf={asOf}/>)}</div><div className={`${s.tableWrap} ${mobile.desktop}`}><table className={s.esimTable}><thead><tr>{['Destination','Plan','Data remaining','Days left','Status'].map(label=><th scope="col" key={label}><Text>{label}</Text></th>)}<th><span className={s.srOnly}><Text>View eSIM</Text></span></th></tr></thead><tbody>{esims.map(e=>{const usage=getUsageSummary(e),days=daysRemaining(e,asOf);return <tr key={e.id}>
  <td data-label={t('Destination')}><Link href={`/account/esims#esim-${e.id}`} className={s.country}><span className={s.flag} aria-hidden="true">{countryFlag(e.destinationIso)}</span><span>{countryName(e,language)}</span></Link></td>
  <td data-label={t('Plan')}><strong>{usage.initialLabel?<Text>{usage.initialLabel}</Text>:e.planName||'—'}</strong><small>{e.validityDays!=null?<Message message="{days} days" values={{days:e.validityDays}}/>:'—'}</small></td>
  <td data-label={t('Data remaining')}><strong>{usage.isUnlimited?<Text>Unlimited</Text>:usage.remainingLabel||'—'}</strong>{usage.remainingPercent!=null&&<div className={s.miniProgress} aria-label={t('Data remaining')}><span style={{width:`${usage.remainingPercent}%`}}/></div>}</td>
  <td data-label={t('Days left')}>{days!=null?<Message message="{days} days" values={{days}}/>:'—'}</td><td data-label={t('Status')}><StatusPill esim={e} asOf={asOf}/></td><td><Link className={s.rowAction} aria-label={`${t('View eSIM')} · ${countryName(e,language)}`} href={`/account/esims#esim-${e.id}`}><ChevronRight size={17}/></Link></td>
- </tr>;})}</tbody></table></div>;
+ </tr>;})}</tbody></table></div></>;
 }
 function SectionHeading({title,href}) {return <div className={s.sectionTitle}><h2><Text>{title}</Text></h2>{href&&<Link href={href}><Text>View all</Text><ChevronRight size={16}/></Link>}</div>;}
 function DataState({unavailable,kind}) {return <div className={s.dataState}><Smartphone size={26} strokeWidth={1.4}/><h3><Text>{unavailable?'Your data is temporarily unavailable.':kind==='orders'?'No orders yet.':kind==='inactive'?'No active eSIM':'No eSIMs yet.'}</Text></h3><p><Text>{unavailable?'Please try again later or contact support.':kind==='inactive'?'View your eSIMs for installation and status details.':'Your next connection starts here.'}</Text></p><Link className={s.cta} href={unavailable?'/help#contact':kind==='inactive'?'/account/esims':'/destinations'}><Text>{unavailable?'Contact support':kind==='inactive'?'My eSIMs':'Find your eSIM'}</Text><ChevronRight size={16}/></Link></div>;}
@@ -29,8 +31,9 @@ export function PaymentMethodsCard({full=false}) {
 function CurrentPlan({esim,asOf,unavailable,hasEsims}) {
  const {language,t}=useLanguage();
  const usage=getUsageSummary(esim),days=esim?daysRemaining(esim,asOf):null;
- return <section className={s.currentPlan}><img className={s.planArtwork} src="/images/current-plan-esim-cluster.png" alt="" aria-hidden="true" draggable={false}/><SectionHeading title="Current Plan"/>{esim?<div className={s.planVisual}>
+ return <section className={s.currentPlan} data-ready={esim?.status==='ready'}><img className={s.planArtwork} src="/images/current-plan-esim-cluster.png" alt="" aria-hidden="true" draggable={false}/><SectionHeading title="Current Plan"/>{esim?<div className={s.planVisual}>
   <div className={s.planTop}><span className={s.flag} aria-hidden="true">{countryFlag(esim.destinationIso)}</span><div><strong>{countryName(esim,language)}</strong><small>{usage.initialLabel||esim.planName||'—'}{esim.validityDays!=null&&<> · <Message message="{days} days" values={{days:esim.validityDays}}/></>}</small></div>{esim.supports5G===true&&<span className={s.networkBadge}>5G</span>}</div>
+  {esim.status==='ready'&&<div className={s.mobileReady}><StatusPill esim={esim} asOf={asOf}/><p><Text>Usage will appear after activation.</Text></p></div>}
   <div className={s.planBalance}><div className={s.ring} role={usage.remainingPercent!=null?'progressbar':undefined} aria-label={t('Data remaining')} aria-valuenow={usage.remainingPercent!=null?Math.round(usage.remainingPercent):undefined} aria-valuemin={0} aria-valuemax={100} style={{'--progress':`${usage.remainingPercent??0}%`}}><span><strong>{usage.remainingPercent!=null?`${Math.round(usage.remainingPercent)}%`:'—'}</strong><small><Text>remaining</Text></small></span></div><div><strong>{usage.isUnlimited?<Text>Unlimited</Text>:usage.remainingLabel||'—'}</strong><small>{usage.initialLabel?<Message message="of {data} remaining" values={{data:usage.initialLabel}}/>:<Text>Data remaining</Text>}</small><hr/><p>{days!=null?<Message message="{days} days left" values={{days}}/>:<Text>{esim.status==='ready'?'Not started':'Expiry not reported'}</Text>}</p></div></div>
   <div className={s.networkDetails}><div><Radio size={20}/><span><small><Text>Operator</Text></small><strong>{esim.networks?.join(' / ')||'—'}</strong></span></div><div><Signal size={20}/><span><small><Text>Network</Text></small><strong>{esim.supports5G===true?'5G':'—'}</strong></span></div></div>
   {esim.status==='ready' && <p className={s.installPrompt}><Text>{esim.sandbox?'View your test eSIM and installation details.':'Your next step: open the installation guide.'}</Text></p>}

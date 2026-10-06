@@ -5,3 +5,5 @@
 .button{composes:button from "../design-system/primitives.module.css";font-size:var(--text-button);font-weight:400;line-height:1.4;border-radius:var(--radius-pill)}
 
 .title{font-size:var(--heading-page);line-height:var(--leading-heading);letter-spacing:var(--tracking-heading)}.faqSection h2{font-size:var(--heading-panel)}.intro{line-height:var(--leading-body)}
+
+@media(max-width:767px){.page{min-height:100dvh}.wrap{padding:28px 20px max(40px,env(safe-area-inset-bottom));width:100%;box-sizing:border-box;min-width:0}.title{font-size:clamp(34px,9vw,44px);letter-spacing:-1.5px;overflow-wrap:anywhere}.intro{font-size:16px}.faq summary{min-height:44px;font-size:16px;line-height:1.45;padding:16px 0}.faq p{font-size:15px;overflow-wrap:anywhere}.contact{padding:20px;border-radius:22px}.page input,.page select{font-size:16px}.filters a{min-height:44px;display:inline-flex;align-items:center}}
